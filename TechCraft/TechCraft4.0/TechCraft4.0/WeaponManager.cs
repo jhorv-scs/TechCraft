@@ -234,7 +234,7 @@ namespace TechCraft
                 }
             }
 
-            debugBatch.Begin();
+          /*  debugBatch.Begin();
 
             debugBatch.DrawString(debugFont, string.Format("Scale {0}", weaponScale[(int)_activeWeapon]), new Vector2(10, 10), Color.White);
             debugBatch.DrawString(debugFont, string.Format("RotationX {0}", weaponRotationX[(int)_activeWeapon]), new Vector2(10, 40), Color.White);
@@ -244,7 +244,7 @@ namespace TechCraft
             debugBatch.DrawString(debugFont, string.Format("RotationY {0}", weaponRotationOffsetY[(int)_activeWeapon]), new Vector2(10, 160), Color.White);
             debugBatch.DrawString(debugFont, string.Format("RotationZ {0}", weaponRotationOffsetZ[(int)_activeWeapon]), new Vector2(10, 190), Color.White);
 
-            debugBatch.End();
+            debugBatch.End();*/
         }
     }
 }

@@ -40,12 +40,10 @@ namespace TechCraftEngine
             _graphics = new GraphicsDeviceManager(this);
             _graphics.IsFullScreen = false;
 
-            //_graphics.MinimumPixelShaderProfile = ShaderProfile.PS_3_0;
-            //_graphics.MinimumVertexShaderProfile = ShaderProfile.VS_3_0;
-            _graphics.PreferredBackBufferWidth = 800;
+           _graphics.PreferredBackBufferWidth = 800;
             _graphics.PreferredBackBufferHeight = 600;
-           // _graphics.PreferredBackBufferWidth = 160;
-            //_graphics.PreferredBackBufferHeight = 100;
+         //   _graphics.PreferredBackBufferWidth = 160;
+          // _graphics.PreferredBackBufferHeight = 100;
             _graphics.PreparingDeviceSettings += PrepareDeviceSettings;
             _graphics.SynchronizeWithVerticalRetrace = true;
             _graphics.PreferMultiSampling = false;

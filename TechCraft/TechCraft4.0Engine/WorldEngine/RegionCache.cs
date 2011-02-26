@@ -1,7 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+using System.Linq;
+using System.Text;
+using System.Diagnostics;
 using System.Threading;
+
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Storage;
 
 namespace TechCraftEngine.WorldEngine
 {
@@ -13,48 +18,38 @@ namespace TechCraftEngine.WorldEngine
         private bool[] _availability;
         private Queue<Region> _available;
         private World _world;
-        private TechCraftGame _game;
-
-        private Queue<Vector3> _toLoad;
+     
+        private Queue<Vector3i> _toLoad;
         private Thread _loadingThread;
 
         private Queue<Region> _toBuild;
         private Thread _buildingThread;
-       // private ThreadManager _threadManager;
+        //private ThreadManager _threadManager;
 
         private bool _running = true;
         private Vector3 _playerPosition;
 
-        public RegionCache(TechCraftGame game)
-        {
-            _game = game;
-        }
 
-        public Game Game
-        {
-            get { return _game; }
-        }
-
-        public void Initialize(World world)
+        public RegionCache(World world)
         {
             _world = world;
             _regions = new Region[CACHE_SIZE];
             _availability = new bool[CACHE_SIZE];
             _available = new Queue<Region>(CACHE_SIZE);
 
-            _toLoad = new Queue<Vector3>();
+            _toLoad = new Queue<Vector3i>();
             _toBuild = new Queue<Region>();
 
             Clear();
 
-           // _threadManager = (ThreadManager)Game.Services.GetService(typeof(ThreadManager));
+            //_threadManager = (ThreadManager)Game.Services.GetService(typeof(ThreadManager));
 
             _loadingThread = new Thread(new ThreadStart(LoadingThread));
-           // _threadManager.Add(_loadingThread);
+            //_threadManager.Add(_loadingThread);
             _loadingThread.Start();
 
             _buildingThread = new Thread(new ThreadStart(BuildingThread));
-         //   _threadManager.Add(_buildingThread);
+            //_threadManager.Add(_buildingThread);
             _buildingThread.Start();
         }
 
@@ -69,27 +64,26 @@ namespace TechCraftEngine.WorldEngine
             for (int i = 0; i < CACHE_SIZE; i++)
             {
                 _availability[i] = true;
-                _regions[i] = new Region(Game);
-                //_regions[i].Initialize(_world, _world.RegionSize);
-                _regions[i].InitRegion();
+                _regions[i] = new Region(_world,i);
+                
                 _available.Enqueue(_regions[i]);
-                _regions[i].NodeIndex = i;
+              
             }
         }
 
-        public void Flush(Vector3 position, float radius)
+        public void Flush(Vector3 playerPosition,float radius)
         {
             for (int i = 0; i < CACHE_SIZE; i++)
             {
                 if (!_availability[i])
                 {
 
-                    float distance = (_regions[i].Center - position).Length();
-                    if (distance < 0) distance = 0 - distance;
+                    float distance = (_regions[i].Center - playerPosition).Length();                    
+                    if (distance < 0) distance = 0-distance;
                     if (distance > radius)
                     {
                         //Debug.WriteLine(string.Format("Flushing {0} : {1},{2},{3}", _regions[i].GetFilename(), _regions[i].Center, position, distance)); 
-                        _regions[i].Flush(true);
+                        _regions[i].RegionManager.Flush(true);
                         _availability[i] = true;
                         _available.Enqueue(_regions[i]);
                     }
@@ -103,16 +97,16 @@ namespace TechCraftEngine.WorldEngine
             {
                 if (!_availability[i])
                 {
-                    _regions[i].Flush(false);
+                    _regions[i].RegionManager.Flush(false);
                 }
             }
         }
 
-        public Region FindRegion(Vector3 regionPosition)
+        public Region FindRegion(Vector3i regionPosition)
         {
             for (int i = 0; i < CACHE_SIZE; i++)
             {
-                if (!_availability[i] && _regions[i].RegionPosition == regionPosition)
+                if (!_availability[i] && _regions[i].Position == regionPosition)
                 {
                     return _regions[i];
                 }
@@ -120,17 +114,7 @@ namespace TechCraftEngine.WorldEngine
             return null;
         }
 
-        public void UpdateDirtySceneObjects()
-        {
-            for (int i = 0; i < CACHE_SIZE; i++)
-            {
-                if (!_availability[i] && _regions[i].Dirty)
-                {
-                    _regions[i].UpdateSceneObject();
-                }
-            }
-        }
-
+       
         public void SubmitModifiedRegionsForBuild()
         {
             for (int i = 0; i < CACHE_SIZE; i++)
@@ -145,21 +129,21 @@ namespace TechCraftEngine.WorldEngine
 
         public void QueueBuild(Region region)
         {
-            //Debug.WriteLine(string.Format("Queue Build {0}-{1}-{2}", (int) region.RegionPosition.X, (int) region.RegionPosition.Y, (int) region.RegionPosition.Z));
+            Debug.WriteLine(string.Format("Queue Build {0}-{1}-{2}", (int) region.Position.x, (int) region.Position.y, (int) region.Position.z));
             lock (_toBuild)
             {
                 _toBuild.Enqueue(region);
             }
         }
 
-        public void QueueLoad(Vector3 position)
+        public void QueueLoad(Vector3i position)
         {
-            //Debug.WriteLine(string.Format("Queue Load {0}-{1}-{2}", (int) position.X, (int) position.Y, (int) position.Z));
+            Debug.WriteLine(string.Format("Queue Load {0}-{1}-{2}", (int) position.x, (int) position.y, (int) position.z));
             lock (_toLoad)
             {
-                foreach (Vector3 check in _toLoad)
+                foreach (Vector3i check in _toLoad)
                 {
-                    if (position == check)
+                    if (position==check) 
                     {
                         //Debug.WriteLine("Already queued");
                         return;
@@ -170,10 +154,10 @@ namespace TechCraftEngine.WorldEngine
             }
         }
 
-        public bool IsLoaded(Vector3 position)
+        public bool IsLoaded(Vector3i position)
         {
             if (FindRegion(position) == null) return false;
-            //Debug.WriteLine("Already loaded");
+            Debug.WriteLine("Already loaded");
             return true;
         }
 
@@ -204,7 +188,7 @@ namespace TechCraftEngine.WorldEngine
 
         public void DoBuild(Region region)
         {
-            region.Build();
+            region.BuildVertexBuffers();
         }
 
         public void LoadingThread()
@@ -214,7 +198,7 @@ namespace TechCraftEngine.WorldEngine
 #endif
             while (_running)
             {
-                Vector3 loadPosition = Vector3.Zero;
+                Vector3i loadPosition = new Vector3i(0, 0, 0);
                 bool doLoad = false;
                 lock (_toLoad)
                 {
@@ -232,7 +216,7 @@ namespace TechCraftEngine.WorldEngine
             }
         }
 
-        public void DoLoad(Vector3 regionPosition)
+        public void DoLoad(Vector3i regionPosition)
         {
             if (FindRegion(regionPosition) == null)
             {
@@ -240,7 +224,7 @@ namespace TechCraftEngine.WorldEngine
             }
         }
 
-        private Region LoadRegion(Vector3 position)
+        private Region LoadRegion(Vector3i position)
         {
             Flush(_playerPosition, 250);
             if (_available.Count > 0)
@@ -248,7 +232,7 @@ namespace TechCraftEngine.WorldEngine
                 Region region = _available.Dequeue();
                 _availability[region.NodeIndex] = false;
 
-                region.Load(position);
+                region.RegionManager.Load(position);
 
                 return region;
             }
@@ -258,12 +242,12 @@ namespace TechCraftEngine.WorldEngine
             }
         }
 
-        public Region GetRegion(Vector3 position)
+        public Region GetRegion(Vector3i position)
         {
             Region region = FindRegion(position);
             if (region != null)
             {
-                //Debug.WriteLine(string.Format("Found : {0},{0},{0}", position.x, position.y, position.z));
+                Debug.WriteLine(string.Format("Found : {0},{0},{0}", position.x, position.y, position.z));
                 return region;
             }
             else
@@ -274,5 +258,4 @@ namespace TechCraftEngine.WorldEngine
             }
         }
     }
-    
 }

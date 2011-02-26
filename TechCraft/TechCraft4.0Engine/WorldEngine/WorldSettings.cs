@@ -23,12 +23,12 @@ namespace TechCraftEngine.WorldEngine
 
         public const int SEED = 56;
         
-        public const int MAPWIDTH = 256;
-        public const int MAPHEIGHT = 256;
-        public const int MAPLENGTH = 256;
+        public const int MAPWIDTH = 16*5;
+        public const int MAPHEIGHT = 128;
+        public const int MAPLENGTH = 16*5;
 
         public const int REGIONWIDTH = 16;
-        public const int REGIONHEIGHT = 64;
+        public const int REGIONHEIGHT = 128;
         public const int REGIONLENGTH = 16;
 
         public const int SNOWLINE = 110;
@@ -57,6 +57,8 @@ namespace TechCraftEngine.WorldEngine
         private Texture2D _textureSet;
         private VertexDeclaration _vertexDeclaration;
         private TechCraftGame _game;
+
+        public const String LEVELFOLDER = "c:\\";
 
         public WorldSettings(TechCraftGame game, Texture2D textureSet)
         {

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TechCraftEngine.WorldEngine
 {
-    public enum BlockType
+    public enum BlockType : byte
     {
         None,
         Brick,

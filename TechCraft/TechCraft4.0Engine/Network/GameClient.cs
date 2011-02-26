@@ -91,7 +91,7 @@ namespace TechCraftEngine.Network
 
         public void LoadMap()
         {
-            _statusText = "LOADING";
+           /* _statusText = "LOADING";
             LandscapeMapGenerator mapGenerator = new LandscapeMapGenerator();
             //DualLayerTerrainWithMediumValleys mapGenerator = new DualLayerTerrainWithMediumValleys(); 
             _statusText = "GENERATING MAP";
@@ -111,10 +111,19 @@ namespace TechCraftEngine.Network
                     }
                 }
             }
+            */
+            _statusText = "BUILDING WORLD";
+            //IRegionBuilder builder = new SimpleTerrain();
+            IRegionBuilder builder = new TerrainWithCaves();
+            //IRegionBuilder builder = new FlatReferenceTerrain();
+            
+            _world.BuildRegions(builder);
+
             _statusText = "INITIALIZING LIGHTING";
             _world.Lighting.Initialize();
-            _statusText = "BUILDING REGIONS";
-            _world.BuildRegions();
+
+            //_statusText = "BUILDING REGIONS";
+            //_world.BuildRegions();
             _statusText = "LOADED";
             _gameState = GameState.Loaded;
         }

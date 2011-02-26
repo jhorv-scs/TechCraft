@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
 
 namespace TechCraftEngine.WorldEngine
 {
+
     public struct Vector3i
     {
         public Vector3i(int x, int y, int z)
@@ -16,6 +18,9 @@ namespace TechCraftEngine.WorldEngine
         public int x;
         public int y;
         public int z;
+
+
+
         public override bool Equals(object obj)
         {
             if (obj is Vector3i)
@@ -44,5 +49,11 @@ namespace TechCraftEngine.WorldEngine
             }
             return hash;
         }
+
+        public override string ToString()
+        {
+            return ("vector3i (" + x + "," + y + "," + z + ")");
+        }
+
     }
 }

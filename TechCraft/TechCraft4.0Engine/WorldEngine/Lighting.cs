@@ -38,6 +38,7 @@ namespace TechCraftEngine.WorldEngine
 
         public Lighting(TechCraftGame game, World world)
         {
+            _lighting = new byte[WorldSettings.MAPWIDTH, WorldSettings.MAPHEIGHT, WorldSettings.MAPLENGTH];
             _game = game;
             _world = world;
         }
@@ -52,7 +53,7 @@ namespace TechCraftEngine.WorldEngine
             toLight.Clear();
             toDark.Clear();
             toSun.Clear();
-            _lighting = new byte[WorldSettings.MAPWIDTH, WorldSettings.MAPHEIGHT, WorldSettings.MAPLENGTH];
+            //XXX moved _lighting instanciation to constructor
             _lightHeight = new int[WorldSettings.MAPWIDTH, WorldSettings.MAPLENGTH];
             LightRegion(0, WorldSettings.MAPWIDTH, 0, WorldSettings.MAPLENGTH);
             FillLighting();

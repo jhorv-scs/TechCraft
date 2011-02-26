@@ -85,6 +85,21 @@ namespace TechCraftEngine.WorldEngine
             }
         }
 
+        public void BuildRegions(IRegionBuilder builder)
+        {
+             for (int x = 0; x < REGIONRATIOWIDTH; x++)
+            {
+                for (int y = 0; y < REGIONRATIOHEIGHT; y++)
+                {
+                    for (int z = 0; z < REGIONRATIOLENGTH; z++)
+                    {
+                        builder.build(_regions[x, y, z]);
+                        _regions[x, y, z].Build();
+                    }
+                }
+            }
+        }
+
         public void BuildRegions()
         {
             for (int x = 0; x < REGIONRATIOWIDTH; x++)
