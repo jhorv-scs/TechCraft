@@ -46,7 +46,7 @@ namespace TechCraft.States
 
         public override void LoadContent()
         {
-            _spriteFont = Game.Content.Load<SpriteFont>("Fonts\\debug");
+            _spriteFont = Game.Content.Load<SpriteFont>("Fonts\\console");
 
             _progressText = "LOADING";
             Vector2 textSize = _spriteFont.MeasureString(_progressText);

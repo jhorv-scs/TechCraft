@@ -79,7 +79,7 @@ namespace TechCraft
             _weaponTexture = _game.Content.Load<Texture2D>("Models\\Weapons\\bazooka_auv");
             RemapModel(_bazookaModel, _weaponEffect);
             _projectileManager.LoadContent();
-            debugFont = _game.Content.Load<SpriteFont>("Fonts\\debug");
+            debugFont = _game.Content.Load<SpriteFont>("Fonts\\console");
             _weaponSounds = new SoundEffect[1];
             _weaponSounds[0] = _game.Content.Load<SoundEffect>("Sounds\\bazooka");
         }

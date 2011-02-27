@@ -40,7 +40,7 @@ namespace TechCraft
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            spriteFont = content.Load<SpriteFont>("Fonts/debug");
+            spriteFont = content.Load<SpriteFont>("Fonts/console");
         }
 
         /// <summary>

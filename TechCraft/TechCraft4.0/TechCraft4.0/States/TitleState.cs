@@ -44,7 +44,7 @@ namespace TechCraft.States
 
         public override void LoadContent()
         {
-            _spriteFont = Game.Content.Load<SpriteFont>("Fonts\\debug");
+            _spriteFont = Game.Content.Load<SpriteFont>("Fonts\\console");
             Vector2 textSize = _spriteFont.MeasureString(STARTTEXT);
             _startTextPosition = new Vector2((Game.GraphicsDevice.Viewport.Width / 2.0f) - (textSize.X / 2), 20);
         }

@@ -72,7 +72,7 @@ namespace TechCraft.States
             _particleManager.ParticleSystems.Add(pickupParticles);
 
 
-            _spriteFont = Game.Content.Load<SpriteFont>("Fonts\\debug");
+            _spriteFont = Game.Content.Load<SpriteFont>("Fonts\\console");
 
             _particleManager.ParticleEmitters.Add(new ParticleEmitter(_particleManager.ParticleSystems[0], 50, new Vector3(5,3,5)));
             _particleManager.ParticleEmitters.Add(new ParticleEmitter(_particleManager.ParticleSystems[0], 50, new Vector3(15,3, 15)));

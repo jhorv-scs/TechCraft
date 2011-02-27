@@ -1,5 +1,4 @@
 Content\Effects\WeaponEffect.xnb
-Content\Fonts\debug.xnb
 Content\Models\Weapons\bazooka.xnb
 Content\Models\Weapons\Bazooka_auv.xnb
 Content\Textures\blocks.xnb
@@ -21,6 +20,7 @@ Content\Sounds\explosion-02.xnb
 Content\Sounds\explosion-03.xnb
 Content\Sounds\explosion-04.xnb
 Content\Sounds\splash.xnb
+Content\Fonts\console.xnb
 Content\Models\Weapons\Bazooka_auv_0.xnb
 Content\Effects\ParticleEffect.xnb
 Content\Effects\SolidBlockEffect.xnb
