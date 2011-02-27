@@ -21,7 +21,7 @@ using TechCraftEngine.Particles;
 using TechCraft.ParticleSystems;
 
 namespace TechCraft
-    {
+{
     public class Player
     {
         private TechCraftGame _game;
@@ -38,6 +38,7 @@ namespace TechCraft
         private SoundEffect _splashSound;
         private bool _wasUnderwater;
         private bool _isAboveSnowline;
+        private MouseState _previousMouseState;
 
         public Player(TechCraftGame game, PlayingState state, World world, Vector3 startPosition)
         {
@@ -132,6 +133,7 @@ namespace TechCraft
 
         public void Update(GameTime gameTime)
         {
+
             _rotationMatrix = Matrix.CreateRotationX(Camera.UpDownRotation) * Matrix.CreateRotationY(Camera.LeftRightRotation);
             _lookVector = Vector3.Transform(Vector3.Forward, _rotationMatrix);
             _lookVector.Normalize();
@@ -148,25 +150,31 @@ namespace TechCraft
                 //XXX fly mode
                 //if (_world.SolidAtPoint(footPosition) &&  _playerVelocity.Y == 0)
                 //{
-                    _playerVelocity.Y = WorldSettings.PLAYERJUMPVELOCITY;
-                    float amountBelowSurface = ((ushort)footPosition.Y) + 1 - footPosition.Y;
-                    _position.Y += amountBelowSurface + 0.01f;
+                _playerVelocity.Y = WorldSettings.PLAYERJUMPVELOCITY;
+                float amountBelowSurface = ((ushort)footPosition.Y) + 1 - footPosition.Y;
+                _position.Y += amountBelowSurface + 0.01f;
                 //}
             }
             UpdatePosition(gameTime);
 
-            float headbobOffset = (float) Math.Sin(_headBob) * 0.06f;            
+            float headbobOffset = (float)Math.Sin(_headBob) * 0.06f;
             Camera.Position = _position + new Vector3(0, 0.15f + headbobOffset, 0);
 
             CheckBuild(gameTime);
+
+            _previousMouseState = Mouse.GetState();
         }
 
         public void CheckBuild(GameTime gameTime)
         {
-            PlayerIndex controlIndex;      
+            PlayerIndex controlIndex;
+
+            MouseState mouseState = Mouse.GetState();
+
 
             if (_game.InputState.IsButtonPressed(Buttons.RightTrigger, _game.ActivePlayerIndex, out controlIndex) ||
-                _game.InputState.IsKeyPressed(Keys.Q, _game.ActivePlayerIndex, out controlIndex))
+                _game.InputState.IsKeyPressed(Keys.Q, _game.ActivePlayerIndex, out controlIndex)
+                || (mouseState.LeftButton == ButtonState.Pressed && _previousMouseState.LeftButton != ButtonState.Pressed))
             {
                 for (float x = 0.5f; x < 5f; x += 0.2f)
                 {
@@ -178,8 +186,9 @@ namespace TechCraft
                         {
                             // Can't dig water or lava
                             BlockType targetType = _world.BlockAtPoint(targetPoint);
-                            if (BlockInformation.IsDiggable(targetType)) {
-                            _world.RemoveBlock((ushort)targetPoint.X, (ushort)targetPoint.Y, (ushort)targetPoint.Z);
+                            if (BlockInformation.IsDiggable(targetType))
+                            {
+                                _world.RemoveBlock((ushort)targetPoint.X, (ushort)targetPoint.Y, (ushort)targetPoint.Z);
                             }
                         }
                         break;
@@ -200,7 +209,7 @@ namespace TechCraft
                             {
                                 for (ushort dz = (ushort)(targetPoint.Z - 3); dz < (ushort)(targetPoint.Z + 3); dz++)
                                 {
-                                    if (r.Next(3)==0) _world.RemoveBlock(dx, dy, dz);
+                                    if (r.Next(3) == 0) _world.RemoveBlock(dx, dy, dz);
                                 }
                             }
                         }
@@ -209,7 +218,9 @@ namespace TechCraft
                 }
             }
             if (_game.InputState.IsButtonPressed(Buttons.LeftTrigger, _game.ActivePlayerIndex, out controlIndex) ||
-                _game.InputState.IsKeyPressed(Keys.E, _game.ActivePlayerIndex, out controlIndex))
+                _game.InputState.IsKeyPressed(Keys.E, _game.ActivePlayerIndex, out controlIndex)
+                || (mouseState.RightButton == ButtonState.Pressed
+                && _previousMouseState.RightButton != ButtonState.Pressed))
             {
                 float hit = 0;
                 for (float x = 0.8f; x < 5f; x += 0.1f)
@@ -219,16 +230,16 @@ namespace TechCraft
                     {
                         hit = x;
                         break;
-                    }                    
+                    }
                 }
                 if (hit != 0)
                 {
-                    for (float x = hit; x >0.7f; x -= 0.1f)
+                    for (float x = hit; x > 0.7f; x -= 0.1f)
                     {
                         Vector3 targetPoint = Camera.Position + (_lookVector * x);
                         if (_world.BlockAtPoint(targetPoint) == BlockType.None)
                         {
-                            _world.AddBlock((ushort) targetPoint.X, (ushort) targetPoint.Y, (ushort)targetPoint.Z, _state.BlockPicker.SelectedBlockType,true,true);
+                            _world.AddBlock((ushort)targetPoint.X, (ushort)targetPoint.Y, (ushort)targetPoint.Z, _state.BlockPicker.SelectedBlockType, true, true);
                             break;
                         }
                     }
@@ -255,7 +266,7 @@ namespace TechCraft
                 BlockType standingOnBlock = _world.BlockAtPoint(footPosition);
                 BlockType hittingHeadOnBlock = _world.BlockAtPoint(headPosition);
 
-               // If we"re hitting the ground with a high velocity, die!
+                // If we"re hitting the ground with a high velocity, die!
                 //if (standingOnBlock != BlockType.None && _P.playerVelocity.Y < 0)
                 //{
                 //    float fallDamage = Math.Abs(_P.playerVelocity.Y) / DIEVELOCITY;
@@ -296,32 +307,32 @@ namespace TechCraft
                 _playerVelocity.Y = 0;
 
                 // Logic for standing on a block.
-               // switch (standingOnBlock)
-              //  {
-                    //case BlockType.Jump:
-                    //    _P.playerVelocity.Y = 2.5f * JUMPVELOCITY;
-                    //    _P.PlaySoundForEveryone(InfiniminerSound.Jumpblock, _P.playerPosition);
-                    //    break;
+                // switch (standingOnBlock)
+                //  {
+                //case BlockType.Jump:
+                //    _P.playerVelocity.Y = 2.5f * JUMPVELOCITY;
+                //    _P.PlaySoundForEveryone(InfiniminerSound.Jumpblock, _P.playerPosition);
+                //    break;
 
-                    //case BlockType.Road:
-                    //    movingOnRoad = true;
-                    //    break;
+                //case BlockType.Road:
+                //    movingOnRoad = true;
+                //    break;
 
-                    //case BlockType.Lava:
-                    //    _P.KillPlayer(Defines.deathByLava);
-                    //    return;
-              //  }
+                //case BlockType.Lava:
+                //    _P.KillPlayer(Defines.deathByLava);
+                //    return;
+                //  }
 
                 // Logic for bumping your head on a block.
-               // switch (hittingHeadOnBlock)
-               // {
-                    //case BlockType.Shock:
-                    //    _P.KillPlayer(Defines.deathByElec);
-                    //    return;
+                // switch (hittingHeadOnBlock)
+                // {
+                //case BlockType.Shock:
+                //    _P.KillPlayer(Defines.deathByElec);
+                //    return;
 
-                    //case BlockType.Lava:
-                    //    _P.KillPlayer(Defines.deathByLava);
-                    //    return;
+                //case BlockType.Lava:
+                //    _P.KillPlayer(Defines.deathByLava);
+                //    return;
                 //}
             }
 
@@ -360,7 +371,7 @@ namespace TechCraft
             //moveVector.Normalize();
             moveVector *= WorldSettings.PLAYERMOVESPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            Vector3 rotatedMoveVector = Vector3.Transform(moveVector , Matrix.CreateRotationY(Camera.LeftRightRotation));
+            Vector3 rotatedMoveVector = Vector3.Transform(moveVector, Matrix.CreateRotationY(Camera.LeftRightRotation));
 
             // Attempt to move, doing collision stuff.
             if (TryToMoveTo(rotatedMoveVector, gameTime)) { }
