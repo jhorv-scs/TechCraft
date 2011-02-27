@@ -11,7 +11,6 @@ namespace TechCraftEngine.WorldEngine.Generators
 
         protected override void generateTerrain(Region chunk, int x, int z, int blockX, int blockZ, int worldDepthInBlocks)
         {
-            Debug.WriteLine("coucou");
             int groundHeight = (int)GetBlockNoise(blockX, blockZ);
             if (groundHeight < 1)
             {

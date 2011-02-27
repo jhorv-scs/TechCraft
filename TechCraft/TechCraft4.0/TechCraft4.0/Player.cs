@@ -171,7 +171,6 @@ namespace TechCraft
 
             MouseState mouseState = Mouse.GetState();
 
-
             if (_game.InputState.IsButtonPressed(Buttons.RightTrigger, _game.ActivePlayerIndex, out controlIndex) ||
                 _game.InputState.IsKeyPressed(Keys.Q, _game.ActivePlayerIndex, out controlIndex)
                 || (mouseState.LeftButton == ButtonState.Pressed && _previousMouseState.LeftButton != ButtonState.Pressed))
