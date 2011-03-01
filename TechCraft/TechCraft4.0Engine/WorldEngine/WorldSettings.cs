@@ -23,9 +23,12 @@ namespace TechCraftEngine.WorldEngine
 
         public const int SEED = 56;
         
-        public const int MAPWIDTH = 16*5;
+        public const int MAPWIDTH = 16*13;
         public const int MAPHEIGHT = 128;
-        public const int MAPLENGTH = 16*5;
+        public const int MAPLENGTH = 16*13;
+        public const int FOGNEAR = 90 * 4;
+        public const int FOGFAR = 140 * 4;
+        public const int FARPLANE = 140 * 4;
 
         public const int REGIONWIDTH = 16;
         public const int REGIONHEIGHT = 128;
@@ -33,9 +36,7 @@ namespace TechCraftEngine.WorldEngine
 
         public const int SNOWLINE = 110;
         public const int SEALEVEL = 50;
-        public const int FOGNEAR = 90;
-        public const int FOGFAR = 140;
-        public const int FARPLANE = 140;
+     
         public const byte MAXLIGHT = 10;
         public const byte MINLIGHT = 1;
         public const float SIDESHADOWS = 0.2f;

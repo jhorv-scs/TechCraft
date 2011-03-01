@@ -34,18 +34,26 @@ namespace TechCraftEngine
 
         private List<Thread> _threads;
 
+        public bool ShowDebugInfo { get; set; }
+
         public TechCraftGame()
             : base()
         {
+            ShowDebugInfo = false;
+
             _graphics = new GraphicsDeviceManager(this);
             _graphics.IsFullScreen = false;
 
-           _graphics.PreferredBackBufferWidth = 800;
+            _graphics.PreferredBackBufferWidth = 800;
             _graphics.PreferredBackBufferHeight = 600;
-         //   _graphics.PreferredBackBufferWidth = 160;
-          // _graphics.PreferredBackBufferHeight = 100;
+            //   _graphics.PreferredBackBufferWidth = 160;
+            // _graphics.PreferredBackBufferHeight = 100;
             _graphics.PreparingDeviceSettings += PrepareDeviceSettings;
+
+            //those two will be changed when pressing F3 for debug / profiling
             _graphics.SynchronizeWithVerticalRetrace = true;
+            IsFixedTimeStep = true;
+
             _graphics.PreferMultiSampling = false;
 
             _gamerServices = new GamerServicesComponent(this);
@@ -118,11 +126,17 @@ namespace TechCraftEngine
         {
             _stateManager.LoadContent();
             base.LoadContent();
+            //Initialize and add the profiler to the component list.
+            Profiler.profiler = new Profiler(this);
+            Components.Add(Profiler.profiler);
         }
 
-        
+
         protected override void Update(GameTime gameTime)
         {
+
+            Profiler.profiler.Start("Update");
+
             PlayerIndex controlIndex;
             if (_inputState.IsKeyPressed(Keys.Escape, null, out controlIndex) ||
                 _inputState.IsButtonPressed(Buttons.Back, null, out controlIndex))
@@ -133,16 +147,35 @@ namespace TechCraftEngine
                 }
                 Exit();
             }
+
+            if (_inputState.IsKeyPressed(Keys.F3, null, out controlIndex))
+            {
+                ShowDebugInfo = !ShowDebugInfo;
+            }
+
+            if (ShowDebugInfo && _graphics.SynchronizeWithVerticalRetrace)
+            {
+                // we do not want to applychanges each Update, so we check current SynchronizeWithVerticalRetrace value
+                _graphics.SynchronizeWithVerticalRetrace = false;
+                IsFixedTimeStep = false;
+                _graphics.ApplyChanges();
+            }
+
+
             _inputState.Update(gameTime);
             _stateManager.ProcessInput(gameTime);
             _stateManager.Update(gameTime);
             base.Update(gameTime);
+
+            Profiler.profiler.Stop("Update");
         }
 
         protected override void Draw(GameTime gameTime)
         {
+            Profiler.profiler.Start("Draw");
             _stateManager.Draw(gameTime);
             base.Draw(gameTime);
+            Profiler.profiler.Stop("Draw");
         }
     }
 }

@@ -16,14 +16,14 @@ using Microsoft.Xna.Framework.Storage;
 using TechCraftEngine;
 using TechCraftEngine.Common;
 using TechCraft.States;
-//using fbDeprofiler;
+using fbDeprofiler;
 
 namespace TechCraft
 {
     public class Game : TechCraftGame
     {
         public Game() {
-            //DeProfiler.Run(); 
+            DeProfiler.Run(); 
             FrameRateCounter frameRate = new FrameRateCounter(this);
             frameRate.DrawOrder = 1;
             Components.Add(frameRate);
