@@ -2,6 +2,7 @@ Content\Effects\ParticleEffect.xnb
 Content\Effects\SolidBlockEffect.xnb
 Content\Effects\WaterBlockEffect.xnb
 Content\Effects\CubeEffect.xnb
+Content\Effects\SkyDome.xnb
 Content\Effects\blocks.xnb
 Content\Textures\tileSelector.xnb
 Content\Textures\tileStrip.xnb
@@ -9,7 +10,10 @@ Content\Effects\smoke.xnb
 Content\Effects\fire.xnb
 Content\Effects\explosion.xnb
 Content\Effects\checker.xnb
+Content\Textures\blank.xnb
+Content\Models\skydometex.xnb
 Content\Effects\grid.xnb
+Content\Models\dome.xnb
 Content\Effects\font.xnb
 Content\Effects\checker_0.xnb
-Content\Textures\blank.xnb
+Content\Models\skydometex_0.xnb
