@@ -19,8 +19,9 @@ namespace NewTake.model
         public const byte VIEW_CHUNKS_Z = 3;
         public static int SEED = 12345;
 
-        public IChunkBuilder builder = new SimpleTerrain();
-       // public IChunkBuilder builder = new FlatReferenceTerrain();
+        //public IChunkBuilder builder = new SimpleTerrain();
+        //public IChunkBuilder builder = new FlatReferenceTerrain();
+        public IChunkBuilder builder = new DualLayerTerrainWithMediumValleysForRivers();
 
         public static uint origin = 1000; 
         //TODO UInt32, with uint16 65*65 km of 1m blocks is a bit small 
