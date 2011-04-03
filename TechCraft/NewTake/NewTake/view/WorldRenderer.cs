@@ -57,7 +57,6 @@ namespace NewTake.view
                 FillMode = FillMode.WireFrame
             };*/
 
-
             _solidBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _solidBlockEffect.Parameters["View"].SetValue(camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(camera.Projection);

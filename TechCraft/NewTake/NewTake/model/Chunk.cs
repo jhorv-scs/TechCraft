@@ -21,11 +21,13 @@ namespace NewTake.model
         public readonly Vector3i Index;
 
         public bool dirty;
+        public bool visible;
 
         public Chunk(Vector3i index)
         {
             dirty = true;
             Index = index;
+            visible = true;
 
             Position = new Vector3i(index.X * CHUNK_XMAX, index.Y * CHUNK_YMAX, index.Z * CHUNK_ZMAX);
             Blocks = new Block[CHUNK_XMAX, CHUNK_YMAX, CHUNK_ZMAX]; //TODO test 3d sparse impl performance and memory

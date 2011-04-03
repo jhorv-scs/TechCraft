@@ -67,6 +67,18 @@ namespace NewTake.view
                 BuildVertexList();
             }
 
+            if (!chunk.visible)
+            {
+                _vertexList.Clear();
+                vertexBuffer.Dispose();
+                chunk.dirty = false;
+            }
+
+            if (vertexBuffer.IsDisposed)
+            {
+                return;
+            }
+
             if (vertexBuffer.VertexCount > 0)
             {
                 graphicsDevice.SetVertexBuffer(vertexBuffer);

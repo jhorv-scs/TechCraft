@@ -254,24 +254,40 @@ namespace NewTake
 
             Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
 
-            for (uint j = cx - World.VIEW_CHUNKS_X; j < cx + World.VIEW_CHUNKS_X; j++)
+            for (uint j = cx - World.VIEW_CHUNKS_X - 3; j < cx + World.VIEW_CHUNKS_X + 3; j++)
             {
-                for (uint l = cz - World.VIEW_CHUNKS_Z; l < cz + World.VIEW_CHUNKS_Z; l++)
+                for (uint l = cz - World.VIEW_CHUNKS_Z - 3; l < cz + World.VIEW_CHUNKS_Z + 3; l++)
                 {
-                    //Debug.WriteLine("j,l: {0},{1}",j,l);
-                    if (world.viewableChunks[j, l] == null)
-                    {
-                        //Debug.WriteLine("Chunk missing at: {0},{1} - Current Chunk: {2},{3}", j, l, cx, cz);
-                        Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));
-                        Chunk toAdd = new Chunk(newIndex);
+                    int distancecx = (int)(cx - j);
+                    int distancecz = (int)(cz - l);
 
-                        world.viewableChunks[newIndex.X, newIndex.Z] = toAdd;
-                        world.builder.build(toAdd);
-                        renderer.initRendererAction(newIndex);
+                    if (distancecx < 0) distancecx = 0 - distancecx;
+                    if (distancecz < 0) distancecz = 0 - distancecz;
+
+                    if ((distancecx > 3) || (distancecz > 3))
+                    {
+                        if ((world.viewableChunks[j, l] != null))
+                        {
+                            // assign the chunk to invisible, and set the index in the sparse matrix to null.
+                            // the vertexbuffer is disposed finally, in the draw method of the chunk renderer
+                            Chunk chunk = world.viewableChunks[j, l];
+                            chunk.visible = false;
+                            world.viewableChunks[j, l] = null;
+                        }
+                    }
+                    else
+                    {
+                        if (world.viewableChunks[j, l] == null)
+                        {
+                            Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));
+                            Chunk toAdd = new Chunk(newIndex);
+                            world.viewableChunks[newIndex.X, newIndex.Z] = toAdd;
+                            world.builder.build(toAdd);
+                            renderer.initRendererAction(newIndex);
+                        }
                     }
                 }
             }
-
         }
 
         /// <summary>
