@@ -110,6 +110,7 @@ namespace NewTake.view
         public void Draw(GameTime gameTime)
         {
 
+            BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
 
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
@@ -139,7 +140,11 @@ namespace NewTake.view
 
                 foreach (ChunkRenderer chunkRenderer in ChunkRenderers)
                 {
-                    chunkRenderer.draw(gameTime);
+                    Chunk chunk = world.viewableChunks[chunkRenderer.chunk.Index.X, chunkRenderer.chunk.Index.Z];
+                    if (chunk.BoundingBox.Intersects(viewFrustum))
+                    {
+                        chunkRenderer.draw(gameTime);
+                    }
                 }
             }
         
