@@ -16,11 +16,10 @@ namespace NewTake.view
         private IList<ChunkRenderer> ChunkRenderers;
         private Effect _solidBlockEffect;
         private Texture2D _textureAtlas;
-        public const float FARPLANE = 140 * 4;
-        public const int FOGNEAR = 90 * 4;
-        public const int FOGFAR = 140 * 4;        
+        public const float FARPLANE = 140;
+        public const int FOGNEAR = 90;
+        public const int FOGFAR = 140;        
         private readonly FirstPersonCamera camera;
-
 
         public WorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world)
         {
@@ -132,7 +131,6 @@ namespace NewTake.view
             _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _solidBlockEffect.Parameters["BlockTexture"].SetValue(_textureAtlas);
-
 
             foreach (EffectPass pass in _solidBlockEffect.CurrentTechnique.Passes)
             {
