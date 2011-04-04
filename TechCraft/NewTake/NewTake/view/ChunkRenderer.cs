@@ -33,7 +33,7 @@ namespace NewTake.view
 
         public void BuildVertexList()
         {
-            Debug.WriteLine("building vertexlist ...");
+            //Debug.WriteLine("building vertexlist ...");
             _vertexList.Clear();
             for (uint x = 0; x < Chunk.CHUNK_XMAX; x++)
             {
@@ -57,7 +57,7 @@ namespace NewTake.view
             vertexBuffer.SetData(a);
 
             chunk.dirty = false;
-            Debug.WriteLine("............building Vertexlist done");
+            //Debug.WriteLine("............building Vertexlist done");
         }
 
         public void draw(GameTime gameTime)

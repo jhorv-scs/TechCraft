@@ -16,9 +16,9 @@ namespace NewTake.view
         private IList<ChunkRenderer> ChunkRenderers;
         private Effect _solidBlockEffect;
         private Texture2D _textureAtlas;
-        public const float FARPLANE = 140 * 8;
-        public const int FOGNEAR = 90 * 8;
-        public const int FOGFAR = 140 * 8;        
+        public const float FARPLANE = 140 * 4;
+        public const int FOGNEAR = 90 * 4;
+        public const int FOGFAR = 140 * 4;        
         private readonly FirstPersonCamera camera;
 
 
@@ -43,7 +43,71 @@ namespace NewTake.view
             _solidBlockEffect = content.Load<Effect>("Effects\\SolidBlockEffect");
         }
 
-        public void draw(GameTime gameTime)
+        public void Update(GameTime gameTime)
+        {
+            uint x = (uint)camera.Position.X;
+            uint y = (uint)camera.Position.Y;
+            uint z = (uint)camera.Position.Z;
+
+            uint cx = x / Chunk.CHUNK_XMAX;
+            uint cz = z / Chunk.CHUNK_ZMAX;
+
+            uint lx = x % Chunk.CHUNK_XMAX;
+            uint ly = y % Chunk.CHUNK_YMAX;
+            uint lz = z % Chunk.CHUNK_ZMAX;
+
+            Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
+
+            for (uint j = cx - (World.VIEW_CHUNKS_X * 2); j < cx + (World.VIEW_CHUNKS_X * 2); j++)
+            {
+                for (uint l = cz - (World.VIEW_CHUNKS_Z * 2); l < cz + (World.VIEW_CHUNKS_Z * 2); l++)
+                {
+                    int distancecx = (int)(cx - j);
+                    int distancecz = (int)(cz - l);
+
+                    if (distancecx < 0) distancecx = 0 - distancecx;
+                    if (distancecz < 0) distancecz = 0 - distancecz;
+
+                    if ((distancecx > World.VIEW_CHUNKS_X) || (distancecz > World.VIEW_CHUNKS_Z))
+                    {
+                        if ((world.viewableChunks[j, l] != null))
+                        {
+                            int jj = 0;
+                            int kk = 0;
+
+                            Chunk chunk = world.viewableChunks[j, l];
+                            chunk.visible = false;
+                            world.viewableChunks[j, l] = null;
+                            Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));
+
+                            foreach (ChunkRenderer chunkRenderer in ChunkRenderers)
+                            {
+                                if (chunkRenderer.chunk.Index == newIndex)
+                                {
+                                    kk = jj;
+                                }
+                                jj++;
+                            }
+                            ChunkRenderers.RemoveAt(kk);
+                            //Debug.WriteLine("Chunks loaded = {0}",jj-1);
+                        }
+                    }
+                    else
+                    {
+                        if (world.viewableChunks[j, l] == null)
+                        {
+                            Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));
+                            Chunk toAdd = new Chunk(newIndex);
+                            world.viewableChunks[newIndex.X, newIndex.Z] = toAdd;
+                            world.builder.build(toAdd);
+                            initRendererAction(newIndex);
+                        }
+                    }
+                }
+            }
+        }
+
+        public void Draw(GameTime gameTime)
         {
 
 

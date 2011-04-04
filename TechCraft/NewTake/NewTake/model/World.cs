@@ -14,9 +14,9 @@ namespace NewTake.model
         public SparseMatrix<Chunk> viewableChunks;
         //public Chunk[,] viewableChunks;
 
-        public const byte VIEW_CHUNKS_X = 3;
+        public const byte VIEW_CHUNKS_X = 6;
         public const byte VIEW_CHUNKS_Y = 1; //TODO allow Y chunks > 1 
-        public const byte VIEW_CHUNKS_Z = 3;
+        public const byte VIEW_CHUNKS_Z = 6;
         public static int SEED = 12345;
 
         //public IChunkBuilder builder = new SimpleTerrain();
