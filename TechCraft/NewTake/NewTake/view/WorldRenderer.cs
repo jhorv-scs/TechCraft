@@ -126,7 +126,7 @@ namespace NewTake.view
             _solidBlockEffect.Parameters["Projection"].SetValue(camera.Projection);
             _solidBlockEffect.Parameters["CameraPosition"].SetValue(camera.Position);
             _solidBlockEffect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
-            _solidBlockEffect.Parameters["AmbientIntensity"].SetValue(0.8f);
+            _solidBlockEffect.Parameters["AmbientIntensity"].SetValue(0.6f);
             _solidBlockEffect.Parameters["FogColor"].SetValue(Color.SkyBlue.ToVector4());
             _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);

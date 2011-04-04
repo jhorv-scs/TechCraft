@@ -84,6 +84,8 @@ namespace NewTake.view.blocks
                     return BlockTexture.Rock;
                 case BlockType.Sand:
                     return BlockTexture.Sand;
+                case BlockType.Snow:
+                    return BlockTexture.Snow;
                 case BlockType.Tree:
                     switch (faceDir)
                     {

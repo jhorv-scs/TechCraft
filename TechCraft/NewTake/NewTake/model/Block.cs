@@ -17,7 +17,8 @@ namespace NewTake.model
         Sand=6,
         Tree=7,
         Water=8,
-        MAXIMUM=15
+        Snow = 9,
+        MAXIMUM = 15
     }
 
   
