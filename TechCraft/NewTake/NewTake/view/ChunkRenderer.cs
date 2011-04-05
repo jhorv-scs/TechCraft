@@ -44,9 +44,9 @@ namespace NewTake.view
                         Block block = chunk.Blocks[x, y, z];
                         if (block.Type != BlockType.None)
                         {
-                          Vector3i blockPosition = chunk.Position + new Vector3i(x, y, z);
-                           
-                            blocksRenderer.BuildBlockVertices(ref _vertexList, block, blockPosition);
+                            // Vector3i blockPosition = chunk.Position + new Vector3i(x, y, z);
+
+                            blocksRenderer.BuildBlockVertices(ref _vertexList, block, chunk, new Vector3i(x, y, z));
                         }
                     }
                 }

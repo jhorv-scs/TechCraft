@@ -22,19 +22,34 @@ namespace NewTake.view.blocks
         /// <param name="block">block to build</param>
         /// <param name="blockPosition"> in viewableWorld coordinates already offset with current chunk position  </param>         
         /// </summary>
-        public void BuildBlockVertices(ref List<VertexPositionTextureShade> vertexList, Block block, Vector3i blockPosition)
+        public void BuildBlockVertices(ref List<VertexPositionTextureShade> vertexList, Block block, Chunk chunk, Vector3i chunkRelativePosition)
         {
-            //TODO maybe optimizable by using chunk.Blocks[][][] except for "out of current chunk" blocks
- 
-            Block blockXDecreasing = world.BlockAt(blockPosition.X - 1, blockPosition.Y, blockPosition.Z);
-            Block blockXIncreasing = world.BlockAt(blockPosition.X + 1, blockPosition.Y, blockPosition.Z);
+            //optimized by using chunk.Blocks[][][] except for "out of current chunk" blocks
 
-            Block blockYDecreasing = world.BlockAt(blockPosition.X, blockPosition.Y - 1, blockPosition.Z);
-            Block blockYIncreasing = world.BlockAt(blockPosition.X, blockPosition.Y + 1, blockPosition.Z);
+            Vector3i blockPosition = chunk.Position + chunkRelativePosition;
 
-            Block blockZDecreasing = world.BlockAt(blockPosition.X, blockPosition.Y, blockPosition.Z - 1);
-            Block blockZIncreasing = world.BlockAt(blockPosition.X, blockPosition.Y, blockPosition.Z + 1);
+            Block blockXDecreasing, blockXIncreasing, blockYDecreasing, blockYIncreasing, blockZDecreasing, blockZIncreasing;
 
+            if (chunkRelativePosition.X == 0 || chunkRelativePosition.Y == 0 || chunkRelativePosition.Z == 0
+                || chunkRelativePosition.X == Chunk.SIZE.X - 1 || chunkRelativePosition.Y == Chunk.SIZE.Y - 1 || chunkRelativePosition.Z == Chunk.SIZE.Z - 1
+                )
+            {
+                blockXDecreasing = world.BlockAt(blockPosition.X - 1, blockPosition.Y, blockPosition.Z);
+                blockYDecreasing = world.BlockAt(blockPosition.X, blockPosition.Y - 1, blockPosition.Z);
+                blockZDecreasing = world.BlockAt(blockPosition.X, blockPosition.Y, blockPosition.Z - 1);
+                blockXIncreasing = world.BlockAt(blockPosition.X + 1, blockPosition.Y, blockPosition.Z);
+                blockYIncreasing = world.BlockAt(blockPosition.X, blockPosition.Y + 1, blockPosition.Z);
+                blockZIncreasing = world.BlockAt(blockPosition.X, blockPosition.Y, blockPosition.Z + 1);
+            }
+            else
+            {
+                blockXDecreasing = chunk.Blocks[chunkRelativePosition.X - 1, chunkRelativePosition.Y, chunkRelativePosition.Z];
+                blockXIncreasing = chunk.Blocks[chunkRelativePosition.X + 1, chunkRelativePosition.Y, chunkRelativePosition.Z];
+                blockYDecreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y - 1, chunkRelativePosition.Z];
+                blockYIncreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y + 1, chunkRelativePosition.Z];
+                blockZDecreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y, chunkRelativePosition.Z - 1];
+                blockZIncreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y, chunkRelativePosition.Z + 1];
+            }
 
             if (!blockXDecreasing.Solid) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.XDecreasing, block.Type);
             if (!blockXIncreasing.Solid) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.XIncreasing, block.Type);
