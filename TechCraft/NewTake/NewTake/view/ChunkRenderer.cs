@@ -53,17 +53,23 @@ namespace NewTake.view
             }
             VertexPositionTextureShade[] a = _vertexList.ToArray();
 
-            vertexBuffer = new VertexBuffer(graphicsDevice, typeof(VertexPositionTextureShade), a.Length, BufferUsage.WriteOnly);
-            vertexBuffer.SetData(a);
+            if (a.Length != 0)
+            {
+                vertexBuffer = new VertexBuffer(graphicsDevice, typeof(VertexPositionTextureShade), a.Length, BufferUsage.WriteOnly);
+                vertexBuffer.SetData(a);
 
-            chunk.dirty = false;
-            //Debug.WriteLine("............building Vertexlist done");
+                chunk.dirty = false;
+                //Debug.WriteLine("............building Vertexlist done");
+            }
         }
 
         public void draw(GameTime gameTime)
         {
             if (chunk.dirty)
             {
+                //_buildingThread = new Thread(new ThreadStart(BuildVertexList));
+                ////_threadManager.Add(_buildingThread);
+                //_buildingThread.Start();
                 BuildVertexList();
             }
 
@@ -74,23 +80,26 @@ namespace NewTake.view
                 chunk.dirty = false;
             }
 
-            if (vertexBuffer.IsDisposed)
+            if (vertexBuffer != null)
             {
-                return;
-            }
+                if (vertexBuffer.IsDisposed)
+                {
+                    return;
+                }
 
-            if (vertexBuffer.VertexCount > 0)
-            {
-                graphicsDevice.SetVertexBuffer(vertexBuffer);
-                graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexBuffer.VertexCount / 3);
+                if (vertexBuffer.VertexCount > 0)
+                {
+                    graphicsDevice.SetVertexBuffer(vertexBuffer);
+                    graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexBuffer.VertexCount / 3);
 
-                // graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, _vertexList.ToArray(), 0, _vertexList.Count / 3);
-            }
+                    // graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, _vertexList.ToArray(), 0, _vertexList.Count / 3);
+                }
 
-            else
-            {
-                Debug.WriteLine("no vertices");
+                else
+                {
+                    Debug.WriteLine("no vertices");
 
+                }
             }
         }
     }
