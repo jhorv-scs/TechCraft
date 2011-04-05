@@ -42,12 +42,6 @@ namespace TechCraftEngine.WorldEngine
         private Queue<Flow> _waterQueue;
         private Queue<Flow> _lavaQueue;
 
-        /* Rotating SkyDome */
-        Texture2D cloudMap;
-        Model skyDome;
-        Effect effect;
-        float rotationY; 
-
        // private Block _blockNone;
 
         public World(TechCraftGame game)
@@ -74,12 +68,6 @@ namespace TechCraftEngine.WorldEngine
             _waterThread = new Thread(new ThreadStart(DoFlow));
             _waterThread.Start();
             _game.Threads.Add(_waterThread);
-
-            /* Rotating SkyDome */
-            cloudMap = _game.Content.Load<Texture2D>("Models\\skydometex");
-            effect = _game.Content.Load<Effect>("Effects\\SkyDome");
-            skyDome = _game.Content.Load<Model>("Models\\dome");
-            skyDome.Meshes[0].MeshParts[0].Effect = effect.Clone();
         }
 
         private void InitializeRegions()
@@ -126,38 +114,8 @@ namespace TechCraftEngine.WorldEngine
             }
         }
 
-        /// <summary>  
-        /// <para>Draw Rotating SkyDome</para>
-        /// </summary>  
-        private void DrawSkyDome(Matrix currentViewMatrix)
-        {
-            _game.GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-
-            Matrix[] modelTransforms = new Matrix[skyDome.Bones.Count];
-            skyDome.CopyAbsoluteBoneTransformsTo(modelTransforms);
-
-            Matrix wMatrix = Matrix.CreateRotationY(rotationY) * Matrix.CreateTranslation(0, -0.3f, 0) * Matrix.CreateScale(100) * Matrix.CreateTranslation(_game.Camera.Position);
-            foreach (ModelMesh mesh in skyDome.Meshes)
-            {
-                foreach (Effect currentEffect in mesh.Effects)
-                {
-                    Matrix worldMatrix = modelTransforms[mesh.ParentBone.Index] * wMatrix;
-                    currentEffect.CurrentTechnique = currentEffect.Techniques["SkyDome"];
-                    currentEffect.Parameters["World"].SetValue(worldMatrix);
-                    currentEffect.Parameters["View"].SetValue(Game.Camera.View);
-                    currentEffect.Parameters["Projection"].SetValue(Game.Camera.Projection);
-                    currentEffect.Parameters["SkyTexture"].SetValue(cloudMap);
-                }
-                mesh.Draw();
-            }
-            _game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-        }
-
         public void Update(GameTime gameTime)
         {
-            /* Update the SkyDome rotation */
-            rotationY += (float)gameTime.ElapsedGameTime.TotalSeconds * 0.01f;  
-
             _lighting.Update();
         }
 
@@ -173,9 +131,6 @@ namespace TechCraftEngine.WorldEngine
             _game.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
             _game.GraphicsDevice.RenderState.AlphaBlendEnable = false;
             */
-
-            /* Draw the SkyDome */
-            DrawSkyDome(_game.Camera.View);
 
             _game.GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise; 
 
