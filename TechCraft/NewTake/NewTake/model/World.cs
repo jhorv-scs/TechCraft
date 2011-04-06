@@ -19,6 +19,12 @@ namespace NewTake.model
         public const byte VIEW_CHUNKS_Z = 4;
         public static int SEED = 12345;
 
+        public const byte VIEW_DISTANCE_NEAR_X = VIEW_CHUNKS_X * 2;
+        public const byte VIEW_DISTANCE_NEAR_Z = VIEW_CHUNKS_Z * 2;
+
+        public const byte VIEW_DISTANCE_FAR_X = VIEW_CHUNKS_X * 4;
+        public const byte VIEW_DISTANCE_FAR_Z = VIEW_CHUNKS_Z * 4;
+
         //public IChunkBuilder builder = new SimpleTerrain();
         //public IChunkBuilder builder = new FlatReferenceTerrain();
         public IChunkBuilder builder = new DualLayerTerrainWithMediumValleysForRivers();
@@ -47,9 +53,9 @@ namespace NewTake.model
 
         public void visitChunks(Action<Vector3i> visitor)
         {
-            for (uint x = origin - (World.VIEW_CHUNKS_X * 3); x < origin + (World.VIEW_CHUNKS_X * 3); x++)
+            for (uint x = origin - (World.VIEW_DISTANCE_NEAR_X); x < origin + (World.VIEW_DISTANCE_NEAR_X); x++)
             {
-                for (uint z = origin - (World.VIEW_CHUNKS_Z * 3); z < origin + (World.VIEW_CHUNKS_Z * 3); z++)
+                for (uint z = origin - (World.VIEW_DISTANCE_NEAR_Z); z < origin + (World.VIEW_DISTANCE_NEAR_Z); z++)
                 {
                     visitor(new Vector3i(x, 0, z));
                 }

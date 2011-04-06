@@ -8,26 +8,37 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
 using System.Threading;
 using System.Diagnostics;
+using Microsoft.Xna.Framework.Input;
 
 namespace NewTake.view
 {
     class WorldRenderer
     {
+        public const float FARPLANE = 140*8;
+        public const int FOGNEAR = 90*8;
+        public const int FOGFAR = 140*8;
+
         private World world;
         public readonly GraphicsDevice GraphicsDevice;
         //private IList<ChunkRenderer> ChunkRenderers;
         Dictionary<Chunk, ChunkRenderer> ChunkRenderers;
         private Effect _solidBlockEffect;
         private Texture2D _textureAtlas;
-        public const float FARPLANE = 140;
-        public const int FOGNEAR = 90;
-        public const int FOGFAR = 140;
         private readonly FirstPersonCamera camera;
         TimeSpan addTime = TimeSpan.Zero;
         TimeSpan removeTime = TimeSpan.Zero;
         private Queue<Chunk> _toBuild;
         private bool _running = true;
         private Thread _buildingThread;
+
+        private readonly RasterizerState _wireframedRaster = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
+        private readonly RasterizerState _normalRaster = new RasterizerState() { CullMode = CullMode.CullCounterClockwiseFace, FillMode = FillMode.Solid };
+        private bool _wireframed = false;
+
+        public void ToggleRasterMode()
+        {
+            this._wireframed = !this._wireframed;
+        }
 
         public WorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world)
         {
@@ -65,12 +76,23 @@ namespace NewTake.view
                 AddChunks();
             //    addTime -= TimeSpan.FromSeconds(2);
             //}
-            if (removeTime > TimeSpan.FromSeconds(5))
+            if (removeTime > TimeSpan.FromSeconds(1))
             {
                 RemoveChunks();
-                removeTime -= TimeSpan.FromSeconds(5);
+                removeTime -= TimeSpan.FromSeconds(1);
             }
+            ProcessKeyboard();
         }
+
+        private KeyboardState _oldKeyboardState;
+        private void ProcessKeyboard()
+        {
+            KeyboardState keyState = Keyboard.GetState();
+
+            if (_oldKeyboardState.IsKeyUp(Keys.F7) && keyState.IsKeyDown(Keys.F7)) ToggleRasterMode();
+            this._oldKeyboardState = keyState;
+        }
+
 
         public void QueueBuild(Chunk chunk)
         {
@@ -96,9 +118,9 @@ namespace NewTake.view
 
             Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
 
-            for (uint j = cx - (World.VIEW_CHUNKS_X * 9); j < cx + (World.VIEW_CHUNKS_X * 9); j++)
+            for (uint j = cx - (World.VIEW_DISTANCE_FAR_X); j < cx + (World.VIEW_DISTANCE_FAR_X); j++)
             {
-                for (uint l = cz - (World.VIEW_CHUNKS_Z * 9); l < cz + (World.VIEW_CHUNKS_Z * 9); l++)
+                for (uint l = cz - (World.VIEW_DISTANCE_FAR_Z); l < cz + (World.VIEW_DISTANCE_FAR_Z); l++)
                 {
                     int distancecx = (int)(cx - j);
                     int distancecz = (int)(cz - l);
@@ -106,7 +128,7 @@ namespace NewTake.view
                     if (distancecx < 0) distancecx = 0 - distancecx;
                     if (distancecz < 0) distancecz = 0 - distancecz;
 
-                    if ((distancecx > World.VIEW_CHUNKS_X * 3) || (distancecz > World.VIEW_CHUNKS_Z * 3))
+                    if ((distancecx > World.VIEW_DISTANCE_NEAR_X) || (distancecz > World.VIEW_DISTANCE_NEAR_Z))
                     {
                         if ((world.viewableChunks[j, l] != null))
                         {
@@ -164,9 +186,9 @@ namespace NewTake.view
 
             Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
 
-            for (uint j = cx - (World.VIEW_CHUNKS_X * 2); j < cx + (World.VIEW_CHUNKS_X * 2); j++)
+            for (uint j = cx - (World.VIEW_DISTANCE_NEAR_X); j < cx + (World.VIEW_DISTANCE_NEAR_X); j++)
             {
-                for (uint l = cz - (World.VIEW_CHUNKS_Z * 2); l < cz + (World.VIEW_CHUNKS_Z * 2); l++)
+                for (uint l = cz - (World.VIEW_DISTANCE_NEAR_Z); l < cz + (World.VIEW_DISTANCE_NEAR_Z); l++)
                 {
                     if (world.viewableChunks[j, l] == null)
                     {
@@ -185,15 +207,18 @@ namespace NewTake.view
 
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
 
-            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            //GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+
+            GraphicsDevice.Clear(Color.SkyBlue);
+            GraphicsDevice.RasterizerState = !this._wireframed ? this._normalRaster : this._wireframedRaster;
 
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.BlendState = BlendState.Opaque;
-            /* GraphicsDevice.RasterizerState = new RasterizerState()
-             {
-                 CullMode = CullMode.None,
-                 FillMode = FillMode.WireFrame
-             };*/
+             //GraphicsDevice.RasterizerState = new RasterizerState()
+             //{
+             //    CullMode = CullMode.None,
+             //    FillMode = FillMode.WireFrame
+             //};
 
             _solidBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _solidBlockEffect.Parameters["View"].SetValue(camera.View);
@@ -210,12 +235,11 @@ namespace NewTake.view
             {
                 pass.Apply();
 
-                foreach (Chunk key in ChunkRenderers.Keys)
+                foreach (ChunkRenderer chunkRenderer in ChunkRenderers.Values)
                 {
-                    Chunk chunk = world.viewableChunks[ChunkRenderers[key].chunk.Index.X, ChunkRenderers[key].chunk.Index.Z];
-                    if (chunk.BoundingBox.Intersects(viewFrustum))
+                    if (chunkRenderer.chunk.BoundingBox.Intersects(viewFrustum))
                     {
-                        ChunkRenderers[key].draw(gameTime);
+                        chunkRenderer.draw(gameTime);
                     }
                 }
             }

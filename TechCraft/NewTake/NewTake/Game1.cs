@@ -35,6 +35,7 @@ namespace NewTake
             DeProfiler.Run();
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            graphics.SynchronizeWithVerticalRetrace = false;
         }
 
         /// <summary>

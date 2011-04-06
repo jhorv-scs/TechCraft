@@ -23,7 +23,7 @@ namespace NewTake.model.terrain
                     generateTerrain(chunk, x, z, worldX, worldZ);
                 }
             }
-            GenerateWaterSandLayer(chunk);
+            //GenerateWaterSandLayer(chunk);
         }
 
         protected virtual void generateTerrain(Chunk chunk, int blockXInChunk, int blockZInChunk, int worldX, int worldZ)
