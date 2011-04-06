@@ -14,9 +14,9 @@ namespace NewTake.model
         public SparseMatrix<Chunk> viewableChunks;
         //public Chunk[,] viewableChunks;
 
-        public const byte VIEW_CHUNKS_X = 6;
+        public const byte VIEW_CHUNKS_X = 4;
         public const byte VIEW_CHUNKS_Y = 1; //TODO allow Y chunks > 1 
-        public const byte VIEW_CHUNKS_Z = 6;
+        public const byte VIEW_CHUNKS_Z = 4;
         public static int SEED = 12345;
 
         //public IChunkBuilder builder = new SimpleTerrain();
@@ -32,9 +32,9 @@ namespace NewTake.model
         {
             viewableChunks = new SparseMatrix<Chunk>();
             //viewableChunks = new Chunk[VIEW_CHUNKS_X, VIEW_CHUNKS_Z];
-            Debug.WriteLine("building ...");
+            Debug.WriteLine("Initial terrain generation started ...");
             visitChunks(buildAction);
-            Debug.WriteLine("............building done");
+            Debug.WriteLine("............Initial terrain generation done");
             
         }
 
@@ -47,9 +47,9 @@ namespace NewTake.model
 
         public void visitChunks(Action<Vector3i> visitor)
         {
-            for (uint x = origin; x < VIEW_CHUNKS_X + origin; x++)
+            for (uint x = origin - (World.VIEW_CHUNKS_X * 3); x < origin + (World.VIEW_CHUNKS_X * 3); x++)
             {
-                for (uint z = origin; z < VIEW_CHUNKS_Z + origin; z++)
+                for (uint z = origin - (World.VIEW_CHUNKS_Z * 3); z < origin + (World.VIEW_CHUNKS_Z * 3); z++)
                 {
                     visitor(new Vector3i(x, 0, z));
                 }

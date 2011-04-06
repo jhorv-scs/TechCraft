@@ -57,18 +57,18 @@ namespace NewTake.view
 
         public void Update(GameTime gameTime)
         {
-            addTime += gameTime.ElapsedGameTime;
+            //addTime += gameTime.ElapsedGameTime;
             removeTime += gameTime.ElapsedGameTime;
 
-            if (addTime > TimeSpan.FromSeconds(2))
-            {
+            //if (addTime > TimeSpan.FromSeconds(2))
+            //{
                 AddChunks();
-                addTime -= TimeSpan.FromSeconds(2);
-            }
-            if (removeTime > TimeSpan.FromSeconds(10))
+            //    addTime -= TimeSpan.FromSeconds(2);
+            //}
+            if (removeTime > TimeSpan.FromSeconds(5))
             {
                 RemoveChunks();
-                removeTime -= TimeSpan.FromSeconds(10);
+                removeTime -= TimeSpan.FromSeconds(5);
             }
         }
 
@@ -140,7 +140,7 @@ namespace NewTake.view
                 {
                     DoBuild(buildChunk);
                 }
-                Thread.Sleep(1);
+                Thread.Sleep(50);
             }
         }
 
