@@ -22,6 +22,7 @@ namespace NewTake.model
 
         public bool dirty;
         public bool visible;
+        public bool generated;
 
         private BoundingBox _boundingBox;
 
@@ -30,6 +31,7 @@ namespace NewTake.model
             dirty = true;
             Index = index;
             visible = true;
+            generated = false;
 
             Position = new Vector3i(index.X * CHUNK_XMAX, index.Y * CHUNK_YMAX, index.Z * CHUNK_ZMAX);
             Blocks = new Block[CHUNK_XMAX, CHUNK_YMAX, CHUNK_ZMAX]; //TODO test 3d sparse impl performance and memory
