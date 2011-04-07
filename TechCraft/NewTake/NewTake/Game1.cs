@@ -14,7 +14,7 @@ using System.Diagnostics;
 using fbDeprofiler;
 using NewTake.controllers;
 using NewTake.view.blocks;
-using NewTake.debug;
+using NewTake.profiling;
 
 namespace NewTake
 {

@@ -25,7 +25,7 @@ namespace NewTake.view
         private Effect _solidBlockEffect;
         private Texture2D _textureAtlas;
         private readonly FirstPersonCamera camera;
-        TimeSpan addTime = TimeSpan.Zero;
+        //TimeSpan addTime = TimeSpan.Zero;
         TimeSpan removeTime = TimeSpan.Zero;
         private Queue<Chunk> _toBuild;
         public bool _running = true;
@@ -100,14 +100,14 @@ namespace NewTake.view
         private void RemoveChunks()
         {
             uint x = (uint)camera.Position.X;
-            uint y = (uint)camera.Position.Y;
+            //uint y = (uint)camera.Position.Y;
             uint z = (uint)camera.Position.Z;
 
             uint cx = x / Chunk.CHUNK_XMAX;
             uint cz = z / Chunk.CHUNK_ZMAX;
 
             uint lx = x % Chunk.CHUNK_XMAX;
-            uint ly = y % Chunk.CHUNK_YMAX;
+            //uint ly = y % Chunk.CHUNK_YMAX;
             uint lz = z % Chunk.CHUNK_ZMAX;
 
             Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
@@ -129,7 +129,7 @@ namespace NewTake.view
                             Chunk chunk = world.viewableChunks[j, l];
                             chunk.visible = false;
                             world.viewableChunks[j, l] = null;
-                            Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));
+                            //Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));
                             ChunkRenderers.Remove(chunk);
                             //Debug.WriteLine(string.Format("Removed Chunk {0}-{1}-{2}", (int)chunk.Position.X, (int)chunk.Position.Y, (int)chunk.Position.Z));
                         }

@@ -113,7 +113,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="debug\FrameRateCounter.cs" />
+    <Compile Include="profiling\FrameRateCounter.cs" />
     <Compile Include="model\SparseMatrix.cs" />
     <Compile Include="controllers\FirstPersonCameraController.cs" />
     <Compile Include="model\Custom3DArray.cs" />
