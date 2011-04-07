@@ -28,7 +28,7 @@ namespace NewTake.view
         TimeSpan addTime = TimeSpan.Zero;
         TimeSpan removeTime = TimeSpan.Zero;
         private Queue<Chunk> _toBuild;
-        private bool _running = true;
+        public bool _running = true;
         private Thread _buildingThread;
 
         private readonly RasterizerState _wireframedRaster = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
@@ -57,6 +57,7 @@ namespace NewTake.view
         {
             Chunk chunk = world.viewableChunks[vector.X, vector.Z];
             ChunkRenderer cRenderer = new ChunkRenderer(GraphicsDevice, world, chunk);
+            //ChunkRenderer cRenderer = new BoundariesChunkRenderer(GraphicsDevice, world, chunk);
             ChunkRenderers.Add(chunk, cRenderer);
         }
 
@@ -81,17 +82,10 @@ namespace NewTake.view
                 RemoveChunks();
                 removeTime -= TimeSpan.FromSeconds(1);
             }
-            ProcessKeyboard();
+           
         }
 
-        private KeyboardState _oldKeyboardState;
-        private void ProcessKeyboard()
-        {
-            KeyboardState keyState = Keyboard.GetState();
-
-            if (_oldKeyboardState.IsKeyUp(Keys.F7) && keyState.IsKeyDown(Keys.F7)) ToggleRasterMode();
-            this._oldKeyboardState = keyState;
-        }
+        
 
 
         public void QueueBuild(Chunk chunk)
@@ -164,6 +158,8 @@ namespace NewTake.view
                 }
                 Thread.Sleep(50);
             }
+            //there are cleaner way but all this will be rewritten
+            _buildingThread.Abort();
         }
 
         public void DoBuild(Chunk chunk)

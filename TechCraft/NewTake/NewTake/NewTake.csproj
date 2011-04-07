@@ -118,6 +118,7 @@
     <Compile Include="model\Custom3DArray.cs" />
     <Compile Include="model\terrain\DualLayerTerrainWithMediumValleysForRivers.cs" />
     <Compile Include="view\blocks\VertexBlockRenderer.cs" />
+    <Compile Include="view\BoundariesChunkRenderer.cs" />
     <Compile Include="view\Camera.cs" />
     <Compile Include="view\FirstPersonCamera.cs" />
     <Compile Include="Tests.cs" />

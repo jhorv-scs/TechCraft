@@ -10,7 +10,7 @@ using NewTake.view.blocks;
 
 namespace NewTake.view
 {
-    class ChunkRenderer
+     class ChunkRenderer
     {
         public List<VertexPositionTextureShade> _vertexList;
 
@@ -18,7 +18,7 @@ namespace NewTake.view
 
         public Chunk chunk;
         public readonly World world;
-        private readonly VertexBlockRenderer blocksRenderer;
+        protected readonly VertexBlockRenderer blocksRenderer;
         public readonly GraphicsDevice graphicsDevice;
 
         public ChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk)
@@ -31,7 +31,7 @@ namespace NewTake.view
             blocksRenderer = new VertexBlockRenderer(world);
         }
 
-        public void BuildVertexList()
+        public virtual void BuildVertexList()
         {
             //Debug.WriteLine("building vertexlist ...");
             _vertexList.Clear();

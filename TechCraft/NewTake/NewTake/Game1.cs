@@ -29,11 +29,21 @@ namespace NewTake
         private FirstPersonCamera _camera;
         private FirstPersonCameraController _cameraController;
         private MouseState _previousMouseState;
+        private KeyboardState _oldKeyboardState;
+
         private Vector3 _lookVector;
+
+        private bool releaseMouse = false;
+
+        private int preferredBackBufferHeight, preferredBackBufferWidth;
+
         public Game1()
         {
             DeProfiler.Run();
             graphics = new GraphicsDeviceManager(this);
+            preferredBackBufferHeight = graphics.PreferredBackBufferHeight;
+            preferredBackBufferWidth = graphics.PreferredBackBufferWidth;
+
             Content.RootDirectory = "Content";
             graphics.SynchronizeWithVerticalRetrace = false;
         }
@@ -50,15 +60,22 @@ namespace NewTake
             world = new World();
             _camera = new FirstPersonCamera(GraphicsDevice);
             _camera.Initialize();
-            _camera.Position = new Vector3(World.origin * Chunk.CHUNK_XMAX,  Chunk.CHUNK_YMAX  , World.origin * Chunk.CHUNK_ZMAX);
+            _camera.Position = new Vector3(World.origin * Chunk.CHUNK_XMAX, Chunk.CHUNK_YMAX, World.origin * Chunk.CHUNK_ZMAX);
             _camera.LookAt(Vector3.Down);
 
             _cameraController = new FirstPersonCameraController(_camera);
             _cameraController.Initialize();
 
+
             renderer = new WorldRenderer(GraphicsDevice, _camera, world);
 
             base.Initialize();
+        }
+
+        protected override void OnExiting(Object sender, EventArgs args)
+        {
+            renderer._running = false;
+            base.OnExiting(sender, args);
         }
 
 
@@ -85,6 +102,49 @@ namespace NewTake
             // TODO: Unload any non ContentManager content here
         }
 
+        private void ProcessDebugKeys()
+        {
+            KeyboardState keyState = Keyboard.GetState();
+
+            //wireframe mode
+            if (_oldKeyboardState.IsKeyUp(Keys.F7) && keyState.IsKeyDown(Keys.F7))
+            {
+                renderer.ToggleRasterMode();
+            }
+
+            // Allows the game to exit
+            if (keyState.IsKeyDown(Keys.Escape))
+            {
+                this.Exit();
+            }
+
+
+            // Release the mouse pointer
+            if (_oldKeyboardState.IsKeyUp(Keys.Space) && keyState.IsKeyDown(Keys.Space))
+            {
+                this.releaseMouse = !this.releaseMouse;
+                this.IsMouseVisible = !this.IsMouseVisible;
+            }
+
+            // stealth mode / keep screen space for profilers
+            if (_oldKeyboardState.IsKeyUp(Keys.F4) && keyState.IsKeyDown(Keys.F4))
+            {
+                if (graphics.PreferredBackBufferHeight == preferredBackBufferHeight)
+                {
+                    graphics.PreferredBackBufferHeight = 100;
+                    graphics.PreferredBackBufferWidth = 160;
+                }
+                else
+                {
+                    graphics.PreferredBackBufferHeight = preferredBackBufferHeight;
+                    graphics.PreferredBackBufferWidth = preferredBackBufferWidth;
+                }
+                graphics.ApplyChanges();
+            }
+
+            this._oldKeyboardState = keyState;
+        }
+
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -92,28 +152,30 @@ namespace NewTake
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
+
+            ProcessDebugKeys();
 
             // TODO: Add your update logic here
 
             if (this.IsActive)
             {
-                _cameraController.Update(gameTime);
-                _camera.Update(gameTime);
+                if (!releaseMouse)
+                {
+                    _cameraController.Update(gameTime);
+                    _camera.Update(gameTime);
+                }
+
+                Matrix rotationMatrix = Matrix.CreateRotationX(_camera.UpDownRotation) * Matrix.CreateRotationY(_camera.LeftRightRotation);
+                _lookVector = Vector3.Transform(Vector3.Forward, rotationMatrix);
+                _lookVector.Normalize();
+
+                renderer.Update(gameTime);
+
+                useTools(gameTime);
+
+                _previousMouseState = Mouse.GetState();
+                base.Update(gameTime);
             }
-
-            Matrix rotationMatrix = Matrix.CreateRotationX(_camera.UpDownRotation) * Matrix.CreateRotationY(_camera.LeftRightRotation);
-            _lookVector = Vector3.Transform(Vector3.Forward, rotationMatrix);
-            _lookVector.Normalize();
-
-            renderer.Update(gameTime);
-
-            useTools(gameTime);
-
-            _previousMouseState = Mouse.GetState();
-            base.Update(gameTime);
         }
 
         public void useTools(GameTime gameTime)
@@ -137,9 +199,9 @@ namespace NewTake
                 for (float x = 0.5f; x < 5f; x += 0.2f)
                 {
                     Vector3 targetPoint;
-                    if (dir == 1)  targetPoint = _camera.Position + (_lookVector * x);
+                    if (dir == 1) targetPoint = _camera.Position + (_lookVector * x);
                     else targetPoint = _camera.Position - (_lookVector * x);
-                    
+
                     BlockType blockType = world.BlockAt(targetPoint).Type;
 
                     if (blockType != BlockType.None && blockType != BlockType.Water)
@@ -192,6 +254,8 @@ namespace NewTake
 
         }
 
+
+
         //private void tempHookForWorldGen(Vector3 targetPoint)
         //{
         //    uint x = (uint)targetPoint.X;
@@ -200,7 +264,7 @@ namespace NewTake
 
         //    uint cx = x / Chunk.CHUNK_XMAX;
         //    uint cz = z / Chunk.CHUNK_ZMAX;
-            
+
 
         //    uint lx = x % Chunk.CHUNK_XMAX;
         //    uint ly = y % Chunk.CHUNK_YMAX;
