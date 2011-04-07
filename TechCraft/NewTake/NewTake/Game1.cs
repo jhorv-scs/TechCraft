@@ -14,6 +14,7 @@ using System.Diagnostics;
 using fbDeprofiler;
 using NewTake.controllers;
 using NewTake.view.blocks;
+using NewTake.debug;
 
 namespace NewTake
 {
@@ -43,9 +44,12 @@ namespace NewTake
             graphics = new GraphicsDeviceManager(this);
             preferredBackBufferHeight = graphics.PreferredBackBufferHeight;
             preferredBackBufferWidth = graphics.PreferredBackBufferWidth;
+            FrameRateCounter frameRate = new FrameRateCounter(this);
+            frameRate.DrawOrder = 1;
+            Components.Add(frameRate);
 
             Content.RootDirectory = "Content";
-            graphics.SynchronizeWithVerticalRetrace = false;
+            graphics.SynchronizeWithVerticalRetrace = true; // press f3 to set it to false at runtime 
         }
 
         /// <summary>
@@ -124,6 +128,14 @@ namespace NewTake
             {
                 this.releaseMouse = !this.releaseMouse;
                 this.IsMouseVisible = !this.IsMouseVisible;
+            }
+
+            if (_oldKeyboardState.IsKeyUp(Keys.F3) && keyState.IsKeyDown(Keys.F3))
+            {
+                graphics.SynchronizeWithVerticalRetrace = ! graphics.SynchronizeWithVerticalRetrace;
+                this.IsFixedTimeStep = ! this.IsFixedTimeStep;
+                Debug.WriteIf(this.IsFixedTimeStep, "FixedTimeStep and v synch are active");
+                graphics.ApplyChanges();
             }
 
             // stealth mode / keep screen space for profilers
