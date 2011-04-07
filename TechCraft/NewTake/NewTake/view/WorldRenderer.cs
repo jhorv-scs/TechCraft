@@ -27,9 +27,9 @@ namespace NewTake.view
         private readonly FirstPersonCamera camera;
         //TimeSpan addTime = TimeSpan.Zero;
         TimeSpan removeTime = TimeSpan.Zero;
-        private Queue<Chunk> _toBuild;
+        public Queue<Chunk> _toBuild;
         public bool _running = true;
-        private Thread _buildingThread;
+        public Thread _buildingThread;
 
         private readonly RasterizerState _wireframedRaster = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
         private readonly RasterizerState _normalRaster = new RasterizerState() { CullMode = CullMode.CullCounterClockwiseFace, FillMode = FillMode.Solid };
@@ -84,9 +84,6 @@ namespace NewTake.view
             }
            
         }
-
-        
-
 
         public void QueueBuild(Chunk chunk)
         {
@@ -165,6 +162,7 @@ namespace NewTake.view
         public void DoBuild(Chunk chunk)
         {
             world.builder.build(chunk);
+            chunk.generated = true;
         }
 
         private void AddChunks()
@@ -235,7 +233,11 @@ namespace NewTake.view
                 {
                     if (chunkRenderer.chunk.BoundingBox.Intersects(viewFrustum))
                     {
-                        chunkRenderer.draw(gameTime);
+                        if (!chunkRenderer.chunk.generated) continue;
+                        //if (chunkRenderer.chunk.dirty)
+                        //{
+                            chunkRenderer.draw(gameTime);
+                        //}
                     }
                 }
             }

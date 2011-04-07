@@ -63,7 +63,7 @@ namespace NewTake.view
             }
         }
 
-        public void draw(GameTime gameTime)
+        public virtual void draw(GameTime gameTime)
         {
             if (chunk.dirty)
             {

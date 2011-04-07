@@ -41,14 +41,12 @@ namespace NewTake.model
             Debug.WriteLine("Initial terrain generation started ...");
             visitChunks(buildAction);
             Debug.WriteLine("............Initial terrain generation done");
-            
         }
 
         public void buildAction(Vector3i vector)
         {
             viewableChunks[vector.X, vector.Z] = new Chunk(vector);
             builder.build(viewableChunks[vector.X, vector.Z]);
-
         }
 
         public void visitChunks(Action<Vector3i> visitor)

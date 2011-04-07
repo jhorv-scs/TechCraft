@@ -23,6 +23,7 @@ namespace NewTake.model.terrain
                     generateTerrain(chunk, x, z, worldX, worldZ);
                 }
             }
+            chunk.generated = true;
             //GenerateWaterSandLayer(chunk);
         }
 

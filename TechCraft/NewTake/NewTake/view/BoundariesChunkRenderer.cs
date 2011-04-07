@@ -4,13 +4,65 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using NewTake.model;
+using Microsoft.Xna.Framework;
+using System.Diagnostics;
 using NewTake.view.blocks;
+using System.Threading;
 
 namespace NewTake.view
 {
-     class BoundariesChunkRenderer : ChunkRenderer
+    class BoundariesChunkRenderer : ChunkRenderer
     {
-        public BoundariesChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk) : base(graphicsDevice, world, chunk) { }
+
+        public Queue<Chunk> _toBuildVertices;
+
+        public bool _vertexbuildrunning = true;
+        public Thread _buildingVerticesThread;
+
+        public BoundariesChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk) : base(graphicsDevice, world, chunk)
+        {
+            _toBuildVertices = new Queue<Chunk>();
+            _buildingVerticesThread = new Thread(new ThreadStart(BuildingVerticesThread));
+            _buildingVerticesThread.Start();
+        }
+
+        public void QueueBuild()
+        {
+            //Debug.WriteLine(string.Format("Queue Vertex Build at Chunk {0}-{1}-{2}", (int)chunk.Position.X, (int)chunk.Position.Y, (int)chunk.Position.Z));
+            lock (_toBuildVertices)
+            {
+                _toBuildVertices.Enqueue(chunk);
+            }
+        }
+
+        public void BuildingVerticesThread()
+        {
+            while (_vertexbuildrunning)
+            {
+                Chunk buildChunk = null;
+                bool doBuild = false;
+                lock (_toBuildVertices)
+                {
+                    if (_toBuildVertices.Count > 0)
+                    {
+                        buildChunk = _toBuildVertices.Dequeue();
+                        doBuild = true;
+                    }
+                }
+                if (doBuild)
+                {
+                    DoBuild();
+                }
+                Thread.Sleep(50);
+            }
+            //there are cleaner way but all this will be rewritten
+            //_toBuildVertices.Abort();
+        }
+
+        public void DoBuild()
+        {
+            BuildVertexList();
+        }
 
         public override void BuildVertexList()
         {
@@ -119,9 +171,7 @@ namespace NewTake.view
             //optimized by using chunk.Blocks[][][] except for "out of current chunk" blocks
 
             Vector3i blockPosition = chunk.Position + chunkRelativePosition;
-
             Block blockXDecreasing, blockXIncreasing, blockYDecreasing, blockYIncreasing, blockZDecreasing, blockZIncreasing;
-
             Block solidBlock = new Block(BlockType.Rock, false);
 
             // X Boundary
@@ -178,8 +228,6 @@ namespace NewTake.view
                 blockZIncreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y, chunkRelativePosition.Z + 1];
             }
 
-
-
             if (!blockXDecreasing.Solid) blocksRenderer.BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.XDecreasing, block.Type);
             if (!blockXIncreasing.Solid) blocksRenderer.BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.XIncreasing, block.Type);
 
@@ -189,6 +237,42 @@ namespace NewTake.view
             if (!blockZDecreasing.Solid) blocksRenderer.BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.ZDecreasing, block.Type);
             if (!blockZIncreasing.Solid) blocksRenderer.BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.ZIncreasing, block.Type);
         }
-    
+
+        public override void draw(GameTime gameTime)
+        {
+            if (!chunk.generated) return;
+            if (chunk.dirty)
+            {
+                QueueBuild();
+            }
+
+            if (!chunk.visible)
+            {
+                _vertexList.Clear();
+                vertexBuffer.Dispose();
+                chunk.dirty = false;
+            }
+
+            if (vertexBuffer != null)
+            {
+                if (vertexBuffer.IsDisposed)
+                {
+                    return;
+                }
+
+                if (vertexBuffer.VertexCount > 0)
+                {
+                    graphicsDevice.SetVertexBuffer(vertexBuffer);
+                    graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexBuffer.VertexCount / 3);
+
+                    // graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, _vertexList.ToArray(), 0, _vertexList.Count / 3);
+                }
+
+                else
+                {
+                    Debug.WriteLine("no vertices");
+                }
+            }
+        }
     }
 }
