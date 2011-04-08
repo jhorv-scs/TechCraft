@@ -5,6 +5,7 @@ using System.Text;
 
 namespace NewTake.view
 {
+
     public enum BlockFaceDirection
     {
         XIncreasing = 1,
@@ -15,4 +16,5 @@ namespace NewTake.view
         ZDecreasing = 32,
         MAXIMUM
     }
+
 }

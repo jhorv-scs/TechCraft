@@ -2,24 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework.Graphics;
-using NewTake.model;
-using Microsoft.Xna.Framework;
 using System.Diagnostics;
+
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
+
 using NewTake.view.blocks;
+using NewTake.model;
 
 namespace NewTake.view
 {
-     class ChunkRenderer
+            
+    class ChunkRenderer
     {
-        public List<VertexPositionTextureShade> _vertexList;
+        #region inits
 
+        public List<VertexPositionTextureShade> _vertexList;
+        
         public VertexBuffer vertexBuffer;
 
         public Chunk chunk;
         public readonly World world;
         protected readonly VertexBlockRenderer blocksRenderer;
         public readonly GraphicsDevice graphicsDevice;
+
+        #endregion
 
         public ChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk)
         {
@@ -36,6 +43,7 @@ namespace NewTake.view
             return chunk.BoundingBox.Intersects(viewFrustum);
         }
 
+        #region BuildVertexList
         public virtual void BuildVertexList()
         {
             //Debug.WriteLine("building vertexlist ...");
@@ -67,8 +75,10 @@ namespace NewTake.view
                 //Debug.WriteLine("............building Vertexlist done");
             }
         }
+        #endregion
 
-         //TODO currently only used by single thread impl 
+        #region update
+        //TODO currently only used by single thread impl 
         public virtual void update(GameTime gameTime)
         {
             if (chunk.dirty)
@@ -79,7 +89,9 @@ namespace NewTake.view
                 BuildVertexList();
             }
         }
+        #endregion
 
+        #region draw
         public virtual void draw(GameTime gameTime)
         {
             if (chunk.dirty)
@@ -119,5 +131,7 @@ namespace NewTake.view
                 }
             }
         }
+        #endregion
+
     }
 }

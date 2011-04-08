@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
-using NewTake.model;
 
+using NewTake.model;
 
 namespace NewTake.model.terrain
 {
     class TerrainWithCaves : SimpleTerrain
     {
 
+        #region generateTerrain
         protected override void generateTerrain(Chunk chunk, int x, int z, int blockX, int blockZ)
         {
             int groundHeight = (int)GetBlockNoise(blockX, blockZ);
@@ -25,16 +26,18 @@ namespace NewTake.model.terrain
 
             // Default to sunlit.. for caves
             bool sunlit = true;
+
             BlockType blockType = BlockType.None;
+
             chunk.Blocks[x, groundHeight, z] = new Block(BlockType.Grass,true);
             chunk.Blocks[x, 0, z] = new Block(BlockType.Dirt, true);
+
             for (int y = Chunk.CHUNK_YMAX - 1; y > 0; y--)
             {
                 if (y > groundHeight)
                 {
                     blockType = BlockType.None;
                 }
-
                 // Or we at or below ground height?
                 else if (y < groundHeight)
                 {
@@ -72,10 +75,10 @@ namespace NewTake.model.terrain
                         }
                     }
                 }
-
                 chunk.Blocks[x, y, z] = new Block(blockType, sunlit);
             }
         }
+        #endregion
 
         private float GetBlockNoise(int blockX, int blockZ)
         {
@@ -85,6 +88,7 @@ namespace NewTake.model.terrain
             float noise = bigDetails * 64.0f + mediumDetail * 32.0f + fineDetail * 16.0f; // *(bigDetails
             // *
             // 64.0f);
+
             return noise + 16;
         }
     }

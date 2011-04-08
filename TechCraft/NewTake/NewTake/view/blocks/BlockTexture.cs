@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 using Microsoft.Xna.Framework;
+
 using NewTake.model;
 
 namespace NewTake.view.blocks
 {
+
     public enum BlockTexture
     {
         Brick,
@@ -124,4 +127,5 @@ namespace NewTake.view.blocks
             return UVList;
         }
     }
+
 }

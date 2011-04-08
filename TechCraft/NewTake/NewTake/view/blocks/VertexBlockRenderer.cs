@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NewTake.model;
-using Microsoft.Xna.Framework;
 using System.Diagnostics;
+
+using Microsoft.Xna.Framework;
+
+using NewTake.model;
 
 namespace NewTake.view.blocks
 {
@@ -16,6 +18,8 @@ namespace NewTake.view.blocks
         {        
             this.world = world;
         }
+
+        #region BuildBlockVertices
         /// <summary>
         /// BuildBlockVertices making a block
         /// TODO surrounding block faces for digging ?
@@ -30,9 +34,12 @@ namespace NewTake.view.blocks
 
             Block blockXDecreasing, blockXIncreasing, blockYDecreasing, blockYIncreasing, blockZDecreasing, blockZIncreasing;
 
-            if (chunkRelativePosition.X == 0 || chunkRelativePosition.Y == 0 || chunkRelativePosition.Z == 0
-                || chunkRelativePosition.X == Chunk.SIZE.X - 1 || chunkRelativePosition.Y == Chunk.SIZE.Y - 1 || chunkRelativePosition.Z == Chunk.SIZE.Z - 1
-                )
+            if (chunkRelativePosition.X == 0 || 
+                chunkRelativePosition.Y == 0 || 
+                chunkRelativePosition.Z == 0 || 
+                chunkRelativePosition.X == Chunk.SIZE.X - 1 || 
+                chunkRelativePosition.Y == Chunk.SIZE.Y - 1 || 
+                chunkRelativePosition.Z == Chunk.SIZE.Z - 1 )
             {
                 blockXDecreasing = world.BlockAt(blockPosition.X - 1, blockPosition.Y, blockPosition.Z);
                 blockYDecreasing = world.BlockAt(blockPosition.X, blockPosition.Y - 1, blockPosition.Z);
@@ -60,14 +67,14 @@ namespace NewTake.view.blocks
             if (!blockZDecreasing.Solid) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.ZDecreasing, block.Type);
             if (!blockZIncreasing.Solid) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.ZIncreasing, block.Type);
         }
+        #endregion
 
-
+        #region BuildFaceVertices
         public void BuildFaceVertices(ref List<VertexPositionTextureShade> vertexList, Vector3i blockPosition, BlockFaceDirection faceDir, BlockType blockType)
         {
             BlockTexture texture = BlockInformation.GetTexture(blockType, faceDir);
 
             //Debug.WriteLine(string.Format("BuildBlockVertices ({0},{1},{2}) : {3} ->{4} :", x, y, z, faceDir, texture));
-
 
             int faceIndex = 0;
             switch (faceDir)
@@ -165,12 +172,11 @@ namespace NewTake.view.blocks
                     break;
             }
         }
+        #endregion
 
         private VertexPositionTextureShade ToVertexPositionTextureShade(Vector3i blockPosition, Vector3 vertexAdd, Vector3 normal, float light, Vector2 uv)
         {
-           
             return new VertexPositionTextureShade(blockPosition.asVector3() + vertexAdd, normal, light, uv);
-
         }
 
     }

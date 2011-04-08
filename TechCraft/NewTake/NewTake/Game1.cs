@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -8,10 +10,11 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+
+using fbDeprofiler;
+
 using NewTake.model;
 using NewTake.view;
-using System.Diagnostics;
-using fbDeprofiler;
 using NewTake.controllers;
 using NewTake.view.blocks;
 using NewTake.profiling;
@@ -23,6 +26,8 @@ namespace NewTake
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
+        #region inits
+
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
         private World world;
@@ -38,6 +43,8 @@ namespace NewTake
 
         private int preferredBackBufferHeight, preferredBackBufferWidth;
 
+        #endregion
+
         public Game1()
         {
             DeProfiler.Run();
@@ -52,6 +59,7 @@ namespace NewTake
             graphics.SynchronizeWithVerticalRetrace = true; // press f3 to set it to false at runtime 
         }
 
+        #region Initialize
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
         /// This is where it can query for any required services and load any non-graphic
@@ -75,6 +83,7 @@ namespace NewTake
 
             base.Initialize();
         }
+        #endregion
 
         protected override void OnExiting(Object sender, EventArgs args)
         {
@@ -82,8 +91,7 @@ namespace NewTake
             base.OnExiting(sender, args);
         }
 
-
-
+        #region LoadContent
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
@@ -96,7 +104,9 @@ namespace NewTake
             // TODO: use this.Content to load your game content here
 
         }
+        #endregion
 
+        #region UnloadContent
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
         /// all content.
@@ -105,7 +115,9 @@ namespace NewTake
         {
             // TODO: Unload any non ContentManager content here
         }
+        #endregion
 
+        #region ProcessDebugKeys
         private void ProcessDebugKeys()
         {
             KeyboardState keyState = Keyboard.GetState();
@@ -156,43 +168,11 @@ namespace NewTake
 
             this._oldKeyboardState = keyState;
         }
+        #endregion
 
-        /// <summary>
-        /// Allows the game to run logic such as updating the world,
-        /// checking for collisions, gathering input, and playing audio.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Update(GameTime gameTime)
-        {
-
-            ProcessDebugKeys();
-
-            // TODO: Add your update logic here
-
-            if (this.IsActive)
-            {
-                if (!releaseMouse)
-                {
-                    _cameraController.Update(gameTime);
-                    _camera.Update(gameTime);
-                }
-
-                Matrix rotationMatrix = Matrix.CreateRotationX(_camera.UpDownRotation) * Matrix.CreateRotationY(_camera.LeftRightRotation);
-                _lookVector = Vector3.Transform(Vector3.Forward, rotationMatrix);
-                _lookVector.Normalize();
-
-                renderer.Update(gameTime);
-
-                useTools(gameTime);
-
-                _previousMouseState = Mouse.GetState();
-                base.Update(gameTime);
-            }
-        }
-
+        #region useTools
         public void useTools(GameTime gameTime)
         {
-
             MouseState mouseState = Mouse.GetState();
 
             if (mouseState.LeftButton == ButtonState.Pressed && _previousMouseState.LeftButton != ButtonState.Pressed)
@@ -265,7 +245,43 @@ namespace NewTake
             }
 
         }
+        #endregion
 
+        #region Update
+        /// <summary>
+        /// Allows the game to run logic such as updating the world,
+        /// checking for collisions, gathering input, and playing audio.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        protected override void Update(GameTime gameTime)
+        {
+            ProcessDebugKeys();
+
+            // TODO: Add your update logic here
+
+            if (this.IsActive)
+            {
+                if (!releaseMouse)
+                {
+                    _cameraController.Update(gameTime);
+                    _camera.Update(gameTime);
+                }
+
+                Matrix rotationMatrix = Matrix.CreateRotationX(_camera.UpDownRotation) * Matrix.CreateRotationY(_camera.LeftRightRotation);
+                _lookVector = Vector3.Transform(Vector3.Forward, rotationMatrix);
+                _lookVector.Normalize();
+
+                renderer.Update(gameTime);
+
+                useTools(gameTime);
+
+                _previousMouseState = Mouse.GetState();
+                base.Update(gameTime);
+            }
+        }
+        #endregion
+
+        #region Draw
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
@@ -280,5 +296,7 @@ namespace NewTake
 
             base.Draw(gameTime);
         }
+        #endregion
+
     }
 }

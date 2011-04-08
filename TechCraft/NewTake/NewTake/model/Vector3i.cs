@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 using Microsoft.Xna.Framework;
 
 namespace NewTake
@@ -9,6 +10,10 @@ namespace NewTake
 
     public struct Vector3i
     {
+        public readonly uint X;
+        public readonly uint Y;
+        public readonly uint Z;
+
         public Vector3i(uint x, uint y, uint z)
         {
             this.X = x;
@@ -23,11 +28,6 @@ namespace NewTake
             Z = (uint)vector3.Z;
         }
 
-        public readonly uint X;
-        public readonly uint Y;
-        public readonly uint Z;
-      
-
         public override bool Equals(object obj)
         {
             if (obj is Vector3i)
@@ -37,14 +37,17 @@ namespace NewTake
             }
             return base.Equals(obj);
         }
+
         public static bool operator ==(Vector3i a, Vector3i b)
         {
             return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
         }
+
         public static bool operator !=(Vector3i a, Vector3i b)
         {
             return !(a.X == b.X && a.Y == b.Y && a.Z == b.Z);
         }
+
         public static Vector3i operator +(Vector3i a, Vector3i b)
         {
             return new Vector3i(a.X + b.X ,a.Y +b.Y ,a.Z + b.Z);

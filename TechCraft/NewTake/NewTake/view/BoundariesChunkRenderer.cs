@@ -2,22 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework.Graphics;
-using NewTake.model;
-using Microsoft.Xna.Framework;
 using System.Diagnostics;
-using NewTake.view.blocks;
 using System.Threading;
+
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
+
+using NewTake.model;
+using NewTake.view.blocks;
 
 namespace NewTake.view
 {
     class BoundariesChunkRenderer : ChunkRenderer
     {
 
+        #region inits
+
         public Queue<Chunk> _toBuildVertices;
 
         public bool _vertexbuildrunning = true;
         public Thread _buildingVerticesThread;
+
+        #endregion
 
         public BoundariesChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk) : base(graphicsDevice, world, chunk)
         {
@@ -64,6 +70,7 @@ namespace NewTake.view
             BuildVertexList();
         }
 
+        #region BuildVertexList
         public override void BuildVertexList()
         {
             //Debug.WriteLine("building vertexlist ...");
@@ -165,7 +172,9 @@ namespace NewTake.view
                 //Debug.WriteLine("............building Vertexlist done");
             }
         }
+        #endregion
 
+        #region BuildBlockVertices
         public void BuildBlockVertices(ref List<VertexPositionTextureShade> vertexList, Block block, Chunk chunk, Vector3i chunkRelativePosition)
         {
             //optimized by using chunk.Blocks[][][] except for "out of current chunk" blocks
@@ -237,7 +246,9 @@ namespace NewTake.view
             if (!blockZDecreasing.Solid) blocksRenderer.BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.ZDecreasing, block.Type);
             if (!blockZIncreasing.Solid) blocksRenderer.BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.ZIncreasing, block.Type);
         }
+        #endregion
 
+        #region draw
         public override void draw(GameTime gameTime)
         {
             if (!chunk.generated) return;
@@ -274,5 +285,7 @@ namespace NewTake.view
                 }
             }
         }
+        #endregion
+
     }
 }

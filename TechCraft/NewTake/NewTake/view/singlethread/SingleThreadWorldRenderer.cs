@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NewTake.model;
+using System.Threading;
+using System.Diagnostics;
+
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
-using System.Threading;
-using System.Diagnostics;
 using Microsoft.Xna.Framework.Input;
+
+using NewTake.model;
 
 namespace NewTake.view
 {
@@ -16,9 +18,7 @@ namespace NewTake.view
     {
 
         public SingleThreadWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world) : 
-            base (graphicsDevice,  camera,  world) 
-        {
-         }
+            base (graphicsDevice,  camera,  world) { }
 
         protected override void postConstruct(){
             //I just extracted the thread stuff here in base class
@@ -31,6 +31,7 @@ namespace NewTake.view
             ChunkRenderers.Add(chunk.Index,cRenderer);
         }
 
+        #region Update
         public override void Update(GameTime gameTime)
         { //this is the old add + remove at the same time from a previous checkin
             uint x = (uint)camera.Position.X;
@@ -93,7 +94,9 @@ namespace NewTake.view
                 }
             }
         }
+        #endregion
 
+        #region Draw
         public override void Draw(GameTime gameTime)
         {
             //currently a copy paste of base class but currently only :)
@@ -131,5 +134,7 @@ namespace NewTake.view
             }
 
         }
+        #endregion
+
     }
 }

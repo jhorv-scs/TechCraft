@@ -92,7 +92,6 @@ namespace NewTake.model.terrain
 
         #endregion
 
-
         // To remove the need for index wrapping, float the permutation table length 
         private static int[] perm = new int[512];
 
@@ -125,7 +124,6 @@ namespace NewTake.model.terrain
         {
             return g[0] * x + g[1] * y + g[2] * z + g[3] * w;
         }
-
 
         /// <summary> 
         /// 3D Simplex noise. 

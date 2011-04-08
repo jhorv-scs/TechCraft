@@ -13,13 +13,13 @@ using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
 
-
-
 namespace NewTake.view
 {
     public abstract class Camera
     {
-      
+
+        #region inits
+
         private Matrix _view;
         private Matrix _projection;
         protected Vector3 _position = Vector3.Zero;
@@ -29,6 +29,8 @@ namespace NewTake.view
         private float _farPlane = WorldRenderer.FARPLANE;
 
         public readonly GraphicsDevice graphicsDevice;
+
+        #endregion
 
         public Camera(GraphicsDevice graphicsDevice)
         {
@@ -77,7 +79,6 @@ namespace NewTake.view
         public virtual void Update(GameTime gameTime)
         {
         }
-
 
     }
 }

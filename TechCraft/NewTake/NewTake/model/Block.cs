@@ -21,7 +21,7 @@ namespace NewTake.model
         MAXIMUM = 15
     }
 
-  
+    #region Block structure
     public struct Block
     {
         //blocktype + light amount stored in one byte 
@@ -42,7 +42,6 @@ namespace NewTake.model
         public Block(BlockType blockType, bool sunlit)
         {
             store = (byte)(((byte)blockType<<(byte)4) | (byte)15);
-          
         }
 
         public Block(BlockType blockType, byte lightAmount)
@@ -60,4 +59,6 @@ namespace NewTake.model
             get { return Type != BlockType.None; } 
         }
     }
+    #endregion
+
 }

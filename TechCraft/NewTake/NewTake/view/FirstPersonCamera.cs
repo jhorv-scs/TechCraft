@@ -13,8 +13,6 @@ using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
 
-
-
 namespace NewTake.view
 {
     public class FirstPersonCamera : Camera
@@ -24,11 +22,7 @@ namespace NewTake.view
         private float _upDownRotation = 0f;
         private Vector3 _cameraFinalTarget;
 
-        public FirstPersonCamera(GraphicsDevice device)
-            : base(device)
-        {
-
-        }
+        public FirstPersonCamera(GraphicsDevice device) : base(device) { }
 
         public override void Initialize()
         {

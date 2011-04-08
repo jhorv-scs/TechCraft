@@ -2,18 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NewTake.model;
+using System.Threading;
+using System.Diagnostics;
+
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
-using System.Threading;
-using System.Diagnostics;
 using Microsoft.Xna.Framework.Input;
+
+using NewTake.model;
 
 namespace NewTake.view
 {
     class WorldRenderer
     {
+        #region inits
+
         public const float FARPLANE = 140*8;
         public const int FOGNEAR = 90*8;
         public const int FOGFAR = 140*8;
@@ -25,7 +29,6 @@ namespace NewTake.view
         protected Effect _solidBlockEffect;
         protected Texture2D _textureAtlas;
         protected readonly FirstPersonCamera camera;
-        //TimeSpan addTime = TimeSpan.Zero;
         TimeSpan removeTime = TimeSpan.Zero;
         public Queue<Chunk> _toBuild;
         public bool _running = true;
@@ -34,6 +37,8 @@ namespace NewTake.view
         protected readonly RasterizerState _wireframedRaster = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
         protected readonly RasterizerState _normalRaster = new RasterizerState() { CullMode = CullMode.CullCounterClockwiseFace, FillMode = FillMode.Solid };
         protected bool _wireframed = false;
+
+        #endregion
 
         public void ToggleRasterMode()
         {
@@ -48,7 +53,6 @@ namespace NewTake.view
             world.visitChunks(initRendererAction);
             this.camera = camera;
             postConstruct();
-            
          }
 
         protected virtual void postConstruct(){
@@ -71,71 +75,12 @@ namespace NewTake.view
             _solidBlockEffect = content.Load<Effect>("Effects\\SolidBlockEffect");
         }
 
-        public virtual void Update(GameTime gameTime)
-        {
-            //addTime += gameTime.ElapsedGameTime;
-            removeTime += gameTime.ElapsedGameTime;
-
-            //if (addTime > TimeSpan.FromSeconds(2))
-            //{
-                AddChunks();
-            //    addTime -= TimeSpan.FromSeconds(2);
-            //}
-            if (removeTime > TimeSpan.FromSeconds(1))
-            {
-                RemoveChunks();
-                removeTime -= TimeSpan.FromSeconds(1);
-            }
-           
-        }
-
         public void QueueBuild(Chunk chunk)
         {
             //Debug.WriteLine(string.Format("Queue Chunk {0}-{1}-{2}", (int)chunk.Position.X, (int)chunk.Position.Y, (int)chunk.Position.Z));
             lock (_toBuild)
             {
                 _toBuild.Enqueue(chunk);
-            }
-        }
-
-        private void RemoveChunks()
-        {
-            uint x = (uint)camera.Position.X;
-            //uint y = (uint)camera.Position.Y;
-            uint z = (uint)camera.Position.Z;
-
-            uint cx = x / Chunk.CHUNK_XMAX;
-            uint cz = z / Chunk.CHUNK_ZMAX;
-
-            uint lx = x % Chunk.CHUNK_XMAX;
-            //uint ly = y % Chunk.CHUNK_YMAX;
-            uint lz = z % Chunk.CHUNK_ZMAX;
-
-            Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
-
-            for (uint j = cx - (World.VIEW_DISTANCE_FAR_X); j < cx + (World.VIEW_DISTANCE_FAR_X); j++)
-            {
-                for (uint l = cz - (World.VIEW_DISTANCE_FAR_Z); l < cz + (World.VIEW_DISTANCE_FAR_Z); l++)
-                {
-                    int distancecx = (int)(cx - j);
-                    int distancecz = (int)(cz - l);
-
-                    if (distancecx < 0) distancecx = 0 - distancecx;
-                    if (distancecz < 0) distancecz = 0 - distancecz;
-
-                    if ((distancecx > World.VIEW_DISTANCE_NEAR_X) || (distancecz > World.VIEW_DISTANCE_NEAR_Z))
-                    {
-                        if ((world.viewableChunks[j, l] != null))
-                        {
-                            Chunk chunk = world.viewableChunks[j, l];
-                            chunk.visible = false;
-                            world.viewableChunks[j, l] = null;
-                            //Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));
-                            ChunkRenderers.Remove(chunk.Index);
-                            //Debug.WriteLine(string.Format("Removed Chunk {0}-{1}-{2}", (int)chunk.Position.X, (int)chunk.Position.Y, (int)chunk.Position.Z));
-                        }
-                    }
-                }
             }
         }
 
@@ -169,17 +114,16 @@ namespace NewTake.view
             chunk.generated = true;
         }
 
+        #region AddChunks
         private void AddChunks()
         {
             uint x = (uint)camera.Position.X;
-            uint y = (uint)camera.Position.Y;
             uint z = (uint)camera.Position.Z;
 
             uint cx = x / Chunk.CHUNK_XMAX;
             uint cz = z / Chunk.CHUNK_ZMAX;
 
             uint lx = x % Chunk.CHUNK_XMAX;
-            uint ly = y % Chunk.CHUNK_YMAX;
             uint lz = z % Chunk.CHUNK_ZMAX;
 
             Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
@@ -199,24 +143,73 @@ namespace NewTake.view
                 }
             }
         }
+        #endregion
 
+        #region RemoveChunks
+        private void RemoveChunks()
+        {
+            uint x = (uint)camera.Position.X;
+            uint z = (uint)camera.Position.Z;
+
+            uint cx = x / Chunk.CHUNK_XMAX;
+            uint cz = z / Chunk.CHUNK_ZMAX;
+
+            uint lx = x % Chunk.CHUNK_XMAX;
+            uint lz = z % Chunk.CHUNK_ZMAX;
+
+            Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
+
+            for (uint j = cx - (World.VIEW_DISTANCE_FAR_X); j < cx + (World.VIEW_DISTANCE_FAR_X); j++)
+            {
+                for (uint l = cz - (World.VIEW_DISTANCE_FAR_Z); l < cz + (World.VIEW_DISTANCE_FAR_Z); l++)
+                {
+                    int distancecx = (int)(cx - j);
+                    int distancecz = (int)(cz - l);
+
+                    if (distancecx < 0) distancecx = 0 - distancecx;
+                    if (distancecz < 0) distancecz = 0 - distancecz;
+
+                    if ((distancecx > World.VIEW_DISTANCE_NEAR_X) || (distancecz > World.VIEW_DISTANCE_NEAR_Z))
+                    {
+                        if ((world.viewableChunks[j, l] != null))
+                        {
+                            Chunk chunk = world.viewableChunks[j, l];
+                            chunk.visible = false;
+                            world.viewableChunks[j, l] = null;
+                            ChunkRenderers.Remove(chunk.Index);
+                            //Debug.WriteLine(string.Format("Removed Chunk {0}-{1}-{2}", (int)chunk.Position.X, (int)chunk.Position.Y, (int)chunk.Position.Z));
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region Update
+        public virtual void Update(GameTime gameTime)
+        {
+            removeTime += gameTime.ElapsedGameTime;
+
+            AddChunks();
+
+            if (removeTime > TimeSpan.FromSeconds(1))
+            {
+                RemoveChunks();
+                removeTime -= TimeSpan.FromSeconds(1);
+            }
+        }
+        #endregion
+
+        #region Draw
         public virtual void Draw(GameTime gameTime)
         {
-
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
-
-            //GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
             GraphicsDevice.Clear(Color.SkyBlue);
             GraphicsDevice.RasterizerState = !this._wireframed ? this._normalRaster : this._wireframedRaster;
 
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.BlendState = BlendState.Opaque;
-             //GraphicsDevice.RasterizerState = new RasterizerState()
-             //{
-             //    CullMode = CullMode.None,
-             //    FillMode = FillMode.WireFrame
-             //};
 
             _solidBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _solidBlockEffect.Parameters["View"].SetValue(camera.View);
@@ -245,7 +238,8 @@ namespace NewTake.view
                     }
                 }
             }
-
         }
+        #endregion
+
     }
 }

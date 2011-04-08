@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 using NewTake.model;
 
 namespace NewTake.view.blocks
@@ -48,6 +49,7 @@ namespace NewTake.view.blocks
             return false;
         }
 
+        #region GetTexture
         /// <summary>
         /// Return the appropriate texture to render a given face of a block
         /// </summary>
@@ -59,9 +61,9 @@ namespace NewTake.view.blocks
         {
             switch (blockType)
             {
-                   case BlockType.Dirt:
+                case BlockType.Dirt:
                     return BlockTexture.Dirt;
-                 case BlockType.Grass:
+                case BlockType.Grass:
                     switch (faceDir)
                     {
                         case BlockFaceDirection.XIncreasing:
@@ -80,7 +82,7 @@ namespace NewTake.view.blocks
                     return BlockTexture.Lava;
                 case BlockType.Leaves:
                     return BlockTexture.Leaves;
-               case BlockType.Rock:
+                case BlockType.Rock:
                     return BlockTexture.Rock;
                 case BlockType.Sand:
                     return BlockTexture.Sand;
@@ -107,5 +109,7 @@ namespace NewTake.view.blocks
 
             }
         }
+        #endregion
+
     }
 }

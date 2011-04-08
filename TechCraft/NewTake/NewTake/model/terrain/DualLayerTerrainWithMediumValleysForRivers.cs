@@ -17,6 +17,7 @@ namespace NewTake.model.terrain
             //GenerateWaterSandLayer(chunk);
         }
 
+        #region generateTerrain
         protected override void generateTerrain(Chunk chunk, int blockXInChunk, int blockZInChunk, int worldX, int worldZ)
         {
             Random r = new Random();
@@ -38,8 +39,7 @@ namespace NewTake.model.terrain
                 else if (y > lowerGroundHeight)
                 {
                     // Let's see about some caves er valleys!
-                    float caveNoise = PerlinSimplexNoise.noise(worldX * 0.01f, worldZ * 0.01f, y * 0.01f) *
-                                      (0.015f * y) + 0.1f;
+                    float caveNoise = PerlinSimplexNoise.noise(worldX * 0.01f, worldZ * 0.01f, y * 0.01f) * (0.015f * y) + 0.1f;
                     caveNoise += PerlinSimplexNoise.noise(worldX * 0.01f, worldZ * 0.01f, y * 0.1f) * 0.06f + 0.1f;
                     caveNoise += PerlinSimplexNoise.noise(worldX * 0.2f, worldZ * 0.2f, y * 0.2f) * 0.03f + 0.01f;
                     // We have a cave, draw air here.
@@ -86,15 +86,20 @@ namespace NewTake.model.terrain
                     if (y <= waterLevel)
                     {
                         blockType = BlockType.Lava;
+                        sunlit = false;
                     }
                 }
                 chunk.Blocks[blockXInChunk, y, blockZInChunk] = new Block(blockType, sunlit);
             }
         }
+        #endregion
 
+        #region GenerateWaterSandLayer
         private void GenerateWaterSandLayer(Chunk chunk)
         {
             BlockType blockType;
+            
+            bool sunlit = true;
 
             for (int x = 0; x < Chunk.CHUNK_XMAX; x++)
             {
@@ -111,6 +116,10 @@ namespace NewTake.model.terrain
                             if (chunk.Blocks[x, y, z].Type == BlockType.Grass)
                             {
                                 blockType = BlockType.Sand;
+                                if (y <= waterLevel)
+                                {
+                                    sunlit = false;
+                                }
                             }
                             break;
                         }
@@ -121,22 +130,27 @@ namespace NewTake.model.terrain
                     {
                         if ((chunk.Blocks[x, y, z].Type == BlockType.Dirt) || (chunk.Blocks[x, y, z].Type == BlockType.Grass))
                         {
-                            chunk.Blocks[x, y, z] = new Block(BlockType.Sand, 0);
+                            chunk.Blocks[x, y, z] = new Block(BlockType.Sand, sunlit);
                         }
                     }
                 }
             }
         }
+        #endregion
 
+        #region GetUpperGroundHeight
         private static int GetUpperGroundHeight(Chunk chunk, int blockX, int blockY, float lowerGroundHeight)
         {
             float octave1 = PerlinSimplexNoise.noise((blockX + 100) * 0.001f, blockY * 0.001f) * 0.5f;
             float octave2 = PerlinSimplexNoise.noise((blockX + 100) * 0.002f, blockY * 0.002f) * 0.25f;
             float octave3 = PerlinSimplexNoise.noise((blockX + 100) * 0.01f, blockY * 0.01f) * 0.25f;
             float octaveSum = octave1 + octave2 + octave3;
+
             return (int)(octaveSum * (Chunk.CHUNK_YMAX / 2f)) + (int)(lowerGroundHeight);
         }
+        #endregion
 
+        #region GetLowerGroundHeight
         private static float GetLowerGroundHeight(Chunk chunk, int blockX, int blockY, int blockXInChunk, int blockZInChunk)
         {
             int minimumGroundheight = Chunk.CHUNK_YMAX / 4;
@@ -146,15 +160,12 @@ namespace NewTake.model.terrain
             float octave2 = PerlinSimplexNoise.noise(blockX * 0.0005f, blockY * 0.0005f) * 0.35f;
             float octave3 = PerlinSimplexNoise.noise(blockX * 0.02f, blockY * 0.02f) * 0.15f;
             float lowerGroundHeight = octave1 + octave2 + octave3;
-            lowerGroundHeight = lowerGroundHeight * minimumGroundDepth + minimumGroundheight;
 
-            for (int y = (int)lowerGroundHeight; y >= 0; y--)
-            {
-                chunk.Blocks[blockXInChunk, y, blockZInChunk].Type = BlockType.Dirt;
-            }
+            lowerGroundHeight = lowerGroundHeight * minimumGroundDepth + minimumGroundheight;
 
             return lowerGroundHeight;
         }
+        #endregion
 
     }
 }

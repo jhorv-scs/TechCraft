@@ -5,9 +5,10 @@ using System.Text;
 
 namespace NewTake.model.terrain
 {
-
     class FlatReferenceTerrain : IChunkBuilder
     {
+
+        #region build
         public void build(Chunk chunk)
         {
 
@@ -43,13 +44,12 @@ namespace NewTake.model.terrain
                             else
                                 t.Type = BlockType.None;
                         }
-
-                      
-                        chunk.Blocks[x, y, z]= t;
+                        chunk.Blocks[x, y, z] = t;
                     }
                 }
             }
-
         }
+        #endregion
+
     }
 }

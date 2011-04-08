@@ -17,8 +17,10 @@ using NewTake.view;
 
 namespace NewTake.controllers
 {
-    public class FirstPersonCameraController 
+    public class FirstPersonCameraController
     {
+        #region inits
+
         private const float MOVEMENTSPEED = 0.25f;
         private const float ROTATIONSPEED = 0.1f;
 
@@ -27,23 +29,24 @@ namespace NewTake.controllers
 
         private readonly FirstPersonCamera camera;
 
+        #endregion
+
         public FirstPersonCameraController(FirstPersonCamera camera) 
         {
             this.camera=camera;
         }
 
-        public  void Initialize()
+        public void Initialize()
         {
             _mouseState = Mouse.GetState();
-            
         }
 
-        public  void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             ProcessInput(gameTime);
-         
         }
 
+        #region ProcessInput
         public void ProcessInput(GameTime gameTime)
         {
             //PlayerIndex activeIndex;
@@ -67,6 +70,7 @@ namespace NewTake.controllers
             {
                 moveVector += Vector3.Right;
             }
+
             if (moveVector != Vector3.Zero)
             {
                 Matrix rotationMatrix = Matrix.CreateRotationX(camera.UpDownRotation) * Matrix.CreateRotationY(camera.LeftRightRotation);
@@ -74,29 +78,31 @@ namespace NewTake.controllers
                 camera.Position += rotatedVector * MOVEMENTSPEED;
             }
 
-           
+            MouseState currentMouseState = Mouse.GetState();
 
-                MouseState currentMouseState = Mouse.GetState();
-                float mouseDX = currentMouseState.X - _mouseMoveState.X;
-                float mouseDY = currentMouseState.Y - _mouseMoveState.Y;
-                if (mouseDX != 0)
-                {
-                    camera.LeftRightRotation -= ROTATIONSPEED * (mouseDX / 50);
-                }
-                if (mouseDY != 0)
-                {
-                    camera.UpDownRotation -= ROTATIONSPEED * (mouseDY / 50);
-                }
-              //  camera.LeftRightRotation -= GamePad.GetState(Game.ActivePlayerIndex).ThumbSticks.Right.X / 20;
-            //    camera.UpDownRotation += GamePad.GetState(Game.ActivePlayerIndex).ThumbSticks.Right.Y / 20;
+            float mouseDX = currentMouseState.X - _mouseMoveState.X;
+            float mouseDY = currentMouseState.Y - _mouseMoveState.Y;
 
-                
+            if (mouseDX != 0)
+            {
+                camera.LeftRightRotation -= ROTATIONSPEED * (mouseDX / 50);
+            }
+            if (mouseDY != 0)
+            {
+                camera.UpDownRotation -= ROTATIONSPEED * (mouseDY / 50);
+            }
+
+            //camera.LeftRightRotation -= GamePad.GetState(Game.ActivePlayerIndex).ThumbSticks.Right.X / 20;
+            //camera.UpDownRotation += GamePad.GetState(Game.ActivePlayerIndex).ThumbSticks.Right.Y / 20;
+
             _mouseMoveState = new MouseState(camera.graphicsDevice.Viewport.Width / 2,
                     camera.graphicsDevice.Viewport.Height / 2,
                     0, ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released);
-                Mouse.SetPosition((int)_mouseMoveState.X, (int)_mouseMoveState.Y);
-                _mouseState = Mouse.GetState();
-            
+                
+            Mouse.SetPosition((int)_mouseMoveState.X, (int)_mouseMoveState.Y);
+            _mouseState = Mouse.GetState();
         }
+        #endregion
+
     }
 }

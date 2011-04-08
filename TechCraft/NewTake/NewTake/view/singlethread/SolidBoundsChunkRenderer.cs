@@ -1,12 +1,13 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
+
 using NewTake.model;
 using NewTake.view.blocks;
-using Microsoft.Xna.Framework;
 
 namespace NewTake.view
 {
@@ -15,13 +16,12 @@ namespace NewTake.view
     // TODO : always using solidBlock at boundaries is fast ( no world.blockat) but wrong when world.blockat would send something else that blocktype.NONE
     // I propose worldat returning a special block when outofbounds
 
-     
-
     class SolidBoundsChunkRenderer : ChunkRenderer
     {
 
         public SolidBoundsChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk) : base(graphicsDevice, world, chunk) { }
 
+        #region BuildVertexList
         public override void BuildVertexList()
         {
             //Debug.WriteLine("building vertexlist ...");
@@ -126,7 +126,9 @@ namespace NewTake.view
                 //Debug.WriteLine("............building Vertexlist done");
             }
         }
+        #endregion
 
+        #region BuildBlockVertices
         public void BuildBlockVertices(ref List<VertexPositionTextureShade> vertexList, Block block, Chunk chunk, Vector3i chunkRelativePosition)
         {
             //optimized by using chunk.Blocks[][][] except for "out of current chunk" blocks
@@ -202,5 +204,7 @@ namespace NewTake.view
             if (!blockZDecreasing.Solid) blocksRenderer.BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.ZDecreasing, block.Type);
             if (!blockZIncreasing.Solid) blocksRenderer.BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.ZIncreasing, block.Type);
         }
+        #endregion
+
     }
 }

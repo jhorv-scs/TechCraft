@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using NewTake.model.terrain;
 using System.Diagnostics;
+using Microsoft.Xna.Framework;
 
+using NewTake.model.terrain;
 
 namespace NewTake.model
 {
     class World
     {
+
+        #region inits
+
         public SparseMatrix<Chunk> viewableChunks;
         //public Chunk[,] viewableChunks;
 
@@ -25,6 +28,8 @@ namespace NewTake.model
         public const byte VIEW_DISTANCE_FAR_X = VIEW_CHUNKS_X * 4;
         public const byte VIEW_DISTANCE_FAR_Z = VIEW_CHUNKS_Z * 4;
 
+        #endregion
+
         //public IChunkBuilder builder = new SimpleTerrain();
         //public IChunkBuilder builder = new FlatReferenceTerrain();
         public IChunkBuilder builder = new DualLayerTerrainWithMediumValleysForRivers();
@@ -32,7 +37,6 @@ namespace NewTake.model
         public static uint origin = 1000; 
         //TODO UInt32, with uint16 65*65 km of 1m blocks is a bit small 
         // but requires decoupling rendering coordinates to avoid float problems
-
 
         public World()
         {

@@ -5,8 +5,10 @@ using System.Text;
 
 namespace NewTake.model.terrain
 {
+
     public interface IChunkBuilder
     {
         void build( Chunk chunk);
     }
+
 }

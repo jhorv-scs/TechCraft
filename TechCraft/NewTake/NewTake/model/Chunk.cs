@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 using Microsoft.Xna.Framework;
 
 namespace NewTake.model
@@ -29,14 +30,14 @@ namespace NewTake.model
         public Chunk(Vector3i index)
         {
             dirty = true;
-            Index = index;
             visible = true;
             generated = false;
+
+            Index = index;
 
             Position = new Vector3i(index.X * CHUNK_XMAX, index.Y * CHUNK_YMAX, index.Z * CHUNK_ZMAX);
             Blocks = new Block[CHUNK_XMAX, CHUNK_YMAX, CHUNK_ZMAX]; //TODO test 3d sparse impl performance and memory
             _boundingBox = new BoundingBox(new Vector3(Position.X, Position.Y, Position.Z), new Vector3(Position.X + CHUNK_XMAX, Position.Y + CHUNK_YMAX, Position.Z + CHUNK_ZMAX));
-
         }
 
         public BoundingBox BoundingBox

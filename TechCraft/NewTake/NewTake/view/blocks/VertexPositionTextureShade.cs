@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -24,8 +25,6 @@ namespace NewTake.view.blocks
         public static readonly VertexDeclaration VertexDeclaration = new VertexDeclaration(VertexElements);
         VertexDeclaration IVertexType.VertexDeclaration { get { return VertexDeclaration; } }
 
-
-
         public VertexPositionTextureShade(Vector3 position,  Vector2 textureCoordinate, float shade)
         {
             _position = position;
@@ -44,7 +43,6 @@ namespace NewTake.view.blocks
         public override String ToString()
         {
             return "(" + _position + "),(" + _textureCoordinate + ")," + _shade;
-
         }
 
         public Vector3 Position { get { return _position; } set { _position = value; } }
