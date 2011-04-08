@@ -75,7 +75,7 @@ namespace NewTake.model
             else
             {
                 //Debug.WriteLine("no block at  ({0},{1},{2}) ", x, y, z);
-                return new Block(BlockType.None, false);
+                return new Block(BlockType.None, false); //TODO blocktype.unknown ( with matrix films green symbols texture ? ) 
             }
         }
 

@@ -121,6 +121,8 @@
     <Compile Include="view\blocks\VertexBlockRenderer.cs" />
     <Compile Include="view\BoundariesChunkRenderer.cs" />
     <Compile Include="view\Camera.cs" />
+    <Compile Include="view\IChunkRenderer.cs" />
+    <Compile Include="view\singlethread\SingleThreadWorldRenderer.cs" />
     <Compile Include="view\FirstPersonCamera.cs" />
     <Compile Include="Tests.cs" />
     <Compile Include="model\Block.cs" />
@@ -138,6 +140,7 @@
     <Compile Include="view\blocks\BlockInformation.cs" />
     <Compile Include="view\blocks\BlockTexture.cs" />
     <Compile Include="view\ChunkRenderer.cs" />
+    <Compile Include="view\singlethread\SolidBoundsChunkRenderer.cs" />
     <Compile Include="view\WorldRenderer.cs" />
     <Compile Include="view\blocks\VertexPositionTextureShade.cs" />
     <Compile Include="model\Vector3i.cs" />

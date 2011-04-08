@@ -23,10 +23,10 @@ namespace NewTake
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
-        World world;
-        WorldRenderer renderer;
+        private GraphicsDeviceManager graphics;
+        private SpriteBatch spriteBatch;
+        private World world;
+        private WorldRenderer renderer;
         private FirstPersonCamera _camera;
         private FirstPersonCameraController _cameraController;
         private MouseState _previousMouseState;
@@ -70,8 +70,8 @@ namespace NewTake
             _cameraController = new FirstPersonCameraController(_camera);
             _cameraController.Initialize();
 
-
-            renderer = new WorldRenderer(GraphicsDevice, _camera, world);
+            //renderer = new WorldRenderer(GraphicsDevice, _camera, world);
+            renderer = new SingleThreadWorldRenderer(GraphicsDevice, _camera, world);
 
             base.Initialize();
         }
@@ -228,7 +228,7 @@ namespace NewTake
                             {
                                 Debug.WriteLine(targetPoint + "->" + blockType);
                                 world.setBlock((uint)targetPoint.X, (uint)targetPoint.Y, (uint)targetPoint.Z, new Block(BlockType.None, 0));
-                                //tempHookForWorldGen(targetPoint);
+                              
                             }
                         }
                         break;
@@ -265,55 +265,6 @@ namespace NewTake
             }
 
         }
-
-
-
-        //private void tempHookForWorldGen(Vector3 targetPoint)
-        //{
-        //    uint x = (uint)targetPoint.X;
-        //    uint y = (uint)targetPoint.Y;
-        //    uint z = (uint)targetPoint.Z;
-
-        //    uint cx = x / Chunk.CHUNK_XMAX;
-        //    uint cz = z / Chunk.CHUNK_ZMAX;
-
-
-        //    uint lx = x % Chunk.CHUNK_XMAX;
-        //    uint ly = y % Chunk.CHUNK_YMAX;
-        //    uint lz = z % Chunk.CHUNK_ZMAX;
-
-        //    Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
-
-        //    /* todo solve problems with adding removing blocks in negative coords space
-        //    or move to unsigned ints and start at int maxvalue/2 !
-        //     * if (lx == 0)
-        //    {
-        //        if (world.viewableChunks[cx - 1, cz]==null)
-        //        {
-        //            Vector3 newPos = currentChunkPos  -  new Vector3(Chunk.CHUNK_XMAX , 0 , 0);
-        //            //grow the viewable sparsematrix world ( TODO : remove opposite chunks or we will fill the memory ! )   
-        //            Chunk toAdd = new Chunk(newPos);
-        //            world.viewableChunks[(cx - 1) , cz] = toAdd;
-        //            world.builder.build(toAdd);
-        //            renderer.initRendererAction((cx - 1) ,0, cz );
-        //        }
-        //    }*/
-
-        //    if (lx == Chunk.CHUNK_XMAX - 1)
-        //    {
-        //        if (world.viewableChunks[cx + 1, cz] == null)
-        //        {
-        //            Vector3i newIndex = currentChunkIndex + new Vector3i(1, 0, 0);
-        //            //grow the viewable sparsematrix world ( TODO : remove opposite chunks or we will fill the memory ! )   
-        //            Chunk toAdd = new Chunk(newIndex);
-
-        //            world.viewableChunks[newIndex.X, newIndex.Z] = toAdd;
-        //            world.builder.build(toAdd);
-        //            renderer.initRendererAction(newIndex);
-        //        }
-        //    }
-
-        //}
 
         /// <summary>
         /// This is called when the game should draw itself.

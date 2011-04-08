@@ -31,6 +31,11 @@ namespace NewTake.view
             blocksRenderer = new VertexBlockRenderer(world);
         }
 
+        public virtual bool isInView(BoundingFrustum viewFrustum)
+        {
+            return chunk.BoundingBox.Intersects(viewFrustum);
+        }
+
         public virtual void BuildVertexList()
         {
             //Debug.WriteLine("building vertexlist ...");
@@ -60,6 +65,18 @@ namespace NewTake.view
 
                 chunk.dirty = false;
                 //Debug.WriteLine("............building Vertexlist done");
+            }
+        }
+
+         //TODO currently only used by single thread impl 
+        public virtual void update(GameTime gameTime)
+        {
+            if (chunk.dirty)
+            {
+                //_buildingThread = new Thread(new ThreadStart(BuildVertexList));
+                ////_threadManager.Add(_buildingThread);
+                //_buildingThread.Start();
+                BuildVertexList();
             }
         }
 

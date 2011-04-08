@@ -10,7 +10,7 @@ namespace NewTake.model.terrain
 {
     class SimpleTerrain : IChunkBuilder
     {
-        public void build(Chunk chunk)
+        public virtual void build(Chunk chunk)
         {
             for (int x = 0; x < Chunk.CHUNK_XMAX; x++)
             {
@@ -21,7 +21,8 @@ namespace NewTake.model.terrain
                     int worldZ = (int)chunk.Position.Z + z;
                     generateTerrain(chunk, x, z, worldX, worldZ);
                 }
-            }           
+            }
+            chunk.generated = true;
         }
 
         protected virtual void generateTerrain(Chunk chunk, int blockXInChunk, int blockZInChunk, int worldX, int worldY)

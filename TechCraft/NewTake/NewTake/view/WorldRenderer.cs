@@ -18,22 +18,22 @@ namespace NewTake.view
         public const int FOGNEAR = 90*8;
         public const int FOGFAR = 140*8;
 
-        private World world;
-        public readonly GraphicsDevice GraphicsDevice;
+        protected World world;
+        protected readonly GraphicsDevice GraphicsDevice;
         //private IList<ChunkRenderer> ChunkRenderers;
-        Dictionary<Chunk, ChunkRenderer> ChunkRenderers;
-        private Effect _solidBlockEffect;
-        private Texture2D _textureAtlas;
-        private readonly FirstPersonCamera camera;
+        protected Dictionary<Vector3i, ChunkRenderer> ChunkRenderers;
+        protected Effect _solidBlockEffect;
+        protected Texture2D _textureAtlas;
+        protected readonly FirstPersonCamera camera;
         //TimeSpan addTime = TimeSpan.Zero;
         TimeSpan removeTime = TimeSpan.Zero;
         public Queue<Chunk> _toBuild;
         public bool _running = true;
         public Thread _buildingThread;
 
-        private readonly RasterizerState _wireframedRaster = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
-        private readonly RasterizerState _normalRaster = new RasterizerState() { CullMode = CullMode.CullCounterClockwiseFace, FillMode = FillMode.Solid };
-        private bool _wireframed = false;
+        protected readonly RasterizerState _wireframedRaster = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
+        protected readonly RasterizerState _normalRaster = new RasterizerState() { CullMode = CullMode.CullCounterClockwiseFace, FillMode = FillMode.Solid };
+        protected bool _wireframed = false;
 
         public void ToggleRasterMode()
         {
@@ -44,21 +44,25 @@ namespace NewTake.view
         {
             this.world = world;
             this.GraphicsDevice = graphicsDevice;
-            ChunkRenderers = new Dictionary<Chunk, ChunkRenderer>();
+            ChunkRenderers = new Dictionary<Vector3i, ChunkRenderer>();
             world.visitChunks(initRendererAction);
             this.camera = camera;
-            _toBuild = new Queue<Chunk>();
+            postConstruct();
+            
+         }
 
+        protected virtual void postConstruct(){
+            _toBuild = new Queue<Chunk>();
             _buildingThread = new Thread(new ThreadStart(BuildingThread));
             _buildingThread.Start();
         }
 
-        public void initRendererAction(Vector3i vector)
+        public virtual void initRendererAction(Vector3i vector)
         {
             Chunk chunk = world.viewableChunks[vector.X, vector.Z];
-            ChunkRenderer cRenderer = new ChunkRenderer(GraphicsDevice, world, chunk);
-            //ChunkRenderer cRenderer = new BoundariesChunkRenderer(GraphicsDevice, world, chunk);
-            ChunkRenderers.Add(chunk, cRenderer);
+            //ChunkRenderer cRenderer = new ChunkRenderer(GraphicsDevice, world, chunk);
+            ChunkRenderer cRenderer = new BoundariesChunkRenderer(GraphicsDevice, world, chunk);
+            ChunkRenderers.Add(chunk.Index, cRenderer);
         }
 
         public void loadContent(ContentManager content)
@@ -67,7 +71,7 @@ namespace NewTake.view
             _solidBlockEffect = content.Load<Effect>("Effects\\SolidBlockEffect");
         }
 
-        public void Update(GameTime gameTime)
+        public virtual void Update(GameTime gameTime)
         {
             //addTime += gameTime.ElapsedGameTime;
             removeTime += gameTime.ElapsedGameTime;
@@ -127,7 +131,7 @@ namespace NewTake.view
                             chunk.visible = false;
                             world.viewableChunks[j, l] = null;
                             //Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));
-                            ChunkRenderers.Remove(chunk);
+                            ChunkRenderers.Remove(chunk.Index);
                             //Debug.WriteLine(string.Format("Removed Chunk {0}-{1}-{2}", (int)chunk.Position.X, (int)chunk.Position.Y, (int)chunk.Position.Z));
                         }
                     }
@@ -196,7 +200,7 @@ namespace NewTake.view
             }
         }
 
-        public void Draw(GameTime gameTime)
+        public virtual void Draw(GameTime gameTime)
         {
 
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);

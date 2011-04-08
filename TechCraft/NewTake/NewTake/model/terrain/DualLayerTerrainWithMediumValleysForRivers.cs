@@ -5,29 +5,19 @@ using System.Text;
 
 namespace NewTake.model.terrain
 {
-    class DualLayerTerrainWithMediumValleysForRivers : IChunkBuilder
+    class DualLayerTerrainWithMediumValleysForRivers : SimpleTerrain
     {
         int waterLevel = (int)(Chunk.CHUNK_YMAX * 0.5f);
         int snowLevel = 95;
         int minimumGroundheight = Chunk.CHUNK_YMAX / 4;
 
-        public void build(Chunk chunk)
+        public override void build(Chunk chunk)
         {
-            for (int x = 0; x < Chunk.CHUNK_XMAX; x++)
-            {
-                int worldX = (int)chunk.Position.X + x + World.SEED;
-
-                for (int z = 0; z < Chunk.CHUNK_ZMAX; z++)
-                {
-                    int worldZ = (int)chunk.Position.Z + z;
-                    generateTerrain(chunk, x, z, worldX, worldZ);
-                }
-            }
-            chunk.generated = true;
+            base.build(chunk);
             //GenerateWaterSandLayer(chunk);
         }
 
-        protected virtual void generateTerrain(Chunk chunk, int blockXInChunk, int blockZInChunk, int worldX, int worldZ)
+        protected override void generateTerrain(Chunk chunk, int blockXInChunk, int blockZInChunk, int worldX, int worldZ)
         {
             Random r = new Random();
 
