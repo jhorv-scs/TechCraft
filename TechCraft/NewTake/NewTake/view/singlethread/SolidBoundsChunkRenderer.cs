@@ -41,7 +41,7 @@ namespace NewTake.view
                         }
                         else
                         {
-                            //If we're on a boundary
+                            //If we're an empty block on a boundary
                             if (x == 0)
                             {
                                 Chunk neighbouringChunk = world.viewableChunks[chunk.Index.X - 1, chunk.Index.Z];
@@ -142,7 +142,16 @@ namespace NewTake.view
             // X Boundary
             if (chunkRelativePosition.X == 0)
             {
-                blockXDecreasing = solidBlock; //world.BlockAt(blockPosition.X - 1, blockPosition.Y, blockPosition.Z);
+                Chunk neighbouringChunk = world.viewableChunks[chunk.Index.X - 1, chunk.Index.Z];
+                if (neighbouringChunk == null)
+                {
+                    blockXDecreasing = solidBlock;
+                }
+                else
+                {
+                    blockXDecreasing = neighbouringChunk.Blocks[Chunk.CHUNK_XMAX - 1, chunkRelativePosition.Y, chunkRelativePosition.Z];
+                }
+
             }
             else
             {
@@ -150,7 +159,15 @@ namespace NewTake.view
             }
             if (chunkRelativePosition.X == Chunk.SIZE.X - 1)
             {
-                blockXIncreasing = solidBlock; //world.BlockAt(blockPosition.X + 1, blockPosition.Y, blockPosition.Z);
+                Chunk neighbouringChunk = world.viewableChunks[chunk.Index.X + 1, chunk.Index.Z];
+                if (neighbouringChunk == null)
+                {
+                    blockXIncreasing = solidBlock;
+                }
+                else
+                {
+                    blockXIncreasing = neighbouringChunk.Blocks[0, chunkRelativePosition.Y, chunkRelativePosition.Z];
+                }
             }
             else
             {
@@ -160,7 +177,7 @@ namespace NewTake.view
             // Y Boundary
             if (chunkRelativePosition.Y == 0)
             {
-                blockYDecreasing = solidBlock; //world.BlockAt(blockPosition.X, blockPosition.Y - 1, blockPosition.Z);
+                blockYDecreasing = solidBlock;
             }
             else
             {
@@ -168,7 +185,7 @@ namespace NewTake.view
             }
             if (chunkRelativePosition.Y == Chunk.SIZE.Y - 1)
             {
-                blockYIncreasing = solidBlock; // world.BlockAt(blockPosition.X, blockPosition.Y + 1, blockPosition.Z);
+                blockYIncreasing = solidBlock;
             }
             else
             {
@@ -178,7 +195,15 @@ namespace NewTake.view
             // Z Boundary
             if (chunkRelativePosition.Z == 0)
             {
-                blockZDecreasing = solidBlock; //world.BlockAt(blockPosition.X, blockPosition.Y, blockPosition.Z - 1);
+                Chunk neighbouringChunk = world.viewableChunks[chunk.Index.X, chunk.Index.Z - 1];
+                if (neighbouringChunk == null)
+                {
+                    blockZDecreasing = solidBlock;
+                }
+                else
+                {
+                    blockZDecreasing = neighbouringChunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y, Chunk.CHUNK_ZMAX - 1];
+                }
             }
             else
             {
@@ -186,7 +211,15 @@ namespace NewTake.view
             }
             if (chunkRelativePosition.Z == Chunk.SIZE.Z - 1)
             {
-                blockZIncreasing = solidBlock; // world.BlockAt(blockPosition.X, blockPosition.Y, blockPosition.Z + 1);
+                Chunk neighbouringChunk = world.viewableChunks[chunk.Index.X, chunk.Index.Z + 1];
+                if (neighbouringChunk == null)
+                {
+                    blockZIncreasing = solidBlock;
+                }
+                else
+                {
+                    blockZIncreasing = neighbouringChunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y, 0];
+                }
             }
             else
             {
