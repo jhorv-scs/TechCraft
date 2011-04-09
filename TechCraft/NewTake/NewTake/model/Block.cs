@@ -24,6 +24,35 @@ namespace NewTake.model
     #region Block structure
     public struct Block
     {
+        public  BlockType Type;
+        public byte LightAmount;
+        
+        public Block(BlockType blockType, bool sunlit)
+        {
+            Type=blockType;
+            if (sunlit) LightAmount=15;
+            else LightAmount=0;
+        }
+
+        public Block(BlockType blockType, byte lightAmount)
+        {
+            Type=blockType;
+            this.LightAmount=lightAmount;
+        }
+
+        public void debug(String s)
+        {
+            Debug.WriteLine("["+s +"] ->"+ Type + ", " + LightAmount);         
+        }
+
+        public bool Solid
+        {
+            get { return Type != BlockType.None; } 
+        }
+    }
+
+    public struct LowMemBlock
+    {
         //blocktype + light amount stored in one byte 
         private byte store ;
         
@@ -39,12 +68,13 @@ namespace NewTake.model
             set { store = (byte)(store | value); }
         }
       
-        public Block(BlockType blockType, bool sunlit)
+        public LowMemBlock(BlockType blockType, bool sunlit)
         {
-            store = (byte)(((byte)blockType<<(byte)4) | (byte)15);
+           if (sunlit) store = (byte)(((byte)blockType<<(byte)4) | (byte)15);
+           else store = (byte)(((byte)blockType<<(byte)4) | (byte)0);
         }
 
-        public Block(BlockType blockType, byte lightAmount)
+        public LowMemBlock(BlockType blockType, byte lightAmount)
         {
             store = (byte)(((byte)blockType << (byte)4) | lightAmount);
         }

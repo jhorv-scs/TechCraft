@@ -89,9 +89,17 @@ namespace NewTake.model.terrain
                         sunlit = false;
                     }
                 }
+
+                if (blockType==BlockType.None)
+                {
+                    SetHighLow(chunk, blockXInChunk, y,blockZInChunk);
+                }
+
                 chunk.Blocks[blockXInChunk, y, blockZInChunk] = new Block(blockType, sunlit);
             }
         }
+
+       
         #endregion
 
         #region GenerateWaterSandLayer

@@ -32,6 +32,7 @@ namespace NewTake.model
 
         //public IChunkBuilder builder = new SimpleTerrain();
         //public IChunkBuilder builder = new FlatReferenceTerrain();
+        //public IChunkBuilder builder = new TerrainWithCaves();
         public IChunkBuilder builder = new DualLayerTerrainWithMediumValleysForRivers();
 
         public static uint origin = 1000; 
@@ -83,6 +84,7 @@ namespace NewTake.model
             }
         }
 
+        //this method is only invoked by user action, not by the engine so optimisation is not a problem for now
         public Block setBlock(uint x, uint y, uint z, Block newType)
         {
             if (InView(x, y, z))
@@ -96,11 +98,13 @@ namespace NewTake.model
                 Block old = chunk.Blocks[localX, localY, localZ];
                 
                 chunk.Blocks[localX, localY, localZ] = newType;
+
                 chunk.dirty = true;
 
                 if (!newType.Solid)
                 {
-                    //TODO when digging, mark neighbours chunks as dirty to fill rendering holes                                       
+                    SimpleTerrain.SetHighLow(chunk, (int)localX, (int)localY, (int)localZ);                    
+                    //TODO ( maybe ? )  when digging, mark neighbours chunks as dirty to fill rendering holes                                       
                 }
 
                 return old;

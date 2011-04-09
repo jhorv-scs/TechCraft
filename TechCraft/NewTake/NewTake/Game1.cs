@@ -177,23 +177,11 @@ namespace NewTake
 
             if (mouseState.LeftButton == ButtonState.Pressed && _previousMouseState.LeftButton != ButtonState.Pressed)
             {
-                int dir;
-
-                if (_camera.Position.X < 0 || _camera.Position.Y < 0 || _camera.Position.Z < 0)
-                {
-                    dir = -1;
-                }
-                else
-                {
-                    dir = 1;
-                }
-
                 for (float x = 0.5f; x < 5f; x += 0.2f)
                 {
                     Vector3 targetPoint;
-                    if (dir == 1) targetPoint = _camera.Position + (_lookVector * x);
-                    else targetPoint = _camera.Position - (_lookVector * x);
-
+                    targetPoint = _camera.Position + (_lookVector * x);
+                  
                     BlockType blockType = world.BlockAt(targetPoint).Type;
 
                     if (blockType != BlockType.None && blockType != BlockType.Water)

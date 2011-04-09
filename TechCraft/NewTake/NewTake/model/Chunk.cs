@@ -27,6 +27,11 @@ namespace NewTake.model
 
         private BoundingBox _boundingBox;
 
+        public Vector3i highestNoneBlock = new Vector3i(0, 0, 0);
+        //highestNoneBlock starts at 0 so it will be adjusted. if you start at highest it will never be adjusted ! 
+        
+        public Vector3i lowestNoneBlock = new Vector3i(0, CHUNK_YMAX, 0);
+
         public Chunk(Vector3i index)
         {
             dirty = true;

@@ -13,9 +13,7 @@ namespace NewTake.view
 {
 
     //this is the same code as in boundariesChunkRenderer. 
-    // TODO : always using solidBlock at boundaries is fast ( no world.blockat) but wrong when world.blockat would send something else that blocktype.NONE
-    // I propose worldat returning a special block when outofbounds
-
+   
     class SolidBoundsChunkRenderer : ChunkRenderer
     {
 
@@ -26,17 +24,23 @@ namespace NewTake.view
         {
             //Debug.WriteLine("building vertexlist ...");
             _vertexList.Clear();
-            for (uint x = 0; x < Chunk.CHUNK_XMAX; x++)
+
+            //lowestNoneBlock and highestNoneBlock come from the terrain gen (Eventually, if the terraingen did not set them you gain nothing)
+            //and digging is handled correctly too 
+            //TODO generalize highest/lowest None to non-solid
+            byte yLow = (byte) (chunk.lowestNoneBlock.Y == 0 ? 0 : chunk.lowestNoneBlock.Y-1);
+            byte yHigh = (byte) (chunk.highestNoneBlock.Y == Chunk.CHUNK_YMAX-1 ? Chunk.CHUNK_YMAX-1 : chunk.highestNoneBlock.Y + 1);
+
+
+            for (byte y = yLow; y < yHigh; y++)
             {
-                for (uint y = 0; y < Chunk.CHUNK_YMAX; y++)
+                for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
                 {
-                    for (uint z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                    for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
                     {
                         Block block = chunk.Blocks[x, y, z];
                         if (block.Type != BlockType.None)
                         {
-                            // Vector3i blockPosition = chunk.Position + new Vector3i(x, y, z);
-
                             BuildBlockVertices(ref _vertexList, block, chunk, new Vector3i(x, y, z));
                         }
                         else
@@ -74,6 +78,7 @@ namespace NewTake.view
                             }
                             if (y == 0)
                             {
+                                //TODO Y infinity BuildVertexList
                             }
                             else if (y == Chunk.CHUNK_YMAX - 1)
                             {

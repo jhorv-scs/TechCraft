@@ -44,6 +44,12 @@ namespace NewTake.model.terrain
                             else
                                 t.Type = BlockType.None;
                         }
+
+                        if (t.Type == BlockType.None)
+                        {
+                            SimpleTerrain.SetHighLow(chunk, x, y, z);
+                        }
+
                         chunk.Blocks[x, y, z] = t;
                     }
                 }

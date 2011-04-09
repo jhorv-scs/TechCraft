@@ -75,6 +75,10 @@ namespace NewTake.model.terrain
                         }
                     }
                 }
+                if (blockType == BlockType.None)
+                {
+                    SetHighLow(chunk, x, y, z);
+                }
                 chunk.Blocks[x, y, z] = new Block(blockType, sunlit);
             }
         }
