@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using NewTake;
+
 namespace NewTake.model.terrain
 {
     class DualLayerTerrainWithMediumValleysForRivers : SimpleTerrain
@@ -10,17 +12,18 @@ namespace NewTake.model.terrain
         int waterLevel = (int)(Chunk.CHUNK_YMAX * 0.5f);
         int snowLevel = 95;
         int minimumGroundheight = Chunk.CHUNK_YMAX / 4;
+        
+        Random r = new Random();
 
         public override void build(Chunk chunk)
         {
             base.build(chunk);
-            //GenerateWaterSandLayer(chunk);
+            GenerateWaterSandLayer(chunk);
         }
 
         #region generateTerrain
         protected override void generateTerrain(Chunk chunk, int blockXInChunk, int blockZInChunk, int worldX, int worldZ)
         {
-            Random r = new Random();
 
             float lowerGroundHeight = GetLowerGroundHeight(chunk, worldX, worldZ, blockXInChunk, blockZInChunk);
             int upperGroundHeight = GetUpperGroundHeight(chunk, worldX, worldZ, lowerGroundHeight);
@@ -49,6 +52,7 @@ namespace NewTake.model.terrain
                     }
                     else
                     {
+                        blockType = BlockType.None;
                         if (sunlit)
                         {
                             if (y > snowLevel + r.Next(3))
@@ -57,7 +61,15 @@ namespace NewTake.model.terrain
                             }
                             else
                             {
-                                blockType = BlockType.Grass;
+                                if (r.Next(100) == 1)
+                                {
+                                    BuildTree(chunk, blockXInChunk, y, blockZInChunk);
+                                }
+                                else
+                                {
+                                    blockType = BlockType.Grass;
+                                }
+                                //blockType = BlockType.Grass;
                             }
                             sunlit = false;
                         }
@@ -100,6 +112,40 @@ namespace NewTake.model.terrain
         }
 
        
+        #endregion
+
+        #region BuildTree
+        private void BuildTree(Chunk chunk, int tx, int ty, int tz)
+        {
+            int height = 4 + r.Next(3);
+
+            if ((ty + height) < Chunk.CHUNK_YMAX-1)
+            {
+                for (int y = ty; y < ty + height; y++)
+                {
+
+                    chunk.Blocks[tx, y, tz] = new Block(BlockType.Tree, 0);
+                    //_map[tx, y, tz] = BlockType.WoodSide;
+                }
+            }
+
+            int radius = 3 + r.Next(2);
+            int ny = ty + height;
+
+            for (int i = 0; i < 40 + r.Next(4); i++)
+            {
+                int lx = tx + r.Next(radius) - r.Next(radius);
+                int ly = ny + r.Next(radius) - r.Next(radius);
+                int lz = tz + r.Next(radius) - r.Next(radius);
+
+                if (chunk.outOfBounds((byte)lx, (byte)ly, (byte)lz) == false)
+                {
+                    if (chunk.Blocks[lx, ly, lz].Type == BlockType.None) chunk.Blocks[lx, ly, lz] = new Block(BlockType.Leaves, 0);
+                }
+
+            }
+
+        }
         #endregion
 
         #region GenerateWaterSandLayer
