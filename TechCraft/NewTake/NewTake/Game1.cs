@@ -29,7 +29,6 @@ namespace NewTake
         #region inits
 
         private GraphicsDeviceManager graphics;
-        private SpriteBatch spriteBatch;
         private World world;
         private WorldRenderer renderer;
         private FirstPersonCamera _camera;
@@ -46,7 +45,11 @@ namespace NewTake
         // SelectionBlock
         public Model SelectionBlock;
         BasicEffect _selectionBlockEffect;
-        Texture2D SelectionBlockTexture; 
+        Texture2D SelectionBlockTexture;
+
+        // Crosshair
+        private Texture2D _crosshairTexture;
+        private SpriteBatch _spriteBatch;
 
         #endregion
 
@@ -89,6 +92,9 @@ namespace NewTake
             // SelectionBlock
             _selectionBlockEffect = new BasicEffect(GraphicsDevice);
 
+            // Used for crosshair sprite/texture at the moment
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
+
             base.Initialize();
         }
         #endregion
@@ -106,13 +112,16 @@ namespace NewTake
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+
             renderer.loadContent(Content);
             // TODO: use this.Content to load your game content here
 
+            // SelectionBlock
             SelectionBlock = Content.Load<Model>("Models\\SelectionBlock");
-            SelectionBlockTexture = Content.Load<Texture2D>("Textures\\SelectionBlock");  
+            SelectionBlockTexture = Content.Load<Texture2D>("Textures\\SelectionBlock");
+
+            // Crosshair
+            _crosshairTexture = Content.Load<Texture2D>("Textures\\crosshair");
 
         }
         #endregion
@@ -205,7 +214,7 @@ namespace NewTake
 
                             if (BlockInformation.IsDiggable(targetType))
                             {
-                                Debug.WriteLine(targetPoint + "->" + blockType);
+                                //Debug.WriteLine(targetPoint + "->" + blockType);
                                 world.setBlock((uint)targetPoint.X, (uint)targetPoint.Y, (uint)targetPoint.Z, new Block(BlockType.None, 0));
                               
                             }
@@ -368,7 +377,15 @@ namespace NewTake
 
             checkSelectionBlock(); // draw the SelectionBlock - comment out to stop the block from drawing
 
+            // Draw the crosshair
+            _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+            _spriteBatch.Draw(_crosshairTexture, new Vector2(
+                (GraphicsDevice.Viewport.Width / 2) - 10,
+                (GraphicsDevice.Viewport.Height / 2) - 10), Color.White);
+            _spriteBatch.End();  
+
             base.Draw(gameTime);
+
         }
         #endregion
 
