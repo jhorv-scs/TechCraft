@@ -43,6 +43,11 @@ namespace NewTake
 
         private int preferredBackBufferHeight, preferredBackBufferWidth;
 
+        // SelectionBlock
+        public Model SelectionBlock;
+        BasicEffect _selectionBlockEffect;
+        Texture2D SelectionBlockTexture; 
+
         #endregion
 
         public Game1()
@@ -81,6 +86,9 @@ namespace NewTake
             //renderer = new WorldRenderer(GraphicsDevice, _camera, world);
             renderer = new SingleThreadWorldRenderer(GraphicsDevice, _camera, world);
 
+            // SelectionBlock
+            _selectionBlockEffect = new BasicEffect(GraphicsDevice);
+
             base.Initialize();
         }
         #endregion
@@ -102,6 +110,9 @@ namespace NewTake
             spriteBatch = new SpriteBatch(GraphicsDevice);
             renderer.loadContent(Content);
             // TODO: use this.Content to load your game content here
+
+            SelectionBlock = Content.Load<Model>("Models\\SelectionBlock");
+            SelectionBlockTexture = Content.Load<Texture2D>("Textures\\SelectionBlock");  
 
         }
         #endregion
@@ -177,7 +188,7 @@ namespace NewTake
 
             if (mouseState.LeftButton == ButtonState.Pressed && _previousMouseState.LeftButton != ButtonState.Pressed)
             {
-                for (float x = 0.5f; x < 5f; x += 0.2f)
+                for (float x = 0.5f; x < 8f; x += 0.1f)
                 {
                     Vector3 targetPoint;
                     targetPoint = _camera.Position + (_lookVector * x);
@@ -208,7 +219,7 @@ namespace NewTake
                 && _previousMouseState.RightButton != ButtonState.Pressed)
             {
                 float hit = 0;
-                for (float x = 0.8f; x < 5f; x += 0.1f)
+                for (float x = 0.8f; x < 8f; x += 0.1f)
                 {
                     Vector3 targetPoint = _camera.Position + (_lookVector * x);
                     if (world.BlockAt(targetPoint).Type != BlockType.None)
@@ -232,6 +243,80 @@ namespace NewTake
                 }
             }
 
+        }
+        #endregion
+
+        #region SelectionBlock
+        private void checkSelectionBlock()
+        {
+            for (float x = 0.5f; x < 8f; x += 0.1f)
+            {
+                Vector3 targetPoint;
+                targetPoint = _camera.Position + (_lookVector * x);
+
+                BlockType blockType = world.BlockAt(targetPoint).Type;
+
+                if (blockType != BlockType.None && blockType != BlockType.Water)
+                {
+                    //Debug.WriteLine(
+                    //    (Math.Abs((uint)targetPoint.X % Chunk.CHUNK_XMAX)) + "-" +
+                    //    (Math.Abs((uint)targetPoint.Y % Chunk.CHUNK_YMAX)) + "-" +
+                    //    (Math.Abs((uint)targetPoint.Z % Chunk.CHUNK_ZMAX)) + "->" +
+                    //    blockType + ", x=" + x);
+
+                    RenderSelectionBlock(targetPoint);
+                    break;
+                }
+            }
+        }
+
+        public void RenderSelectionBlock(Vector3 targetPoint)
+        {
+
+            GraphicsDevice.BlendState = BlendState.NonPremultiplied; // allows any transparent pixels in original PNG to draw transparent
+
+            Vector3 intargetPoint = new Vector3(Math.Abs((uint)targetPoint.X),
+                                                Math.Abs((uint)targetPoint.Y),
+                                                Math.Abs((uint)targetPoint.Z)); // makes the targetpoint a non float
+
+            Vector3 position = intargetPoint + new Vector3(0.5f, 0.5f, 0.5f);
+
+            Matrix matrix_a, matrix_b;
+            Matrix identity = Matrix.Identity;                       // setup the matrix prior to translation and scaling  
+            Matrix.CreateTranslation(ref position, out matrix_a);    // translate the position a half block in each direction
+            Matrix.CreateScale((float)0.51f, out matrix_b);          // scales the selection box slightly larger than the targetted block
+
+            identity = Matrix.Multiply(matrix_b, matrix_a);          // the final position of the block
+
+            // set up the World, View and Projection
+            _selectionBlockEffect.World = identity;
+            _selectionBlockEffect.View = _camera.View;
+            _selectionBlockEffect.Projection = _camera.Projection;
+            _selectionBlockEffect.Texture = SelectionBlockTexture;
+            _selectionBlockEffect.TextureEnabled = true;
+
+            // apply the effect
+            foreach (EffectPass pass in _selectionBlockEffect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                DrawSelectionBlockMesh(GraphicsDevice, SelectionBlock.Meshes[0], _selectionBlockEffect);
+            }
+
+        }
+
+        private void DrawSelectionBlockMesh(GraphicsDevice graphicsdevice, ModelMesh mesh, Effect effect)
+        {
+            int count = mesh.MeshParts.Count;
+            for (int i = 0; i < count; i++)
+            {
+                ModelMeshPart parts = mesh.MeshParts[i];
+                if (parts.NumVertices > 0)
+                {
+                    GraphicsDevice.Indices = parts.IndexBuffer;
+                    GraphicsDevice.SetVertexBuffer(parts.VertexBuffer);
+                    graphicsdevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, parts.NumVertices, parts.StartIndex, parts.PrimitiveCount);
+                }
+            }
         }
         #endregion
 
@@ -281,6 +366,7 @@ namespace NewTake
             // TODO: Add your drawing code here
             renderer.Draw(gameTime);
 
+            checkSelectionBlock(); // draw the SelectionBlock - comment out to stop the block from drawing
 
             base.Draw(gameTime);
         }
