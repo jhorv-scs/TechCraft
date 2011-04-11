@@ -66,7 +66,7 @@ namespace NewTake.view
         {
             Chunk chunk = world.viewableChunks[vector.X, vector.Z];
             //ChunkRenderer cRenderer = new ChunkRenderer(GraphicsDevice, world, chunk);
-            ChunkRenderer cRenderer = new BoundariesChunkRenderer(GraphicsDevice, world, chunk);
+            ChunkRenderer cRenderer = new BoundariesChunkRenderer(GraphicsDevice, world, chunk, camera);
             ChunkRenderers.Add(chunk.Index, cRenderer);
         }
 

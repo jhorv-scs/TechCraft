@@ -18,7 +18,7 @@ namespace NewTake.view
     class SolidBoundsChunkRenderer : ChunkRenderer
     {
 
-        public SolidBoundsChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk) : base(graphicsDevice, world, chunk) { }
+        public SolidBoundsChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk, Camera camera) : base(graphicsDevice, world, chunk, camera) { }
 
         #region BuildVertexList
         public override void BuildVertexList()

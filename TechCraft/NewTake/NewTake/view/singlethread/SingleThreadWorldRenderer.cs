@@ -27,7 +27,7 @@ namespace NewTake.view
         public override void initRendererAction(Vector3i vector)
         {
             Chunk chunk = world.viewableChunks[vector.X, vector.Z];
-            ChunkRenderer cRenderer = new SolidBoundsChunkRenderer(GraphicsDevice, world, chunk);
+            ChunkRenderer cRenderer = new SolidBoundsChunkRenderer(GraphicsDevice, world, chunk, camera);
             ChunkRenderers.Add(chunk.Index,cRenderer);
         }
 

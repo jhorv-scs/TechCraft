@@ -26,14 +26,16 @@ namespace NewTake.view
         public readonly World world;
         protected readonly VertexBlockRenderer blocksRenderer;
         public readonly GraphicsDevice graphicsDevice;
+        public readonly Camera _camera;
 
         #endregion
 
-        public ChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk)
+        public ChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk, Camera camera)
         {
             this.chunk = chunk;
             this.world = world;
             this.graphicsDevice = graphicsDevice;
+            this._camera = camera;
             _vertexList = new List<VertexPositionTextureShade>();
 
             blocksRenderer = new VertexBlockRenderer(world);
@@ -95,29 +97,33 @@ namespace NewTake.view
         #region draw
         public virtual void draw(GameTime gameTime)
         {
-            //uint x = (uint).camera.Position.X;
-            //uint z = (uint)_camera.Position.Z;
+            if (_camera != null)
+            {
+                uint x = (uint)_camera.Position.X;
+                uint z = (uint)_camera.Position.Z;
 
-            //uint cx = x / Chunk.CHUNK_XMAX;
-            //uint cz = z / Chunk.CHUNK_ZMAX;
+                uint cx = x / Chunk.CHUNK_XMAX;
+                uint cz = z / Chunk.CHUNK_ZMAX;
 
-            //uint lx = x % Chunk.CHUNK_XMAX;
-            //uint lz = z % Chunk.CHUNK_ZMAX;
+                uint lx = x % Chunk.CHUNK_XMAX;
+                uint lz = z % Chunk.CHUNK_ZMAX;
 
-            //Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
+                Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
 
-            //for (uint j = cx - (World.VIEW_CHUNKS_X); j < cx + (World.VIEW_CHUNKS_X); j++)
-            //{
-            //    for (uint l = cz - (World.VIEW_CHUNKS_Z); l < cz + (World.VIEW_CHUNKS_Z); l++)
-            //    {
-                    if (chunk.dirty)
+                for (uint j = cx - (World.VIEW_CHUNKS_X); j < cx + (World.VIEW_CHUNKS_X); j++)
+                {
+                    for (uint l = cz - (World.VIEW_CHUNKS_Z); l < cz + (World.VIEW_CHUNKS_Z); l++)
                     {
-                        //Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));
-                        //initRendererAction(newIndex);
-                        BuildVertexList();
+                        if (!chunk.generated) return;
+                        if (chunk.dirty)
+                        {
+                            //Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));
+                            //initRendererAction(newIndex);
+                            BuildVertexList();
+                        }
                     }
-            //    }
-            //}
+                }
+            }
 
             if (!chunk.visible)
             {
@@ -137,10 +143,8 @@ namespace NewTake.view
                 {
                     graphicsDevice.SetVertexBuffer(vertexBuffer);
                     graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexBuffer.VertexCount / 3);
-
                     // graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, _vertexList.ToArray(), 0, _vertexList.Count / 3);
                 }
-
                 else
                 {
                     Debug.WriteLine("no vertices");
