@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework;
 
 using NewTake.view.blocks;
 using NewTake.model;
+using NewTake;
 
 namespace NewTake.view
 {
@@ -94,13 +95,29 @@ namespace NewTake.view
         #region draw
         public virtual void draw(GameTime gameTime)
         {
-            if (chunk.dirty)
-            {
-                //_buildingThread = new Thread(new ThreadStart(BuildVertexList));
-                ////_threadManager.Add(_buildingThread);
-                //_buildingThread.Start();
-                BuildVertexList();
-            }
+            //uint x = (uint).camera.Position.X;
+            //uint z = (uint)_camera.Position.Z;
+
+            //uint cx = x / Chunk.CHUNK_XMAX;
+            //uint cz = z / Chunk.CHUNK_ZMAX;
+
+            //uint lx = x % Chunk.CHUNK_XMAX;
+            //uint lz = z % Chunk.CHUNK_ZMAX;
+
+            //Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
+
+            //for (uint j = cx - (World.VIEW_CHUNKS_X); j < cx + (World.VIEW_CHUNKS_X); j++)
+            //{
+            //    for (uint l = cz - (World.VIEW_CHUNKS_Z); l < cz + (World.VIEW_CHUNKS_Z); l++)
+            //    {
+                    if (chunk.dirty)
+                    {
+                        //Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));
+                        //initRendererAction(newIndex);
+                        BuildVertexList();
+                    }
+            //    }
+            //}
 
             if (!chunk.visible)
             {
@@ -127,7 +144,6 @@ namespace NewTake.view
                 else
                 {
                     Debug.WriteLine("no vertices");
-
                 }
             }
         }

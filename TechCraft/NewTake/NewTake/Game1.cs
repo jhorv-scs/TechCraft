@@ -31,7 +31,7 @@ namespace NewTake
         private GraphicsDeviceManager graphics;
         private World world;
         private WorldRenderer renderer;
-        private FirstPersonCamera _camera;
+        public FirstPersonCamera _camera;
         private FirstPersonCameraController _cameraController;
         private MouseState _previousMouseState;
         private KeyboardState _oldKeyboardState;
@@ -101,7 +101,7 @@ namespace NewTake
 
         protected override void OnExiting(Object sender, EventArgs args)
         {
-            renderer._running = false;
+            //renderer._running = false;
             base.OnExiting(sender, args);
         }
 
