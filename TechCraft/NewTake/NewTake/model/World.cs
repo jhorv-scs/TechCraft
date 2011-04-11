@@ -94,18 +94,14 @@ namespace NewTake.model
                 uint localX = x % Chunk.CHUNK_XMAX;
                 uint localY = y % Chunk.CHUNK_YMAX;
                 uint localZ = z % Chunk.CHUNK_ZMAX;
-               
+               //TODO messy chunk coordinates types
                 Block old = chunk.Blocks[localX, localY, localZ];
                 
-                chunk.Blocks[localX, localY, localZ] = newType;
-
+               //chunk.setBlock is also called by terrain generators for Y loops min max optimisation
+               chunk.setBlock((int)localX, (int)localY, (int)localZ, new Block(newType.Type, old.LightAmount));
+               //TODO ( maybe ? )  when digging, mark neighbours chunks as dirty to fill rendering holes                                       
+               
                 chunk.dirty = true;
-
-                if (!newType.Solid)
-                {
-                    SimpleTerrain.SetHighLow(chunk, (int)localX, (int)localY, (int)localZ);                    
-                    //TODO ( maybe ? )  when digging, mark neighbours chunks as dirty to fill rendering holes                                       
-                }
 
                 return old;
             }

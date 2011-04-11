@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 
 using NewTake.model;
 using NewTake.view.blocks;
+using System.Diagnostics;
 
 namespace NewTake.view
 {
@@ -25,13 +26,17 @@ namespace NewTake.view
             //Debug.WriteLine("building vertexlist ...");
             _vertexList.Clear();
 
-            //lowestNoneBlock and highestNoneBlock come from the terrain gen (Eventually, if the terraingen did not set them you gain nothing)
+            //lowestSolidBlock and highestSolidBlock come from the terrain gen (Eventually, if the terraingen did not set them you gain nothing)
             //and digging is handled correctly too 
-            //TODO generalize highest/lowest None to non-solid
-            byte yLow = (byte) (chunk.lowestNoneBlock.Y == 0 ? 0 : chunk.lowestNoneBlock.Y-1);
-            byte yHigh = (byte) (chunk.highestNoneBlock.Y == Chunk.CHUNK_YMAX-1 ? Chunk.CHUNK_YMAX-1 : chunk.highestNoneBlock.Y + 1);
-
-
+           
+            byte yLow = (byte)(chunk.lowestNoneBlock.Y == 0 ? 0 : chunk.lowestNoneBlock.Y - 1);
+            byte yHigh = (byte)(chunk.highestSolidBlock.Y == Chunk.CHUNK_YMAX - 1 ? Chunk.CHUNK_YMAX - 1 : chunk.highestSolidBlock.Y + 1);
+            
+            //Debug.WriteLine("{0} - {1}",yLow,yHigh);
+            
+            //byte yLow = 0;
+            //byte yHigh =  Chunk.CHUNK_YMAX-1 ;
+            
             for (byte y = yLow; y < yHigh; y++)
             {
                 for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)

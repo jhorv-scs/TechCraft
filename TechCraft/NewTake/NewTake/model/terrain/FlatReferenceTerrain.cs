@@ -23,34 +23,32 @@ namespace NewTake.model.terrain
 
                     for (int z = 0; z < sizeZ; z++)
                     {
-                        Block t = new Block(BlockType.None,true);
+                        Block block = new Block(BlockType.None,true);
 
                         if (y < sizeY / 4)
-                            t.Type = BlockType.Lava;
+                            block.Type = BlockType.Lava;
                         /*
-                         * else if (y == (sizeY / 2) - 1) // test caves visibility t
-                         * = Type.empty;
+                         * else if (y == (sizeY / 2) - 1) // test caves visibility 
+                         * block.Type = Type.empty;
                          */
                         else if (y < sizeY / 2)
-                            t.Type = BlockType.Rock;
+                            block.Type = BlockType.Rock;
                         else if (y == sizeY / 2)
                         {
-                            t.Type = BlockType.Grass;
+                            block.Type = BlockType.Grass;
                         }
                         else
                         {
                             if (y == sizeY / 2 + 1 && (x == 0 || x == sizeX - 1 || z == 0 || z == sizeZ - 1))
-                                t.Type = BlockType.Sand;
+                                block.Type = BlockType.Sand;
                             else
-                                t.Type = BlockType.None;
+                                block.Type = BlockType.None;
                         }
 
-                        if (t.Type == BlockType.None)
-                        {
-                            SimpleTerrain.SetHighLow(chunk, x, y, z);
-                        }
+                        
+                            chunk.setBlock( x, y, z,block);
+                        
 
-                        chunk.Blocks[x, y, z] = t;
                     }
                 }
             }

@@ -63,31 +63,14 @@ namespace NewTake.model.terrain
                     }
                 }
                 
-                if (blockType == BlockType.None)
-                {
-                    SetHighLow(chunk, blockXInChunk, y, blockZInChunk);
-                }
                 
-                chunk.Blocks[blockXInChunk, y, blockZInChunk]= new Block(blockType, sunlit);
-              //  Debug.WriteLine(string.Format("chunk {0} : ({1},{2},{3})={4}", chunk.Position, blockXInChunk, y, blockZInChunk, blockType));
+                chunk.setBlock(  blockXInChunk, y, blockZInChunk,new Block(blockType, sunlit));
+                
+                
+                //  Debug.WriteLine(string.Format("chunk {0} : ({1},{2},{3})={4}", chunk.Position, blockXInChunk, y, blockZInChunk, blockType));
             }
         }
         #endregion
-
-
-        public static void SetHighLow(Chunk chunk, int x, int y, int z)
-        {
-            //TODO static added at last minute, move method somewhere else
-            if (chunk.highestNoneBlock.Y < y)
-            {
-                //TODO uint vs int is currently a mess and in fact here it should be bytes !
-                chunk.highestNoneBlock = new Vector3i((uint)x, (uint)y, (uint)z);
-            }
-            else if (chunk.lowestNoneBlock.Y > y)
-            {
-                chunk.lowestNoneBlock = new Vector3i((uint)x, (uint)y, (uint)z);
-            }
-        }
 
     }
 }

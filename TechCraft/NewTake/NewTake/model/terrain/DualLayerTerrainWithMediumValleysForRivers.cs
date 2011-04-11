@@ -13,7 +13,7 @@ namespace NewTake.model.terrain
         int snowLevel = 95;
         int minimumGroundheight = Chunk.CHUNK_YMAX / 4;
         
-        Random r = new Random();
+        Random r = new Random(World.SEED);
 
         public override void build(Chunk chunk)
         {
@@ -102,12 +102,7 @@ namespace NewTake.model.terrain
                     }
                 }
 
-                if (blockType==BlockType.None)
-                {
-                    SetHighLow(chunk, blockXInChunk, y,blockZInChunk);
-                }
-
-                chunk.Blocks[blockXInChunk, y, blockZInChunk] = new Block(blockType, sunlit);
+                    chunk.setBlock( blockXInChunk, y,blockZInChunk,new Block(blockType, sunlit));
             }
         }
 
@@ -124,7 +119,7 @@ namespace NewTake.model.terrain
                 for (int y = ty; y < ty + height; y++)
                 {
 
-                    chunk.Blocks[tx, y, tz] = new Block(BlockType.Tree, 0);
+                    chunk.setBlock(tx, y, tz,new Block(BlockType.Tree, 0));
                     //_map[tx, y, tz] = BlockType.WoodSide;
                 }
             }
@@ -140,7 +135,8 @@ namespace NewTake.model.terrain
 
                 if (chunk.outOfBounds((byte)lx, (byte)ly, (byte)lz) == false)
                 {
-                    if (chunk.Blocks[lx, ly, lz].Type == BlockType.None) chunk.Blocks[lx, ly, lz] = new Block(BlockType.Leaves, 0);
+                    if (chunk.Blocks[lx, ly, lz].Type == BlockType.None)
+                        chunk.setBlock(lx, ly, lz, new Block(BlockType.Leaves, 0));
                 }
 
             }
@@ -177,14 +173,15 @@ namespace NewTake.model.terrain
                             }
                             break;
                         }
-                        chunk.Blocks[x, y, z] = new Block(blockType, 0);
+                      
+                        chunk.setBlock(x, y, z,new Block(blockType, 0));
                     }
 
                     for (int y = waterLevel + 11; y >= waterLevel + 8; y--)
                     {
                         if ((chunk.Blocks[x, y, z].Type == BlockType.Dirt) || (chunk.Blocks[x, y, z].Type == BlockType.Grass))
                         {
-                            chunk.Blocks[x, y, z] = new Block(BlockType.Sand, sunlit);
+                            chunk.setBlock(x, y, z,new Block(BlockType.Sand, sunlit));
                         }
                     }
                 }
