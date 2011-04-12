@@ -15,9 +15,9 @@ namespace NewTake.model.terrain
         
         Random r = new Random(World.SEED);
 
-        public override void build(Chunk chunk)
+        public override void Generate(Chunk chunk)
         {
-            base.build(chunk);
+            base.Generate(chunk);
             GenerateWaterSandLayer(chunk);
         }
 

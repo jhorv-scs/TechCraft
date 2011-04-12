@@ -87,7 +87,8 @@ namespace NewTake
             _cameraController.Initialize();
 
             //renderer = new WorldRenderer(GraphicsDevice, _camera, world);
-            renderer = new SingleThreadWorldRenderer(GraphicsDevice, _camera, world);
+            //renderer = new SingleThreadWorldRenderer(GraphicsDevice, _camera, world);
+            renderer = new SingleThreadAOWorldRenderer(GraphicsDevice, _camera, world);
 
             // SelectionBlock
             _selectionBlockEffect = new BasicEffect(GraphicsDevice);

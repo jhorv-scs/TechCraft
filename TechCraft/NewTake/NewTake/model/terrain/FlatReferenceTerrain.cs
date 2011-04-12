@@ -5,11 +5,11 @@ using System.Text;
 
 namespace NewTake.model.terrain
 {
-    class FlatReferenceTerrain : IChunkBuilder
+    class FlatReferenceTerrain : IChunkGenerator
     {
 
         #region build
-        public void build(Chunk chunk)
+        public void Generate(Chunk chunk)
         {
 
             int sizeY = Chunk.CHUNK_YMAX;

@@ -14,7 +14,7 @@ using NewTake;
 namespace NewTake.view
 {
             
-    class ChunkRenderer
+    public class ChunkRenderer
     {
         #region inits
 
@@ -44,6 +44,33 @@ namespace NewTake.view
             return chunk.BoundingBox.Intersects(viewFrustum);
         }
 
+        public Block BlockAt(Vector3i chunkRelativePositon)
+        {
+            if (chunkRelativePositon.Y < 0 || chunkRelativePositon.Y > Chunk.CHUNK_YMAX - 1)
+            {
+                return new Block(BlockType.Rock, false);
+            }
+            else if (chunkRelativePositon.X < 0 || chunkRelativePositon.Z < 0 ||
+                chunkRelativePositon.X > Chunk.CHUNK_XMAX - 1 || chunkRelativePositon.Z > Chunk.CHUNK_ZMAX - 1)
+            {
+                Vector3i worldPosition = new Vector3i(chunk.Position.X + chunkRelativePositon.X, chunk.Position.Y + chunkRelativePositon.Y, chunk.Position.Z + chunkRelativePositon.Z);
+                Chunk nChunk = world.viewableChunks[worldPosition.X / Chunk.CHUNK_XMAX, worldPosition.Z / Chunk.CHUNK_ZMAX];
+                if (nChunk != null)
+                {
+                    Vector3i chunkBlockPosition = new Vector3i(worldPosition.X - nChunk.Position.X, worldPosition.Y - nChunk.Position.Y, worldPosition.Z - nChunk.Position.Z);
+                    return nChunk.Renderer.BlockAt(chunkBlockPosition);
+                }
+                else
+                {
+                    return new Block(BlockType.Rock, false);
+                }
+            }
+            else
+            {
+                return chunk.Blocks[chunkRelativePositon.X, chunkRelativePositon.Y, chunkRelativePositon.Z];
+            }
+        }
+
         #region BuildVertexList
         public virtual void BuildVertexList()
         {
@@ -71,9 +98,6 @@ namespace NewTake.view
             {
                 vertexBuffer = new VertexBuffer(graphicsDevice, typeof(VertexPositionTextureShade), a.Length, BufferUsage.WriteOnly);
                 vertexBuffer.SetData(a);
-
-                chunk.dirty = false;
-                //Debug.WriteLine("............building Vertexlist done");
             }
         }
         #endregion

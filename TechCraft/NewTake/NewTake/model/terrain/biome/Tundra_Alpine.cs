@@ -6,14 +6,14 @@ using NewTake.model.terrain;
 
 namespace NewTake.model.terrain.biome
 {
-    class Tundra_Alpine : IChunkBuilder
+    class Tundra_Alpine : IChunkGenerator
     {
 
         int waterlevel = 64;
         Random r = new Random(World.SEED);
 
         #region build
-        public virtual void build(Chunk chunk)
+        public virtual void Generate(Chunk chunk)
         {
             //for (int x = 0; x < Chunk.CHUNK_XMAX; x++)
             //{

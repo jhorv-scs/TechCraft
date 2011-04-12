@@ -10,16 +10,15 @@ using NewTake.model.terrain.biome;
 
 namespace NewTake.model
 {
-    class World
+    public class World
     {
 
         #region inits
 
         public SparseMatrix<Chunk> viewableChunks;
-        //public Chunk[,] viewableChunks;
 
         public const byte VIEW_CHUNKS_X = 4;
-        public const byte VIEW_CHUNKS_Y = 1; //TODO allow Y chunks > 1 
+        public const byte VIEW_CHUNKS_Y = 1; 
         public const byte VIEW_CHUNKS_Z = 4;
         public static int SEED = 12345;
 
@@ -31,10 +30,10 @@ namespace NewTake.model
 
         #endregion
 
-        //public IChunkBuilder builder = new SimpleTerrain();
-        //public IChunkBuilder builder = new FlatReferenceTerrain();
-        //public IChunkBuilder builder = new TerrainWithCaves();
-        public IChunkBuilder builder = new DualLayerTerrainWithMediumValleysForRivers();
+        //public IChunkGenerator Generator = new SimpleTerrain();
+        //public IChunkGenerator Generator = new FlatReferenceTerrain();
+        //public IChunkGenerator Generator = new TerrainWithCaves();
+        public IChunkGenerator Generator = new DualLayerTerrainWithMediumValleysForRivers();
 
         // Biomes
         //public IChunkBuilder builder = new Tundra_Alpine();
@@ -46,17 +45,6 @@ namespace NewTake.model
         public World()
         {
             viewableChunks = new SparseMatrix<Chunk>();
-            //viewableChunks = new Chunk[VIEW_CHUNKS_X, VIEW_CHUNKS_Z];
-            Debug.WriteLine("Initial terrain generation started ...");
-            visitChunks(buildAction);
-            Debug.WriteLine("............Initial terrain generation done");
-        }
-
-        public void buildAction(Vector3i vector)
-        {
-            viewableChunks[vector.X, vector.Z] = new Chunk(vector);
-            builder.build(viewableChunks[vector.X, vector.Z]);
-            viewableChunks[vector.X, vector.Z].built = true;
         }
 
         public void visitChunks(Action<Vector3i> visitor)

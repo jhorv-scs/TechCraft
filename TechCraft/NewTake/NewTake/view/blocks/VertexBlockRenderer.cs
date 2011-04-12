@@ -10,7 +10,7 @@ using NewTake.model;
 
 namespace NewTake.view.blocks
 {
-    class VertexBlockRenderer
+    public class VertexBlockRenderer
     {
         private readonly World world;
 

@@ -8,11 +8,11 @@ using NewTake.model;
 
 namespace NewTake.model.terrain
 {
-    class SimpleTerrain : IChunkBuilder
+    class SimpleTerrain : IChunkGenerator
     {
 
         #region build
-        public virtual void build(Chunk chunk)
+        public virtual void Generate(Chunk chunk)
         {
             for (int x = 0; x < Chunk.CHUNK_XMAX; x++)
             {

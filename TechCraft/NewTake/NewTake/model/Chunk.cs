@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using Microsoft.Xna.Framework;
+using NewTake.view;
 
 namespace NewTake.model
 {
@@ -25,6 +26,8 @@ namespace NewTake.model
         public bool visible;
         public bool generated;
         public bool built;
+
+        public ChunkRenderer Renderer;
 
         private BoundingBox _boundingBox;
 
