@@ -131,7 +131,8 @@ namespace NewTake.view
             GraphicsDevice.RasterizerState = !this._wireframed ? this._normalRaster : this._wireframedRaster;
 
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.BlendState = BlendState.Opaque;
+            //GraphicsDevice.BlendState = BlendState.NonPremultiplied; // Allows transparency in leaves
+            GraphicsDevice.BlendState = BlendState.Opaque;        // Removes transparency in leaves
             
             _solidBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _solidBlockEffect.Parameters["View"].SetValue(camera.View);

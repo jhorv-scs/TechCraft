@@ -224,7 +224,7 @@ namespace NewTake.view
 
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.BlendState = BlendState.Opaque;
-
+            
             _solidBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _solidBlockEffect.Parameters["View"].SetValue(camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(camera.Projection);
