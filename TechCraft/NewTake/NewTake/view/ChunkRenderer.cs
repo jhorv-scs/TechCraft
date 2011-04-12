@@ -26,7 +26,6 @@ namespace NewTake.view
         public readonly World world;
         protected readonly VertexBlockRenderer blocksRenderer;
         public readonly GraphicsDevice graphicsDevice;
-        public readonly Camera _camera;
 
         #endregion
 
