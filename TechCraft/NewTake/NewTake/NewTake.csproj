@@ -115,6 +115,8 @@
   <ItemGroup>
     <Compile Include="model\terrain\biome\Biome.cs" />
     <Compile Include="model\terrain\biome\Tundra_Alpine.cs" />
+    <Compile Include="model\terrain\MapTools.cs" />
+    <Compile Include="model\terrain\PerlinNoise2D.cs" />
     <Compile Include="profiling\FrameRateCounter.cs" />
     <Compile Include="model\SparseMatrix.cs" />
     <Compile Include="controllers\FirstPersonCameraController.cs" />
