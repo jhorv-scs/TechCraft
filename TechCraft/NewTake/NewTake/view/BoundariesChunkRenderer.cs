@@ -25,7 +25,7 @@ namespace NewTake.view
 
         #endregion
 
-        public BoundariesChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk, Camera camera) : base(graphicsDevice, world, chunk, camera)
+        public BoundariesChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk) : base(graphicsDevice, world, chunk)
         {
             _toBuildVertices = new Queue<Chunk>();
             _buildingVerticesThread = new Thread(new ThreadStart(BuildingVerticesThread));
@@ -252,31 +252,10 @@ namespace NewTake.view
         public override void draw(GameTime gameTime)
         {
 
-            if (_camera != null)
+            if (!chunk.generated) return;
+            if (chunk.dirty)
             {
-                uint x = (uint)_camera.Position.X;
-                uint z = (uint)_camera.Position.Z;
-
-                uint cx = x / Chunk.CHUNK_XMAX;
-                uint cz = z / Chunk.CHUNK_ZMAX;
-
-                uint lx = x % Chunk.CHUNK_XMAX;
-                uint lz = z % Chunk.CHUNK_ZMAX;
-
-                Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
-
-                for (uint j = cx - (World.VIEW_CHUNKS_X); j < cx + (World.VIEW_CHUNKS_X); j++)
-                {
-                    for (uint l = cz - (World.VIEW_CHUNKS_Z); l < cz + (World.VIEW_CHUNKS_Z); l++)
-                    {
-                        if (!chunk.generated) return;
-                        if (chunk.dirty)
-                        {
-                            QueueBuild();
-                        }
-                    }
-                }
-
+                QueueBuild();
             }
 
             if (!chunk.visible)

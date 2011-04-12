@@ -52,6 +52,7 @@ namespace NewTake.model
         {
             viewableChunks[vector.X, vector.Z] = new Chunk(vector);
             builder.build(viewableChunks[vector.X, vector.Z]);
+            viewableChunks[vector.X, vector.Z].built = true;
         }
 
         public void visitChunks(Action<Vector3i> visitor)

@@ -30,12 +30,11 @@ namespace NewTake.view
 
         #endregion
 
-        public ChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk, Camera camera)
+        public ChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk)
         {
             this.chunk = chunk;
             this.world = world;
             this.graphicsDevice = graphicsDevice;
-            this._camera = camera;
             _vertexList = new List<VertexPositionTextureShade>();
 
             blocksRenderer = new VertexBlockRenderer(world);
@@ -97,32 +96,11 @@ namespace NewTake.view
         #region draw
         public virtual void draw(GameTime gameTime)
         {
-            if (_camera != null)
+
+            if (!chunk.generated) return;
+            if (chunk.dirty)
             {
-                uint x = (uint)_camera.Position.X;
-                uint z = (uint)_camera.Position.Z;
-
-                uint cx = x / Chunk.CHUNK_XMAX;
-                uint cz = z / Chunk.CHUNK_ZMAX;
-
-                uint lx = x % Chunk.CHUNK_XMAX;
-                uint lz = z % Chunk.CHUNK_ZMAX;
-
-                Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
-
-                for (uint j = cx - (World.VIEW_CHUNKS_X); j < cx + (World.VIEW_CHUNKS_X); j++)
-                {
-                    for (uint l = cz - (World.VIEW_CHUNKS_Z); l < cz + (World.VIEW_CHUNKS_Z); l++)
-                    {
-                        if (!chunk.generated) return;
-                        if (chunk.dirty)
-                        {
-                            //Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));
-                            //initRendererAction(newIndex);
-                            BuildVertexList();
-                        }
-                    }
-                }
+                BuildVertexList();
             }
 
             if (!chunk.visible)

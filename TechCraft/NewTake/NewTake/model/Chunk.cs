@@ -18,14 +18,13 @@ namespace NewTake.model
 
         public Block[, ,] Blocks;
 
-      
-
         public readonly Vector3i Position;
         public readonly Vector3i Index;
 
         public bool dirty;
         public bool visible;
         public bool generated;
+        public bool built;
 
         private BoundingBox _boundingBox;
 
