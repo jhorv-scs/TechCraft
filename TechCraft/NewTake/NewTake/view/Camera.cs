@@ -28,13 +28,13 @@ namespace NewTake.view
         private float _nearPlane = 0.01f;
         private float _farPlane = WorldRenderer.FARPLANE;
 
-        public readonly GraphicsDevice graphicsDevice;
+        public readonly Viewport viewport;
 
         #endregion
 
-        public Camera(GraphicsDevice graphicsDevice)
+        public Camera(Viewport viewport)
         {
-            this.graphicsDevice = graphicsDevice;
+            this.viewport = viewport;
 
         }
 
@@ -63,7 +63,7 @@ namespace NewTake.view
 
         protected virtual void CalculateProjection()
         {
-            _projection = Matrix.CreatePerspectiveFieldOfView(_viewAngle, graphicsDevice.Viewport.AspectRatio, _nearPlane, _farPlane);
+            _projection = Matrix.CreatePerspectiveFieldOfView(_viewAngle, viewport.AspectRatio, _nearPlane, _farPlane);
         }
 
         protected virtual void CalculateView()

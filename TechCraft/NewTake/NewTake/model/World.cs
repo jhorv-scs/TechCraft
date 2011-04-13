@@ -39,8 +39,7 @@ namespace NewTake.model
         //public IChunkBuilder builder = new Tundra_Alpine();
 
         public static uint origin = 1000; 
-        //TODO UInt32, with uint16 65*65 km of 1m blocks is a bit small 
-        // but requires decoupling rendering coordinates to avoid float problems
+        //TODO UInt32 requires decoupling rendering coordinates to avoid float problems
 
         public World()
         {

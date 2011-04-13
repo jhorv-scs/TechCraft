@@ -22,7 +22,7 @@ namespace NewTake.view
         private float _upDownRotation = 0f;
         private Vector3 _cameraFinalTarget;
 
-        public FirstPersonCamera(GraphicsDevice device) : base(device) { }
+        public FirstPersonCamera(Viewport viewport) : base(viewport) { }
 
         public override void Initialize()
         {

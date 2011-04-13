@@ -31,12 +31,8 @@ namespace NewTake
         private GraphicsDeviceManager graphics;
         private World world;
         private WorldRenderer renderer;
-        public FirstPersonCamera _camera;
-        private FirstPersonCameraController _cameraController;
-        private MouseState _previousMouseState;
+       
         private KeyboardState _oldKeyboardState;
-
-        private Vector3 _lookVector;
 
         private bool releaseMouse = false;
 
@@ -50,6 +46,9 @@ namespace NewTake
         // Crosshair
         private Texture2D _crosshairTexture;
         private SpriteBatch _spriteBatch;
+
+        private Player player1;//wont add a player2 for some time, but naming like this helps designing  
+        private PlayerRenderer player1Renderer; 
 
         #endregion
 
@@ -78,17 +77,17 @@ namespace NewTake
         {
             // TODO: Add your initialization logic here
             world = new World();
-            _camera = new FirstPersonCamera(GraphicsDevice);
-            _camera.Initialize();
-            _camera.Position = new Vector3(World.origin * Chunk.CHUNK_XMAX, Chunk.CHUNK_YMAX, World.origin * Chunk.CHUNK_ZMAX);
-            _camera.LookAt(Vector3.Down);
 
-            _cameraController = new FirstPersonCameraController(_camera);
-            _cameraController.Initialize();
+            player1 = new Player(world); 
 
-            //renderer = new WorldRenderer(GraphicsDevice, _camera, world);
-            //renderer = new SingleThreadWorldRenderer(GraphicsDevice, _camera, world);
-            renderer = new SingleThreadAOWorldRenderer(GraphicsDevice, _camera, world);
+            player1Renderer = new PlayerRenderer(player1,GraphicsDevice.Viewport);
+            player1Renderer.Initialize();
+
+
+            //renderer = new WorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            //renderer = new SingleThreadWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            renderer = new SingleThreadAOWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            //TODO refactor WorldRenderer needs player position + view frustum 
 
             // SelectionBlock
             _selectionBlockEffect = new BasicEffect(GraphicsDevice);
@@ -191,70 +190,7 @@ namespace NewTake
         }
         #endregion
 
-        #region useTools
-        public void useTools(GameTime gameTime)
-        {
-            MouseState mouseState = Mouse.GetState();
-
-            if (mouseState.LeftButton == ButtonState.Pressed && _previousMouseState.LeftButton != ButtonState.Pressed)
-            {
-                for (float x = 0.5f; x < 8f; x += 0.1f)
-                {
-                    Vector3 targetPoint;
-                    targetPoint = _camera.Position + (_lookVector * x);
-                  
-                    BlockType blockType = world.BlockAt(targetPoint).Type;
-
-                    if (blockType != BlockType.None && blockType != BlockType.Water)
-                    {
-                        if (targetPoint.Y > 2)
-                        {
-                            // Can't dig water or lava
-
-                            BlockType targetType = world.BlockAt(targetPoint).Type;
-
-                            if (BlockInformation.IsDiggable(targetType))
-                            {
-                                //Debug.WriteLine(targetPoint + "->" + blockType);
-                                world.setBlock((uint)targetPoint.X, (uint)targetPoint.Y, (uint)targetPoint.Z, new Block(BlockType.None, 0));
-                              
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-
-            if (mouseState.RightButton == ButtonState.Pressed
-                && _previousMouseState.RightButton != ButtonState.Pressed)
-            {
-                float hit = 0;
-                for (float x = 0.8f; x < 8f; x += 0.1f)
-                {
-                    Vector3 targetPoint = _camera.Position + (_lookVector * x);
-                    if (world.BlockAt(targetPoint).Type != BlockType.None)
-                    {
-                        hit = x;
-                        break;
-                    }
-                }
-                if (hit != 0)
-                {
-                    for (float x = hit; x > 0.7f; x -= 0.1f)
-                    {
-                        Vector3 targetPoint = _camera.Position + (_lookVector * x);
-                        if (world.BlockAt(targetPoint).Type == BlockType.None)
-                        {
-                            world.setBlock((uint)targetPoint.X, (uint)targetPoint.Y, (uint)targetPoint.Z, new Block(BlockType.Tree, true));
-                            //TODO block type added hardcoded to tree
-                            break;
-                        }
-                    }
-                }
-            }
-
-        }
-        #endregion
+    
 
         #region SelectionBlock
         private void checkSelectionBlock()
@@ -262,7 +198,7 @@ namespace NewTake
             for (float x = 0.5f; x < 8f; x += 0.1f)
             {
                 Vector3 targetPoint;
-                targetPoint = _camera.Position + (_lookVector * x);
+                targetPoint = player1Renderer.camera.Position + (player1Renderer.lookVector * x);
 
                 BlockType blockType = world.BlockAt(targetPoint).Type;
 
@@ -300,8 +236,8 @@ namespace NewTake
 
             // set up the World, View and Projection
             _selectionBlockEffect.World = identity;
-            _selectionBlockEffect.View = _camera.View;
-            _selectionBlockEffect.Projection = _camera.Projection;
+            _selectionBlockEffect.View = player1Renderer.camera.View;
+            _selectionBlockEffect.Projection = player1Renderer.camera.Projection;
             _selectionBlockEffect.Texture = SelectionBlockTexture;
             _selectionBlockEffect.TextureEnabled = true;
 
@@ -346,19 +282,12 @@ namespace NewTake
             {
                 if (!releaseMouse)
                 {
-                    _cameraController.Update(gameTime);
-                    _camera.Update(gameTime);
+                    player1Renderer.update(gameTime);
                 }
-
-                Matrix rotationMatrix = Matrix.CreateRotationX(_camera.UpDownRotation) * Matrix.CreateRotationY(_camera.LeftRightRotation);
-                _lookVector = Vector3.Transform(Vector3.Forward, rotationMatrix);
-                _lookVector.Normalize();
 
                 renderer.Update(gameTime);
 
-                useTools(gameTime);
 
-                _previousMouseState = Mouse.GetState();
                 base.Update(gameTime);
             }
         }

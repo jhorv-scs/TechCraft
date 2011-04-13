@@ -113,20 +113,28 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="model\Hud.cs" />
+    <Compile Include="model\Player.cs" />
     <Compile Include="model\terrain\biome\Biome.cs" />
     <Compile Include="model\terrain\biome\Tundra_Alpine.cs" />
     <Compile Include="model\terrain\MapTools.cs" />
     <Compile Include="model\terrain\PerlinNoise2D.cs" />
+    <Compile Include="model\tools\BlockAdder.cs" />
+    <Compile Include="model\tools\BlockRemover.cs" />
+    <Compile Include="model\tools\Tool.cs" />
+    <Compile Include="model\types\Dictionary3.cs" />
     <Compile Include="profiling\FrameRateCounter.cs" />
-    <Compile Include="model\SparseMatrix.cs" />
+    <Compile Include="model\types\SparseMatrix2.cs" />
     <Compile Include="controllers\FirstPersonCameraController.cs" />
-    <Compile Include="model\Custom3DArray.cs" />
+    <Compile Include="model\types\Array3.cs" />
     <Compile Include="model\terrain\DualLayerTerrainWithMediumValleysForRivers.cs" />
     <Compile Include="view\blocks\AOVertexBlockRenderer.cs" />
     <Compile Include="view\blocks\VertexBlockRenderer.cs" />
     <Compile Include="view\blocks\VertexPositionDualTexture.cs" />
     <Compile Include="view\BoundariesChunkRenderer.cs" />
     <Compile Include="view\Camera.cs" />
+    <Compile Include="view\HudRenderer.cs" />
+    <Compile Include="view\PlayerRenderer.cs" />
     <Compile Include="view\singlethreadAO\SingleThreadAOWorldRenderer.cs" />
     <Compile Include="view\singlethreadAO\SingleThreadAOChunkRenderer.cs" />
     <Compile Include="view\IChunkRenderer.cs" />
@@ -149,7 +157,7 @@
     <Compile Include="view\ChunkRenderer.cs" />
     <Compile Include="view\WorldRenderer.cs" />
     <Compile Include="view\blocks\VertexPositionTextureShade.cs" />
-    <Compile Include="model\Vector3i.cs" />
+    <Compile Include="model\types\Vector3i.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

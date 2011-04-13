@@ -95,8 +95,8 @@ namespace NewTake.controllers
             //camera.LeftRightRotation -= GamePad.GetState(Game.ActivePlayerIndex).ThumbSticks.Right.X / 20;
             //camera.UpDownRotation += GamePad.GetState(Game.ActivePlayerIndex).ThumbSticks.Right.Y / 20;
 
-            _mouseMoveState = new MouseState(camera.graphicsDevice.Viewport.Width / 2,
-                    camera.graphicsDevice.Viewport.Height / 2,
+            _mouseMoveState = new MouseState(camera.viewport.Width / 2,
+                    camera.viewport.Height / 2,
                     0, ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released);
                 
             Mouse.SetPosition((int)_mouseMoveState.X, (int)_mouseMoveState.Y);
