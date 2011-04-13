@@ -113,7 +113,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="model\Hud.cs" />
     <Compile Include="model\Player.cs" />
     <Compile Include="model\terrain\biome\Biome.cs" />
     <Compile Include="model\terrain\biome\Tundra_Alpine.cs" />

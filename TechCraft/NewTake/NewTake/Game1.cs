@@ -31,7 +31,7 @@ namespace NewTake
         private GraphicsDeviceManager graphics;
         private World world;
         private WorldRenderer renderer;
-       
+
         private KeyboardState _oldKeyboardState;
 
         private bool releaseMouse = false;
@@ -43,12 +43,10 @@ namespace NewTake
         BasicEffect _selectionBlockEffect;
         Texture2D SelectionBlockTexture;
 
-        // Crosshair
-        private Texture2D _crosshairTexture;
-        private SpriteBatch _spriteBatch;
+        private HudRenderer hud;
 
         private Player player1;//wont add a player2 for some time, but naming like this helps designing  
-        private PlayerRenderer player1Renderer; 
+        private PlayerRenderer player1Renderer;
 
         #endregion
 
@@ -78,11 +76,13 @@ namespace NewTake
             // TODO: Add your initialization logic here
             world = new World();
 
-            player1 = new Player(world); 
+            player1 = new Player(world);
 
-            player1Renderer = new PlayerRenderer(player1,GraphicsDevice.Viewport);
+            player1Renderer = new PlayerRenderer(player1, GraphicsDevice.Viewport);
             player1Renderer.Initialize();
 
+            hud = new HudRenderer(GraphicsDevice);
+            hud.Initialize();
 
             //renderer = new WorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             //renderer = new SingleThreadWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
@@ -91,9 +91,6 @@ namespace NewTake
 
             // SelectionBlock
             _selectionBlockEffect = new BasicEffect(GraphicsDevice);
-
-            // Used for crosshair sprite/texture at the moment
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             base.Initialize();
         }
@@ -120,8 +117,9 @@ namespace NewTake
             SelectionBlock = Content.Load<Model>("Models\\SelectionBlock");
             SelectionBlockTexture = Content.Load<Texture2D>("Textures\\SelectionBlock");
 
-            // Crosshair
-            _crosshairTexture = Content.Load<Texture2D>("Textures\\crosshair");
+            hud.loadContent(Content);
+
+
 
         }
         #endregion
@@ -164,8 +162,8 @@ namespace NewTake
 
             if (_oldKeyboardState.IsKeyUp(Keys.F3) && keyState.IsKeyDown(Keys.F3))
             {
-                graphics.SynchronizeWithVerticalRetrace = ! graphics.SynchronizeWithVerticalRetrace;
-                this.IsFixedTimeStep = ! this.IsFixedTimeStep;
+                graphics.SynchronizeWithVerticalRetrace = !graphics.SynchronizeWithVerticalRetrace;
+                this.IsFixedTimeStep = !this.IsFixedTimeStep;
                 Debug.WriteIf(this.IsFixedTimeStep, "FixedTimeStep and v synch are active");
                 graphics.ApplyChanges();
             }
@@ -190,7 +188,7 @@ namespace NewTake
         }
         #endregion
 
-    
+
 
         #region SelectionBlock
         private void checkSelectionBlock()
@@ -301,18 +299,11 @@ namespace NewTake
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.SkyBlue);
-
-            // TODO: Add your drawing code here
             renderer.Draw(gameTime);
 
             checkSelectionBlock(); // draw the SelectionBlock - comment out to stop the block from drawing
 
-            // Draw the crosshair
-            _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-            _spriteBatch.Draw(_crosshairTexture, new Vector2(
-                (GraphicsDevice.Viewport.Width / 2) - 10,
-                (GraphicsDevice.Viewport.Height / 2) - 10), Color.White);
-            _spriteBatch.End();  
+            hud.Draw(gameTime);
 
             base.Draw(gameTime);
 
