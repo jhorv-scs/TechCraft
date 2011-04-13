@@ -36,7 +36,9 @@ namespace NewTake.model
         public IChunkGenerator Generator = new DualLayerTerrainWithMediumValleysForRivers();
 
         // Biomes
-        //public IChunkBuilder builder = new Tundra_Alpine();
+        //public IChunkGenerator Generator = new Tundra_Alpine();
+        //public IChunkGenerator Generator = new Desert_Subtropical();
+        //public IChunkGenerator Generator = new Grassland_Temperate();
 
         public static uint origin = 1000; 
         //TODO UInt32 requires decoupling rendering coordinates to avoid float problems

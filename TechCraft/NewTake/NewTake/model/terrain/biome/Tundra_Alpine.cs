@@ -2,149 +2,228 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NewTake.model.terrain;
+
+using NewTake;
 
 namespace NewTake.model.terrain.biome
 {
-    class Tundra_Alpine : IChunkGenerator
+    class Tundra_Alpine : SimpleTerrain
     {
-
-        int waterlevel = 64;
+        int waterLevel = (int)(Chunk.CHUNK_YMAX * 0.5f);
+        int snowLevel = 95;
+        int minimumGroundheight = Chunk.CHUNK_YMAX / 4;
+        
         Random r = new Random(World.SEED);
-
-        #region build
-        public virtual void Generate(Chunk chunk)
+        
+        public override void Generate(Chunk chunk)
         {
-            //for (int x = 0; x < Chunk.CHUNK_XMAX; x++)
-            //{
-            //    int worldX = (int)chunk.Position.X + x + World.SEED;
-
-            //    for (int z = 0; z < Chunk.CHUNK_ZMAX; z++)
-            //    {
-            //        int worldZ = (int)chunk.Position.Z + z;
-            //        generateTerrain(chunk, x, z, worldX, worldZ);
-            //    }
-            //}
-            MapTools.Clear(chunk);
-            GenerateDirtLayer(chunk, 10, true);
-            GenerateSandLayer(chunk);
-            GenerateWaterLayer(chunk);
-
-            chunk.generated = true;
+            base.Generate(chunk);
+            GenerateWaterSandLayer(chunk);
         }
-        #endregion
 
         #region generateTerrain
-        protected virtual void generateTerrain(Chunk chunk, int blockXInChunk, int blockZInChunk, int worldX, int worldY)
+        protected override void generateTerrain(Chunk chunk, int blockXInChunk, int blockZInChunk, int worldX, int worldZ)
         {
+
+            float lowerGroundHeight = GetLowerGroundHeight(chunk, worldX, worldZ, blockXInChunk, blockZInChunk);
+            int upperGroundHeight = GetUpperGroundHeight(chunk, worldX, worldZ, lowerGroundHeight);
+
+            bool sunlit = true;
+
+            for (int y = Chunk.CHUNK_YMAX - 1; y >= 0; y--)
+            {
+                // Everything above ground height...is air.
+                BlockType blockType;
+                if (y > upperGroundHeight)
+                {
+                    blockType = BlockType.None;
+                }
+                // Are we above the lower ground height?
+                else if (y > lowerGroundHeight)
+                {
+                    // Let's see about some caves er valleys!
+                    //float caveNoise = PerlinSimplexNoise.noise(worldX * 0.01f, worldZ * 0.01f, y * 0.01f) * (0.015f * y) + 0.1f;
+                    //caveNoise += PerlinSimplexNoise.noise(worldX * 0.01f, worldZ * 0.01f, y * 0.1f) * 0.06f + 0.1f;
+                    //caveNoise += PerlinSimplexNoise.noise(worldX * 0.2f, worldZ * 0.2f, y * 0.2f) * 0.03f + 0.01f;
+                    //// We have a cave, draw air here.
+                    //if (caveNoise > 0.2f)
+                    //{
+                    //    blockType = BlockType.None;
+                    //}
+                    //else
+                    //{
+                        blockType = BlockType.None;
+                        if (sunlit)
+                        {
+                            if (y > snowLevel + r.Next(3))
+                            {
+                                blockType = BlockType.Snow;
+                            }
+                            else
+                            {
+                                //if (r.Next(100) == 1)
+                                //{
+                                //    BuildTree(chunk, blockXInChunk, y, blockZInChunk);
+                                //}
+                                //else
+                                //{
+                                    blockType = BlockType.Grass;
+                                //}
+                                //blockType = BlockType.Grass;
+                            }
+                            sunlit = false;
+                        }
+                        else
+                        {
+                            blockType = BlockType.Dirt;
+                        }
+                    //}
+                }
+                else
+                {
+                    // We are at the lower ground level
+                    if (sunlit)
+                    {
+                        blockType = BlockType.Grass;
+                        sunlit = false;
+                    }
+                    else
+                    {
+                        blockType = BlockType.Dirt;
+                    }
+                }
+
+                if (blockType == BlockType.None)
+                {
+                    if (y <= waterLevel)
+                    {
+                        blockType = BlockType.Lava;
+                        sunlit = false;
+                    }
+                }
+
+                    chunk.setBlock( blockXInChunk, y,blockZInChunk,new Block(blockType, sunlit));
+            }
+        }
+
+       
+        #endregion
+
+        #region BuildTree
+        private void BuildTree(Chunk chunk, int tx, int ty, int tz)
+        {
+            int height = 4 + r.Next(3);
+
+            if ((ty + height) < Chunk.CHUNK_YMAX-1)
+            {
+                for (int y = ty; y < ty + height; y++)
+                {
+
+                    chunk.setBlock(tx, y, tz,new Block(BlockType.Tree, 0));
+                    //_map[tx, y, tz] = BlockType.WoodSide;
+                }
+            }
+
+            int radius = 3 + r.Next(2);
+            int ny = ty + height;
+
+            for (int i = 0; i < 40 + r.Next(4); i++)
+            {
+                int lx = tx + r.Next(radius) - r.Next(radius);
+                int ly = ny + r.Next(radius) - r.Next(radius);
+                int lz = tz + r.Next(radius) - r.Next(radius);
+
+                if (chunk.outOfBounds((byte)lx, (byte)ly, (byte)lz) == false)
+                {
+                    if (chunk.Blocks[lx, ly, lz].Type == BlockType.None)
+                        chunk.setBlock(lx, ly, lz, new Block(BlockType.Leaves, 0));
+                }
+
+            }
 
         }
         #endregion
 
-        private void GenerateWaterLayer(Chunk chunk)
+        #region GenerateWaterSandLayer
+        private void GenerateWaterSandLayer(Chunk chunk)
         {
+            BlockType blockType;
+            
+            bool sunlit = true;
+
             for (int x = 0; x < Chunk.CHUNK_XMAX; x++)
             {
                 for (int z = 0; z < Chunk.CHUNK_ZMAX; z++)
                 {
-                    for (int y = waterlevel + 35; y > 0; y--)
+                    for (int y = waterLevel + 9; y >= minimumGroundheight; y--)
                     {
+                        blockType = BlockType.Snow;
                         if (chunk.Blocks[x, y, z].Type == BlockType.None)
                         {
-                            chunk.setBlock(x, y, z, new Block(BlockType.Water, 0));
+                        //    blockType = BlockType.Water;
                         }
                         else
                         {
                             if (chunk.Blocks[x, y, z].Type == BlockType.Grass)
                             {
-                                chunk.setBlock(x, y, z, new Block(BlockType.Sand, 0));
+                                blockType = BlockType.Grass;
+                                if (y <= waterLevel)
+                                {
+                                    sunlit = false;
+                                }
                             }
                             break;
                         }
+                      
+                        chunk.setBlock(x, y, z,new Block(blockType, 0));
                     }
-                }
-            }
-        }
 
-        private void GenerateSandLayer(Chunk chunk)
-        {
-            List<PerlinNoise2D> noiseFunctions = new List<PerlinNoise2D>();
-            noiseFunctions.Add(new PerlinNoise2D(4, 2f));
-            noiseFunctions.Add(new PerlinNoise2D(8, .5f));
-            noiseFunctions.Add(new PerlinNoise2D(12, .25f));
-            noiseFunctions.Add(new PerlinNoise2D(26, .125f));
-            noiseFunctions.Add(new PerlinNoise2D(34, .0625f));
-            noiseFunctions.Add(new PerlinNoise2D(64, .0425f));
-
-            double[,] data = MapTools.SumNoiseFunctions(Chunk.CHUNK_XMAX, Chunk.CHUNK_ZMAX, noiseFunctions);
-
-            for (int x = 0; x < Chunk.CHUNK_ZMAX; x++)
-            {
-                for (int z = 0; z < Chunk.CHUNK_ZMAX; z++)
-                {
-                    int height = (int)(data[x, z] * 5) + 20 + waterlevel;
-                    for (int y = 0; y < height; y++)
+                    for (int y = waterLevel + 27; y >= waterLevel; y--)
                     {
-                        if (chunk.Blocks[x, y, z].Type == BlockType.None)
+                        if ((y > 11) && (chunk.Blocks[x, y, z].Type == BlockType.Grass)) chunk.setBlock(x, y, z, new Block(BlockType.Snow, sunlit));
+                        if ((chunk.Blocks[x, y, z].Type == BlockType.Dirt) || (chunk.Blocks[x, y, z].Type == BlockType.Grass))
                         {
-                            chunk.setBlock(x, y, z, new Block(BlockType.Sand, 0));
+                            chunk.setBlock(x, y, z,new Block(BlockType.Snow, sunlit));
                         }
                     }
                 }
             }
         }
+        #endregion
 
-        private void GenerateDirtLayer(Chunk chunk, int offset, bool trees)
+        #region GetUpperGroundHeight
+        private static int GetUpperGroundHeight(Chunk chunk, int blockX, int blockY, float lowerGroundHeight)
         {
 
-            List<PerlinNoise2D> noiseFunctions = new List<PerlinNoise2D>();
-            noiseFunctions.Add(new PerlinNoise2D(4, 2f));
-            noiseFunctions.Add(new PerlinNoise2D(8, .5f));
-            noiseFunctions.Add(new PerlinNoise2D(12, .25f));
-            noiseFunctions.Add(new PerlinNoise2D(26, .125f));
-            noiseFunctions.Add(new PerlinNoise2D(34, .0625f));
-            noiseFunctions.Add(new PerlinNoise2D(64, .0125f));
+            float octave1 = PerlinSimplexNoise.noise((blockX+50) * 0.0002f, blockY * 0.0002f) * 0.05f;
+            float octave2 = PerlinSimplexNoise.noise((blockX+50) * 0.0005f, blockY * 0.0005f) * 0.135f;
+            float octave3 = PerlinSimplexNoise.noise((blockX+50) * 0.0025f, blockY * 0.0025f) * 0.15f;
+            float octave4 = PerlinSimplexNoise.noise((blockX+50) * 0.0125f, blockY * 0.0125f) * 0.05f;
+            float octave5 = PerlinSimplexNoise.noise((blockX+50) * 0.025f,  blockY * 0.025f)  * 0.015f;
+            float octave6 = PerlinSimplexNoise.noise((blockX+50) * 0.0125f, blockY * 0.0125f) * 0.04f;
+            float octaveSum = octave1 + octave2 + octave3 + octave4 + octave5 + octave6;
 
-            double[,] data = MapTools.SumNoiseFunctions(Chunk.CHUNK_XMAX, Chunk.CHUNK_ZMAX, noiseFunctions);
-
-            for (int x = 0; x < Chunk.CHUNK_XMAX; x++)
-            {
-                for (int z = 0; z < Chunk.CHUNK_ZMAX; z++)
-                {
-                    int height = (int)(data[x, z] * 20) + offset + waterlevel;
-                    if (height >= Chunk.CHUNK_YMAX) height = Chunk.CHUNK_YMAX - 1;
-                    for (int y = 0; y < height; y++)
-                    {
-                        if (chunk.Blocks[x, y, z].Type == BlockType.None)
-                        {
-                            if (y == height - 1)
-                            {
-                                //if (r.Next(250) == 1 && trees)
-                                //{
-                                //    BuildTree(x, y, z);
-                                //}
-                                //else
-                                //{
-                                    chunk.setBlock(x, y, z, new Block(BlockType.Grass, 0));
-                                //}
-                            }
-                            else
-                            {
-                                if (r.Next(20) == 1)
-                                {
-                                    chunk.setBlock(x, y, z, new Block(BlockType.Rock, 0));
-                                    //_map[x, y, z] = BlockType.Gravel;
-                                }
-                                else
-                                {
-                                    chunk.setBlock(x, y, z, new Block(BlockType.Dirt, 0));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            return (int)(octaveSum * (Chunk.CHUNK_YMAX / 2f)) + (int)(lowerGroundHeight);
         }
+        #endregion
+
+        #region GetLowerGroundHeight
+        private static float GetLowerGroundHeight(Chunk chunk, int blockX, int blockY, int blockXInChunk, int blockZInChunk)
+        {
+            int minimumGroundheight = Chunk.CHUNK_YMAX / 4;
+            int minimumGroundDepth = (int)(Chunk.CHUNK_YMAX * 0.5f);
+
+            float octave1 = PerlinSimplexNoise.noise(blockX * 0.0001f, blockY * 0.0001f) * 0.5f;
+            float octave2 = PerlinSimplexNoise.noise(blockX * 0.0005f, blockY * 0.0005f) * 0.35f;
+            //float octave3 = PerlinSimplexNoise.noise(blockX * 0.02f, blockY * 0.02f) * 0.15f;
+            float lowerGroundHeight = octave1 + octave2;
+            //float lowerGroundHeight = octave1 + octave2 + octave3;
+
+            lowerGroundHeight = lowerGroundHeight * minimumGroundDepth + minimumGroundheight;
+
+            return lowerGroundHeight;
+        }
+        #endregion
 
     }
 }

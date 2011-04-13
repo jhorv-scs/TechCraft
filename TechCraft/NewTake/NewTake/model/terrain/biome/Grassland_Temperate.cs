@@ -5,9 +5,9 @@ using System.Text;
 
 using NewTake;
 
-namespace NewTake.model.terrain
+namespace NewTake.model.terrain.biome
 {
-    class DualLayerTerrainWithMediumValleysForRivers : SimpleTerrain
+    class Grassland_Temperate : SimpleTerrain
     {
         int waterLevel = (int)(Chunk.CHUNK_YMAX * 0.5f);
         int snowLevel = 95;
@@ -42,16 +42,16 @@ namespace NewTake.model.terrain
                 else if (y > lowerGroundHeight)
                 {
                     // Let's see about some caves er valleys!
-                    float caveNoise = PerlinSimplexNoise.noise(worldX * 0.01f, worldZ * 0.01f, y * 0.01f) * (0.015f * y) + 0.1f;
-                    caveNoise += PerlinSimplexNoise.noise(worldX * 0.01f, worldZ * 0.01f, y * 0.1f) * 0.06f + 0.1f;
-                    caveNoise += PerlinSimplexNoise.noise(worldX * 0.2f, worldZ * 0.2f, y * 0.2f) * 0.03f + 0.01f;
-                    // We have a cave, draw air here.
-                    if (caveNoise > 0.2f)
-                    {
-                        blockType = BlockType.None;
-                    }
-                    else
-                    {
+                    //float caveNoise = PerlinSimplexNoise.noise(worldX * 0.01f, worldZ * 0.01f, y * 0.01f) * (0.015f * y) + 0.1f;
+                    //caveNoise += PerlinSimplexNoise.noise(worldX * 0.01f, worldZ * 0.01f, y * 0.1f) * 0.06f + 0.1f;
+                    //caveNoise += PerlinSimplexNoise.noise(worldX * 0.2f, worldZ * 0.2f, y * 0.2f) * 0.03f + 0.01f;
+                    //// We have a cave, draw air here.
+                    //if (caveNoise > 0.2f)
+                    //{
+                    //    blockType = BlockType.None;
+                    //}
+                    //else
+                    //{
                         blockType = BlockType.None;
                         if (sunlit)
                         {
@@ -61,14 +61,14 @@ namespace NewTake.model.terrain
                             }
                             else
                             {
-                                if (r.Next(100) == 1)
-                                {
-                                    BuildTree(chunk, blockXInChunk, y, blockZInChunk);
-                                }
-                                else
-                                {
+                                //if (r.Next(100) == 1)
+                                //{
+                                //    BuildTree(chunk, blockXInChunk, y, blockZInChunk);
+                                //}
+                                //else
+                                //{
                                     blockType = BlockType.Grass;
-                                }
+                                //}
                                 //blockType = BlockType.Grass;
                             }
                             sunlit = false;
@@ -77,7 +77,7 @@ namespace NewTake.model.terrain
                         {
                             blockType = BlockType.Dirt;
                         }
-                    }
+                    //}
                 }
                 else
                 {
@@ -157,15 +157,16 @@ namespace NewTake.model.terrain
                 {
                     for (int y = waterLevel + 9; y >= minimumGroundheight; y--)
                     {
+                        blockType = BlockType.None;
                         if (chunk.Blocks[x, y, z].Type == BlockType.None)
                         {
-                            blockType = BlockType.Water;
+                        //    blockType = BlockType.Water;
                         }
                         else
                         {
                             if (chunk.Blocks[x, y, z].Type == BlockType.Grass)
                             {
-                                blockType = BlockType.Sand;
+                                blockType = BlockType.Grass;
                                 if (y <= waterLevel)
                                 {
                                     sunlit = false;
@@ -177,11 +178,12 @@ namespace NewTake.model.terrain
                         chunk.setBlock(x, y, z,new Block(blockType, 0));
                     }
 
-                    for (int y = waterLevel + 11; y >= waterLevel + 8; y--)
+                    for (int y = waterLevel + 27; y >= waterLevel; y--)
                     {
+                        if ((y > 11) && (chunk.Blocks[x, y, z].Type == BlockType.Grass)) chunk.setBlock(x, y, z, new Block(BlockType.Grass, sunlit));
                         if ((chunk.Blocks[x, y, z].Type == BlockType.Dirt) || (chunk.Blocks[x, y, z].Type == BlockType.Grass))
                         {
-                            chunk.setBlock(x, y, z,new Block(BlockType.Sand, sunlit));
+                            chunk.setBlock(x, y, z,new Block(BlockType.Grass, sunlit));
                         }
                     }
                 }
@@ -192,10 +194,15 @@ namespace NewTake.model.terrain
         #region GetUpperGroundHeight
         private static int GetUpperGroundHeight(Chunk chunk, int blockX, int blockY, float lowerGroundHeight)
         {
-            float octave1 = PerlinSimplexNoise.noise((blockX + 100) * 0.001f, blockY * 0.001f) * 0.5f;
-            float octave2 = PerlinSimplexNoise.noise((blockX + 100) * 0.002f, blockY * 0.002f) * 0.25f;
-            float octave3 = PerlinSimplexNoise.noise((blockX + 100) * 0.01f, blockY * 0.01f) * 0.25f;
-            float octaveSum = octave1 + octave2 + octave3;
+
+            float octave1 = PerlinSimplexNoise.noise((blockX+50) * 0.0002f, blockY * 0.0002f) * 0.05f;
+            float octave2 = PerlinSimplexNoise.noise((blockX+50) * 0.0005f, blockY * 0.0005f) * 0.135f;
+            float octave3 = PerlinSimplexNoise.noise((blockX+50) * 0.0025f, blockY * 0.0025f) * 0.15f;
+            float octave4 = PerlinSimplexNoise.noise((blockX+50) * 0.0125f, blockY * 0.0125f) * 0.05f;
+            float octave5 = PerlinSimplexNoise.noise((blockX+50) * 0.025f,  blockY * 0.025f)  * 0.015f;
+            float octave6 = PerlinSimplexNoise.noise((blockX+50) * 0.0125f, blockY * 0.0125f) * 0.04f;
+
+            float octaveSum = octave1 + octave2 + octave3 + octave4 + octave5 + octave6;
 
             return (int)(octaveSum * (Chunk.CHUNK_YMAX / 2f)) + (int)(lowerGroundHeight);
         }
@@ -209,14 +216,18 @@ namespace NewTake.model.terrain
 
             float octave1 = PerlinSimplexNoise.noise(blockX * 0.0001f, blockY * 0.0001f) * 0.5f;
             float octave2 = PerlinSimplexNoise.noise(blockX * 0.0005f, blockY * 0.0005f) * 0.35f;
-            float octave3 = PerlinSimplexNoise.noise(blockX * 0.02f, blockY * 0.02f) * 0.15f;
-            float lowerGroundHeight = octave1 + octave2 + octave3;
+            //float octave3 = PerlinSimplexNoise.noise(blockX * 0.02f, blockY * 0.02f) * 0.15f;
+            float lowerGroundHeight = octave1 + octave2;
+            //float lowerGroundHeight = octave1 + octave2 + octave3;
 
             lowerGroundHeight = lowerGroundHeight * minimumGroundDepth + minimumGroundheight;
 
             return lowerGroundHeight;
         }
         #endregion
+
+
+
 
     }
 }

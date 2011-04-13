@@ -115,6 +115,8 @@
   <ItemGroup>
     <Compile Include="model\Player.cs" />
     <Compile Include="model\terrain\biome\Biome.cs" />
+    <Compile Include="model\terrain\biome\Desert_Subtropical.cs" />
+    <Compile Include="model\terrain\biome\Grassland_Temperate.cs" />
     <Compile Include="model\terrain\biome\Tundra_Alpine.cs" />
     <Compile Include="model\terrain\MapTools.cs" />
     <Compile Include="model\terrain\PerlinNoise2D.cs" />
