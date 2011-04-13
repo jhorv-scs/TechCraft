@@ -18,9 +18,9 @@ namespace NewTake.view
     {
         #region inits
 
-        public const float FARPLANE = 140*8;
-        public const int FOGNEAR = 90*8;
-        public const int FOGFAR = 140*8;
+        public const float FARPLANE = 140 * 2;
+        public const int FOGNEAR = 90 * 2;
+        public const int FOGFAR = 140 * 2;
 
         protected World world;
         protected readonly GraphicsDevice GraphicsDevice;
@@ -28,6 +28,7 @@ namespace NewTake.view
         protected Effect _solidBlockEffect;
         protected Texture2D _textureAtlas;
         public readonly FirstPersonCamera camera;
+        protected Vector3i previousChunkIndex;
 
         //public TimeSpan removeTime = TimeSpan.Zero;
         //public Queue<Chunk> _toBuild;
@@ -58,6 +59,8 @@ namespace NewTake.view
             world.visitChunks(DoBuild);
             // Generate
             this.camera = camera;
+
+            this.previousChunkIndex = new Vector3i();
          }
 
         public virtual void DoBuild(Vector3i vector)
@@ -130,58 +133,64 @@ namespace NewTake.view
 
             Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;    // This is the chunk in which the camera currently resides
 
-            // Loop through all possible chunks around the camera in both X and Z directions
-            for (uint j = cx - (World.VIEW_DISTANCE_FAR_X + 1); j < cx + (World.VIEW_DISTANCE_FAR_X + 1); j++)
+            if (currentChunkIndex != previousChunkIndex)
             {
-                for (uint l = cz - (World.VIEW_DISTANCE_FAR_Z + 1); l < cz + (World.VIEW_DISTANCE_FAR_Z + 1); l++)
+                previousChunkIndex = currentChunkIndex;
+
+                // Loop through all possible chunks around the camera in both X and Z directions
+                for (uint j = cx - (World.VIEW_DISTANCE_FAR_X + 1); j < cx + (World.VIEW_DISTANCE_FAR_X + 1); j++)
                 {
-                    int distancecx = (int)(cx - j);        // The distance from the camera to the chunk in the X direction
-                    int distancecz = (int)(cz - l);        // The distance from the camera to the chunk in the Z direction
-
-                    if (distancecx < 0) distancecx = 0 - distancecx;        // If the distance is negative (behind the camera) make it positive
-                    if (distancecz < 0) distancecz = 0 - distancecz;        // If the distance is negative (behind the camera) make it positive
-
-                    // Remove Chunks
-                    if ((distancecx > World.VIEW_DISTANCE_NEAR_X) || (distancecz > World.VIEW_DISTANCE_NEAR_Z))
+                    for (uint l = cz - (World.VIEW_DISTANCE_FAR_Z + 1); l < cz + (World.VIEW_DISTANCE_FAR_Z + 1); l++)
                     {
-                        if ((world.viewableChunks[j, l] != null)) // Chunk is created, therefore remove
+                        int distancecx = (int)(cx - j);        // The distance from the camera to the chunk in the X direction
+                        int distancecz = (int)(cz - l);        // The distance from the camera to the chunk in the Z direction
+
+                        if (distancecx < 0) distancecx = 0 - distancecx;        // If the distance is negative (behind the camera) make it positive
+                        if (distancecz < 0) distancecz = 0 - distancecz;        // If the distance is negative (behind the camera) make it positive
+
+                        // Remove Chunks
+                        if ((distancecx > World.VIEW_DISTANCE_NEAR_X) || (distancecz > World.VIEW_DISTANCE_NEAR_Z))
                         {
-                            Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
-                            Chunk chunk = world.viewableChunks[j, l];
-                            chunk.visible = false;
-                            world.viewableChunks[j, l] = null;
-                            ChunkRenderers.Remove(newIndex);
-                            //Debug.WriteLine("Removed chunk at {0},{1},{2}", chunk.Position.X, chunk.Position.Y, chunk.Position.Z);
+                            if ((world.viewableChunks[j, l] != null)) // Chunk is created, therefore remove
+                            {
+                                Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
+                                Chunk chunk = world.viewableChunks[j, l];
+                                chunk.visible = false;
+                                world.viewableChunks[j, l] = null;
+                                ChunkRenderers.Remove(newIndex);
+                                //Debug.WriteLine("Removed chunk at {0},{1},{2}", chunk.Position.X, chunk.Position.Y, chunk.Position.Z);
+                            }
+                            else
+                            {
+                                //Debug.WriteLine("[Remove] chunk not found at at {0},0,{1}", j, l);
+                            }
                         }
+                        // Generate Chunks
+                        else if ((distancecx > World.VIEW_CHUNKS_X) || (distancecz > World.VIEW_CHUNKS_Z))
+                        {
+                            // A new chunk is coming into view - we need to generate it
+                            if (world.viewableChunks[j, l] == null) // Chunk is not created, therefore create
+                            {
+                                Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
+                                DoGenerate(newIndex);
+                                //Debug.WriteLine("Built chunk at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
+                            }
+                        }
+                        // Build Chunks
                         else
                         {
-                            //Debug.WriteLine("[Remove] chunk not found at at {0},0,{1}", j, l);
-                        }
-                    }
-                    // Generate Chunks
-                    else if ((distancecx > World.VIEW_CHUNKS_X) || (distancecz > World.VIEW_CHUNKS_Z))
-                    {
-                        // A new chunk is coming into view - we need to generate it
-                        if (world.viewableChunks[j, l] == null) // Chunk is not created, therefore create
-                        {
-                            Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
-                            DoGenerate(newIndex);
-                            //Debug.WriteLine("Built chunk at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
-                        }
-                    }
-                    // Build Chunks
-                    else
-                    {
-                        Chunk chunk = world.viewableChunks[j, l];
-                        if ((!chunk.built) && (chunk.generated)) 
-                        {
-                            // We have a chunk in view - it has been generated but we haven't built a vertex buffer for it
-                            Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
-                            DoBuild(newIndex);
+                            Chunk chunk = world.viewableChunks[j, l];
+                            if ((!chunk.built) && (chunk.generated))
+                            {
+                                // We have a chunk in view - it has been generated but we haven't built a vertex buffer for it
+                                Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
+                                DoBuild(newIndex);
+                                //Debug.WriteLine("Vertices built at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
+                            }
                         }
                     }
                 }
-            }
+            }// end if
 
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
 

@@ -54,6 +54,9 @@ namespace NewTake
         {
             DeProfiler.Run();
             graphics = new GraphicsDeviceManager(this);
+            
+            //graphics.IsFullScreen = true;
+
             preferredBackBufferHeight = graphics.PreferredBackBufferHeight;
             preferredBackBufferWidth = graphics.PreferredBackBufferWidth;
             FrameRateCounter frameRate = new FrameRateCounter(this);
@@ -151,7 +154,6 @@ namespace NewTake
                 this.Exit();
             }
 
-
             // Release the mouse pointer
             if (_oldKeyboardState.IsKeyUp(Keys.Space) && keyState.IsKeyDown(Keys.Space))
             {
@@ -163,7 +165,7 @@ namespace NewTake
             {
                 graphics.SynchronizeWithVerticalRetrace = !graphics.SynchronizeWithVerticalRetrace;
                 this.IsFixedTimeStep = !this.IsFixedTimeStep;
-                Debug.WriteIf(this.IsFixedTimeStep, "FixedTimeStep and v synch are active");
+                Debug.WriteLine("FixedTimeStep and v synch are " + this.IsFixedTimeStep);
                 graphics.ApplyChanges();
             }
 
@@ -186,8 +188,6 @@ namespace NewTake
             this._oldKeyboardState = keyState;
         }
         #endregion
-
-
 
         #region SelectionBlock
         private void checkSelectionBlock()
