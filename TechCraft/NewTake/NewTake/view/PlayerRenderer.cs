@@ -59,8 +59,11 @@ namespace NewTake.view
 
         public void draw(GameTime gameTime)
         {
+            //TODO draw the player / 3rd person /  tools
         }
 
+
+     
         #region useTools
         public void useTools(GameTime gameTime)
         {
@@ -108,6 +111,9 @@ namespace NewTake.view
                         break;
                     }
                 }
+
+
+
                 if (hit != 0)
                 {
                     for (float x = hit; x > 0.7f; x -= 0.1f)

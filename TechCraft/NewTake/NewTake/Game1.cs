@@ -111,8 +111,7 @@ namespace NewTake
         {
 
             renderer.loadContent(Content);
-            // TODO: use this.Content to load your game content here
-
+         
             // SelectionBlock
             SelectionBlock = Content.Load<Model>("Models\\SelectionBlock");
             SelectionBlockTexture = Content.Load<Texture2D>("Textures\\SelectionBlock");
@@ -198,6 +197,7 @@ namespace NewTake
                 Vector3 targetPoint;
                 targetPoint = player1Renderer.camera.Position + (player1Renderer.lookVector * x);
 
+                //TODO lots of blockat here
                 BlockType blockType = world.BlockAt(targetPoint).Type;
 
                 if (blockType != BlockType.None && blockType != BlockType.Water)
@@ -301,7 +301,9 @@ namespace NewTake
             GraphicsDevice.Clear(Color.SkyBlue);
             renderer.Draw(gameTime);
 
-            checkSelectionBlock(); // draw the SelectionBlock - comment out to stop the block from drawing
+            checkSelectionBlock(); 
+            // draw the SelectionBlock - comment out to stop the block from drawing
+            //TODO : only when the mouse was moved to avoid some world.blockat
 
             hud.Draw(gameTime);
 

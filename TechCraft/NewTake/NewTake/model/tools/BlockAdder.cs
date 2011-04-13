@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NewTake.model.tools
 {
-    class BlockAdder : Tool
+    public class BlockAdder : Tool
     {
         public override void Use() { }
     }
