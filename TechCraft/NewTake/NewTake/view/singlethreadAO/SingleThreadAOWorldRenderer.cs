@@ -61,7 +61,7 @@ namespace NewTake.view
 
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
 
-            GraphicsDevice.Clear(Color.SkyBlue);
+            GraphicsDevice.Clear(Color.LightSkyBlue);
             GraphicsDevice.RasterizerState = !this._wireframed ? this._normalRaster : this._wireframedRaster;
 
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -73,7 +73,7 @@ namespace NewTake.view
             _solidBlockEffect.Parameters["CameraPosition"].SetValue(camera.Position);
             //_solidBlockEffect.Parameters["AmbientColor"].SetValue(Color.White.ToVector4());
             //_solidBlockEffect.Parameters["AmbientIntensity"].SetValue(0.6f);
-            _solidBlockEffect.Parameters["FogColor"].SetValue(Color.SkyBlue.ToVector4());
+            _solidBlockEffect.Parameters["FogColor"].SetValue(Color.LightSkyBlue.ToVector4());
             _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);

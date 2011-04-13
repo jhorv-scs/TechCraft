@@ -38,10 +38,7 @@ namespace NewTake
 
         private int preferredBackBufferHeight, preferredBackBufferWidth;
 
-        // SelectionBlock
-        public Model SelectionBlock;
-        BasicEffect _selectionBlockEffect;
-        Texture2D SelectionBlockTexture;
+       
 
         private HudRenderer hud;
 
@@ -59,6 +56,11 @@ namespace NewTake
 
             preferredBackBufferHeight = graphics.PreferredBackBufferHeight;
             preferredBackBufferWidth = graphics.PreferredBackBufferWidth;
+            
+            //enter stealth mode at start
+           // graphics.PreferredBackBufferHeight = 100;
+           // graphics.PreferredBackBufferWidth = 160;
+
             FrameRateCounter frameRate = new FrameRateCounter(this);
             frameRate.DrawOrder = 1;
             Components.Add(frameRate);
@@ -81,7 +83,7 @@ namespace NewTake
 
             player1 = new Player(world);
 
-            player1Renderer = new PlayerRenderer(player1, GraphicsDevice.Viewport);
+            player1Renderer = new PlayerRenderer(GraphicsDevice,player1);
             player1Renderer.Initialize();
 
             hud = new HudRenderer(GraphicsDevice);
@@ -92,8 +94,7 @@ namespace NewTake
             renderer = new SingleThreadAOWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             //TODO refactor WorldRenderer needs player position + view frustum 
 
-            // SelectionBlock
-            _selectionBlockEffect = new BasicEffect(GraphicsDevice);
+         
 
             base.Initialize();
         }
@@ -114,15 +115,8 @@ namespace NewTake
         {
 
             renderer.loadContent(Content);
-         
-            // SelectionBlock
-            SelectionBlock = Content.Load<Model>("Models\\SelectionBlock");
-            SelectionBlockTexture = Content.Load<Texture2D>("Textures\\SelectionBlock");
-
+            player1Renderer.LoadContent(Content);
             hud.loadContent(Content);
-
-
-
         }
         #endregion
 
@@ -189,81 +183,7 @@ namespace NewTake
         }
         #endregion
 
-        #region SelectionBlock
-        private void checkSelectionBlock()
-        {
-            for (float x = 0.5f; x < 8f; x += 0.1f)
-            {
-                Vector3 targetPoint;
-                targetPoint = player1Renderer.camera.Position + (player1Renderer.lookVector * x);
-
-                //TODO lots of blockat here
-                BlockType blockType = world.BlockAt(targetPoint).Type;
-
-                if (blockType != BlockType.None && blockType != BlockType.Water)
-                {
-                    //Debug.WriteLine(
-                    //    (Math.Abs((uint)targetPoint.X % Chunk.CHUNK_XMAX)) + "-" +
-                    //    (Math.Abs((uint)targetPoint.Y % Chunk.CHUNK_YMAX)) + "-" +
-                    //    (Math.Abs((uint)targetPoint.Z % Chunk.CHUNK_ZMAX)) + "->" +
-                    //    blockType + ", x=" + x);
-
-                    RenderSelectionBlock(targetPoint);
-                    break;
-                }
-            }
-        }
-
-        public void RenderSelectionBlock(Vector3 targetPoint)
-        {
-
-            GraphicsDevice.BlendState = BlendState.NonPremultiplied; // allows any transparent pixels in original PNG to draw transparent
-
-            Vector3 intargetPoint = new Vector3(Math.Abs((uint)targetPoint.X),
-                                                Math.Abs((uint)targetPoint.Y),
-                                                Math.Abs((uint)targetPoint.Z)); // makes the targetpoint a non float
-
-            Vector3 position = intargetPoint + new Vector3(0.5f, 0.5f, 0.5f);
-
-            Matrix matrix_a, matrix_b;
-            Matrix identity = Matrix.Identity;                       // setup the matrix prior to translation and scaling  
-            Matrix.CreateTranslation(ref position, out matrix_a);    // translate the position a half block in each direction
-            Matrix.CreateScale((float)0.51f, out matrix_b);          // scales the selection box slightly larger than the targetted block
-
-            identity = Matrix.Multiply(matrix_b, matrix_a);          // the final position of the block
-
-            // set up the World, View and Projection
-            _selectionBlockEffect.World = identity;
-            _selectionBlockEffect.View = player1Renderer.camera.View;
-            _selectionBlockEffect.Projection = player1Renderer.camera.Projection;
-            _selectionBlockEffect.Texture = SelectionBlockTexture;
-            _selectionBlockEffect.TextureEnabled = true;
-
-            // apply the effect
-            foreach (EffectPass pass in _selectionBlockEffect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                DrawSelectionBlockMesh(GraphicsDevice, SelectionBlock.Meshes[0], _selectionBlockEffect);
-            }
-
-        }
-
-        private void DrawSelectionBlockMesh(GraphicsDevice graphicsdevice, ModelMesh mesh, Effect effect)
-        {
-            int count = mesh.MeshParts.Count;
-            for (int i = 0; i < count; i++)
-            {
-                ModelMeshPart parts = mesh.MeshParts[i];
-                if (parts.NumVertices > 0)
-                {
-                    GraphicsDevice.Indices = parts.IndexBuffer;
-                    GraphicsDevice.SetVertexBuffer(parts.VertexBuffer);
-                    graphicsdevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, parts.NumVertices, parts.StartIndex, parts.PrimitiveCount);
-                }
-            }
-        }
-        #endregion
-
+       
         #region Update
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -274,8 +194,6 @@ namespace NewTake
         {
             ProcessDebugKeys();
 
-            // TODO: Add your update logic here
-
             if (this.IsActive)
             {
                 if (!releaseMouse)
@@ -284,8 +202,6 @@ namespace NewTake
                 }
 
                 renderer.Update(gameTime);
-
-
                 base.Update(gameTime);
             }
         }
@@ -301,10 +217,8 @@ namespace NewTake
             GraphicsDevice.Clear(Color.SkyBlue);
             renderer.Draw(gameTime);
 
-            checkSelectionBlock(); 
-            // draw the SelectionBlock - comment out to stop the block from drawing
-            //TODO : only when the mouse was moved to avoid some world.blockat
-
+            player1Renderer.Draw(gameTime);
+       
             hud.Draw(gameTime);
 
             base.Draw(gameTime);

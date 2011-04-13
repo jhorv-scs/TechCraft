@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 
 namespace NewTake.view
 {
@@ -29,7 +30,7 @@ namespace NewTake.view
         }
 
 
-        public void loadContent(Microsoft.Xna.Framework.Content.ContentManager Content)
+        public void loadContent(ContentManager Content)
         {
             // Crosshair
             _crosshairTexture = Content.Load<Texture2D>("Textures\\crosshair");

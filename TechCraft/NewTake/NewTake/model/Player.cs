@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using NewTake.view;
 using NewTake.controllers;
 using NewTake.model.tools;
+using NewTake.model.types;
 
 namespace NewTake.model
 {
@@ -17,17 +18,16 @@ namespace NewTake.model
             this.world = world;
         }
 
-        Vector3 position;
-        Vector3 velocity;
+        public Vector3 position;
+        public Vector3 velocity;
 
         
         //TODO ***** merge usetools + game1.checkSelectionBlock to have currentSelected and currentSelectedAdjacent
+
+        public PositionedBlock? currentSelection;
+
+        public PositionedBlock? currentSelectedAdjacent; // = where a block would be added with the add tool
         
-        Block currentSelectedBlock;
-        Vector3i currentSelectedBlockPos;
-        
-        Block currentSelectedAdjacent; // = where a block would be added with the add tool
-        Vector3i currentSelectedAdjacentPos;
 
         Tool Left = new BlockRemover();
         Tool Right = new BlockAdder(); 

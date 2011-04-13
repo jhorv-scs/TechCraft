@@ -76,6 +76,11 @@ namespace NewTake.model
             }
         }
 
+        public Block setBlock(Vector3i pos, Block b)
+        {
+            return setBlock(pos.X,pos.Y,pos.Z,b);
+        }
+
         //this method is only invoked by user action, not by the engine so optimisation is not a problem for now
         public Block setBlock(uint x, uint y, uint z, Block newType)
         {

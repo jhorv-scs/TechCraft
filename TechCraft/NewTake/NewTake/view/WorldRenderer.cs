@@ -18,9 +18,9 @@ namespace NewTake.view
     {
         #region inits
 
-        public const float FARPLANE = 140 * 2;
-        public const int FOGNEAR = 90 * 2;
-        public const int FOGFAR = 140 * 2;
+        public const float FARPLANE = 140 * 4;
+        public const int FOGNEAR = 90 * 4;
+        public const int FOGFAR = 140 * 4;
 
         protected World world;
         protected readonly GraphicsDevice GraphicsDevice;
@@ -75,7 +75,7 @@ namespace NewTake.view
 
         public virtual void loadContent(ContentManager content)
         {
-            _textureAtlas = content.Load<Texture2D>("Textures\\blocks");
+            _textureAtlas = content.Load<Texture2D>("Textures\\blocks)");
             _solidBlockEffect = content.Load<Effect>("Effects\\SolidBlockEffect");
         }
 
