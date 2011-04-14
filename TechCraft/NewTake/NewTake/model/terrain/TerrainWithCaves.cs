@@ -12,7 +12,7 @@ namespace NewTake.model.terrain
     {
 
         #region generateTerrain
-        protected override void generateTerrain(Chunk chunk, int x, int z, int blockX, int blockZ)
+        protected sealed override void generateTerrain(Chunk chunk, int x, int z, int blockX, int blockZ)
         {
             int groundHeight = (int)GetBlockNoise(blockX, blockZ);
             if (groundHeight < 1)

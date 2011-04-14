@@ -9,11 +9,6 @@ namespace NewTake.model.terrain
 {
     class DualLayerTerrainWithMediumValleysForRivers : SimpleTerrain
     {
-        int waterLevel = (int)(Chunk.CHUNK_YMAX * 0.5f);
-        int snowLevel = 95;
-        int minimumGroundheight = Chunk.CHUNK_YMAX / 4;
-        
-        Random r = new Random(World.SEED);
         
         public override void Generate(Chunk chunk)
         {
@@ -22,7 +17,7 @@ namespace NewTake.model.terrain
         }
 
         #region generateTerrain
-        protected override void generateTerrain(Chunk chunk, int blockXInChunk, int blockZInChunk, int worldX, int worldZ)
+        protected sealed override void generateTerrain(Chunk chunk, int blockXInChunk, int blockZInChunk, int worldX, int worldZ)
         {
 
             float lowerGroundHeight = GetLowerGroundHeight(chunk, worldX, worldZ, blockXInChunk, blockZInChunk);
@@ -55,7 +50,7 @@ namespace NewTake.model.terrain
                         blockType = BlockType.None;
                         if (sunlit)
                         {
-                            if (y > snowLevel + r.Next(3))
+                            if (y > SNOWLEVEL + r.Next(3))
                             {
                                 blockType = BlockType.Snow;
                             }
@@ -63,13 +58,12 @@ namespace NewTake.model.terrain
                             {
                                 if (r.Next(100) == 1)
                                 {
-                                    BuildTree(chunk, blockXInChunk, y, blockZInChunk);
+                                    base.BuildTree(chunk, blockXInChunk, y, blockZInChunk);
                                 }
                                 else
                                 {
                                     blockType = BlockType.Grass;
                                 }
-                                //blockType = BlockType.Grass;
                             }
                             sunlit = false;
                         }
@@ -95,53 +89,17 @@ namespace NewTake.model.terrain
 
                 if (blockType == BlockType.None)
                 {
-                    if (y <= waterLevel)
+                    if (y <= WATERLEVEL)
                     {
                         blockType = BlockType.Lava;
                         sunlit = false;
                     }
                 }
-
-                    chunk.setBlock( blockXInChunk, y,blockZInChunk,new Block(blockType, sunlit));
+                chunk.setBlock( blockXInChunk, y,blockZInChunk,new Block(blockType, sunlit));
             }
         }
 
        
-        #endregion
-
-        #region BuildTree
-        private void BuildTree(Chunk chunk, int tx, int ty, int tz)
-        {
-            int height = 4 + r.Next(3);
-
-            if ((ty + height) < Chunk.CHUNK_YMAX-1)
-            {
-                for (int y = ty; y < ty + height; y++)
-                {
-
-                    chunk.setBlock(tx, y, tz,new Block(BlockType.Tree, 0));
-                    //_map[tx, y, tz] = BlockType.WoodSide;
-                }
-            }
-
-            int radius = 3 + r.Next(2);
-            int ny = ty + height;
-
-            for (int i = 0; i < 40 + r.Next(4); i++)
-            {
-                int lx = tx + r.Next(radius) - r.Next(radius);
-                int ly = ny + r.Next(radius) - r.Next(radius);
-                int lz = tz + r.Next(radius) - r.Next(radius);
-
-                if (chunk.outOfBounds((byte)lx, (byte)ly, (byte)lz) == false)
-                {
-                    if (chunk.Blocks[lx, ly, lz].Type == BlockType.None)
-                        chunk.setBlock(lx, ly, lz, new Block(BlockType.Leaves, 0));
-                }
-
-            }
-
-        }
         #endregion
 
         #region GenerateWaterSandLayer
@@ -155,7 +113,7 @@ namespace NewTake.model.terrain
             {
                 for (int z = 0; z < Chunk.CHUNK_ZMAX; z++)
                 {
-                    for (int y = waterLevel + 9; y >= minimumGroundheight; y--)
+                    for (int y = WATERLEVEL + 9; y >= MINIMUMGROUNDHEIGHT; y--)
                     {
                         if (chunk.Blocks[x, y, z].Type == BlockType.None)
                         {
@@ -166,7 +124,7 @@ namespace NewTake.model.terrain
                             if (chunk.Blocks[x, y, z].Type == BlockType.Grass)
                             {
                                 blockType = BlockType.Sand;
-                                if (y <= waterLevel)
+                                if (y <= WATERLEVEL)
                                 {
                                     sunlit = false;
                                 }
@@ -177,7 +135,7 @@ namespace NewTake.model.terrain
                         chunk.setBlock(x, y, z,new Block(blockType, 0));
                     }
 
-                    for (int y = waterLevel + 11; y >= waterLevel + 8; y--)
+                    for (int y = WATERLEVEL + 11; y >= WATERLEVEL + 8; y--)
                     {
                         if ((chunk.Blocks[x, y, z].Type == BlockType.Dirt) || (chunk.Blocks[x, y, z].Type == BlockType.Grass))
                         {

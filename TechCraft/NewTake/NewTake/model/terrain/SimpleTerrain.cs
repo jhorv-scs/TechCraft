@@ -11,6 +11,16 @@ namespace NewTake.model.terrain
     class SimpleTerrain : IChunkGenerator
     {
 
+        #region inits
+
+        public const int WATERLEVEL = (int)(Chunk.CHUNK_YMAX * 0.5f);
+        public const int SNOWLEVEL = 95;
+        public const int MINIMUMGROUNDHEIGHT = Chunk.CHUNK_YMAX / 4;
+
+        public Random r = new Random(World.SEED);
+
+        #endregion
+
         #region build
         public virtual void Generate(Chunk chunk)
         {
@@ -69,6 +79,39 @@ namespace NewTake.model.terrain
                 
                 //  Debug.WriteLine(string.Format("chunk {0} : ({1},{2},{3})={4}", chunk.Position, blockXInChunk, y, blockZInChunk, blockType));
             }
+        }
+        #endregion
+
+        #region BuildTree
+        public virtual void BuildTree(Chunk chunk, int tx, int ty, int tz)
+        {
+
+            // Trunk
+            int height = 4 + r.Next(3);
+            if ((ty + height) < Chunk.CHUNK_YMAX - 1)
+            {
+                for (int y = ty; y < ty + height; y++)
+                {
+                    chunk.setBlock(tx, y, tz, new Block(BlockType.Tree, 0));
+                }
+            }
+
+            // Foliage
+            int radius = 3 + r.Next(2);
+            int ny = ty + height;
+            for (int i = 0; i < 40 + r.Next(4); i++)
+            {
+                int lx = tx + r.Next(radius) - r.Next(radius);
+                int ly = ny + r.Next(radius) - r.Next(radius);
+                int lz = tz + r.Next(radius) - r.Next(radius);
+
+                if (chunk.outOfBounds((byte)lx, (byte)ly, (byte)lz) == false)
+                {
+                    if (chunk.Blocks[lx, ly, lz].Type == BlockType.None)
+                        chunk.setBlock(lx, ly, lz, new Block(BlockType.Leaves, 0));
+                }
+            }
+
         }
         #endregion
 
