@@ -8,7 +8,7 @@ namespace NewTake.model.terrain
     public class MapTools
     {
 
-        public static void Clear(Chunk chunk)
+        public static void ClearChunkBlocks(Chunk chunk)
         {
             for (int x = 0; x < Chunk.CHUNK_XMAX; x++)
             {

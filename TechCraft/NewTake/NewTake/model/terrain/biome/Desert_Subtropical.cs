@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using System.Diagnostics;
+
+
 using NewTake;
 
 namespace NewTake.model.terrain.biome
@@ -61,14 +64,17 @@ namespace NewTake.model.terrain.biome
                             }
                             else
                             {
-                                //if (r.Next(100) == 1)
-                                //{
-                                //    BuildTree(chunk, blockXInChunk, y, blockZInChunk);
-                                //}
-                                //else
-                                //{
+                                if (r.Next(800) == 1)
+                                {
+                                    if (chunk.outOfBounds((byte)(blockXInChunk + 3), (byte)y, (byte)(blockZInChunk + 3)) == false)
+                                    {
+                                        BuildTree(chunk, blockXInChunk, y, blockZInChunk);
+                                    }
+                                }
+                                else
+                                {
                                     blockType = BlockType.Grass;
-                                //}
+                                }
                                 //blockType = BlockType.Grass;
                             }
                             sunlit = false;
@@ -112,32 +118,54 @@ namespace NewTake.model.terrain.biome
         #region BuildTree
         private void BuildTree(Chunk chunk, int tx, int ty, int tz)
         {
-            int height = 4 + r.Next(3);
+            int height = 7 + r.Next(3);
 
-            if ((ty + height) < Chunk.CHUNK_YMAX-1)
+            if ((ty + height) < Chunk.CHUNK_YMAX-3)
             {
+
+
+                #region Trunk
+                //Debug.WriteLine("New tree");
                 for (int y = ty; y < ty + height; y++)
                 {
-
                     chunk.setBlock(tx, y, tz,new Block(BlockType.Tree, 0));
-                    //_map[tx, y, tz] = BlockType.WoodSide;
                 }
-            }
+                #endregion
 
-            int radius = 3 + r.Next(2);
-            int ny = ty + height;
 
-            for (int i = 0; i < 40 + r.Next(4); i++)
-            {
-                int lx = tx + r.Next(radius) - r.Next(radius);
-                int ly = ny + r.Next(radius) - r.Next(radius);
-                int lz = tz + r.Next(radius) - r.Next(radius);
+                #region Foliage
+                //Debug.WriteLine("New foliage");
+                int start = ty + height - 4;
+                int end = ty + height + 3;
 
-                if (chunk.outOfBounds((byte)lx, (byte)ly, (byte)lz) == false)
+                int rad;
+                int radiusEnd = 2;
+                int radiusMiddle = radiusEnd + 1;
+
+                for (int y = start; y < end; y++)
                 {
-                    if (chunk.Blocks[lx, ly, lz].Type == BlockType.None)
-                        chunk.setBlock(lx, ly, lz, new Block(BlockType.Leaves, 0));
+                    if ( (y > start) && ( y < end - 1) )
+                    {
+                        rad = radiusMiddle;
+                    }
+                    else
+                    {
+                        rad = radiusEnd;
+                    }
+
+                    for (int xoff = -rad; xoff < rad + 1; xoff++)
+                    {
+                        for (int zoff = -rad; zoff < rad + 1; zoff++)
+                        {
+                            if (chunk.outOfBounds((byte)(tx + xoff), (byte)y, (byte)(tz + zoff)) == false)
+                            {
+                                chunk.setBlock(tx+xoff, y, tz+zoff, new Block(BlockType.Leaves, 0));
+                                //Debug.WriteLine("rad={0},xoff={1},zoff={2},y={3},start={4},end={5}", rad, xoff, zoff, y, start, end);
+                            }
+                        }
+                    }
                 }
+                #endregion
 
             }
 

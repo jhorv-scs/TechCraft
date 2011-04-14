@@ -23,15 +23,15 @@ namespace NewTake.model.types
             {
                 ulong key = (ulong)(x + (y * size) + (z * sizeSquared));
 
-                T outVal = default(T);
-                if (TryGetValue(key, out outVal))
-                {
+                //T outVal = default(T);
+                //if (TryGetValue(key, out outVal))
+                //{
                     this[key] = value; 
-                }
-                else
-                {
-                    Add(key, value);
-                }
+                //}
+                //else
+                //{
+                //    Add(key, value);
+                //}
              }
         }
     }
