@@ -68,15 +68,16 @@ namespace NewTake.view
             //TODO generalize highest/lowest None to non-solid
             byte yLow = (byte)(chunk.lowestNoneBlock.Y == 0 ? 0 : chunk.lowestNoneBlock.Y - 1);
             byte yHigh = (byte)(chunk.highestSolidBlock.Y == Chunk.CHUNK_YMAX - 1 ? Chunk.CHUNK_YMAX - 1 : chunk.highestSolidBlock.Y + 1);
-            
 
-            for (byte y = yLow; y < yHigh; y++)
+            for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
             {
-                for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
+                for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
                 {
-                    for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX;
+                    for (byte y = yLow; y < yHigh; y++)
                     {
-                        Block block = chunk.Blocks[x, y, z];
+                        //Block block = chunk.Blocks[x, y, z];
+                        Block block = chunk.Blocks[offset + y];
                         if (block.Type != BlockType.None)
                         {
                             BuildBlockVertices(block, chunk, new Vector3i(x, y, z));

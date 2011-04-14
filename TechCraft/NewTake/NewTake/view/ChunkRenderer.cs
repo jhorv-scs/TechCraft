@@ -67,7 +67,8 @@ namespace NewTake.view
             }
             else
             {
-                return chunk.Blocks[chunkRelativePositon.X, chunkRelativePositon.Y, chunkRelativePositon.Z];
+                //return chunk.Blocks[chunkRelativePositon.X, chunkRelativePositon.Y, chunkRelativePositon.Z];
+                return chunk.Blocks[chunkRelativePositon.X * Chunk.FlattenOffset + chunkRelativePositon.Z * Chunk.CHUNK_YMAX + chunkRelativePositon.Y];
             }
         }
 
@@ -78,11 +79,13 @@ namespace NewTake.view
             _vertexList.Clear();
             for (uint x = 0; x < Chunk.CHUNK_XMAX; x++)
             {
-                for (uint y = 0; y < Chunk.CHUNK_YMAX; y++)
+                for (uint z = 0; z < Chunk.CHUNK_ZMAX; z++)
                 {
-                    for (uint z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                    uint offset = x * (uint)Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX;
+                    for (uint y = 0; y < Chunk.CHUNK_YMAX; y++)
                     {
-                        Block block = chunk.Blocks[x, y, z];
+                        //Block block = chunk.Blocks[x, y, z];
+                        Block block = chunk.Blocks[offset + y];
                         if (block.Type != BlockType.None)
                         {
                             // Vector3i blockPosition = chunk.Position + new Vector3i(x, y, z);

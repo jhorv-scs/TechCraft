@@ -70,7 +70,8 @@ namespace NewTake.model
             if (InView(x, y, z))
             {
                 Chunk chunk = viewableChunks[x / Chunk.CHUNK_XMAX, z / Chunk.CHUNK_ZMAX];
-                return chunk.Blocks[Math.Abs(x % Chunk.CHUNK_XMAX), Math.Abs(y % Chunk.CHUNK_YMAX), Math.Abs(z % Chunk.CHUNK_ZMAX)];
+                //return chunk.Blocks[Math.Abs(x % Chunk.CHUNK_XMAX), Math.Abs(y % Chunk.CHUNK_YMAX), Math.Abs(z % Chunk.CHUNK_ZMAX)];
+                return chunk.Blocks[Math.Abs(x % Chunk.CHUNK_XMAX) * Chunk.FlattenOffset + Math.Abs(z % Chunk.CHUNK_ZMAX) * Chunk.CHUNK_YMAX + Math.Abs(y % Chunk.CHUNK_YMAX)];
             }
             else
             {
@@ -94,8 +95,9 @@ namespace NewTake.model
                 uint localX = x % Chunk.CHUNK_XMAX;
                 uint localY = y % Chunk.CHUNK_YMAX;
                 uint localZ = z % Chunk.CHUNK_ZMAX;
-               //TODO messy chunk coordinates types
-                Block old = chunk.Blocks[localX, localY, localZ];
+                //TODO messy chunk coordinates types
+                //Block old = chunk.Blocks[localX, localY, localZ];
+                Block old = chunk.Blocks[localX * Chunk.FlattenOffset + localZ * Chunk.CHUNK_YMAX + localY];
                 
                //chunk.setBlock is also called by terrain generators for Y loops min max optimisation
                chunk.setBlock((int)localX, (int)localY, (int)localZ, new Block(newType.Type, old.LightAmount));
