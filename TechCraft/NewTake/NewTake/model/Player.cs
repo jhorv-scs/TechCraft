@@ -14,25 +14,31 @@ namespace NewTake.model
     {
         public readonly World world;
 
-        public Player(World world) {
-            this.world = world;
-        }
 
         public Vector3 position;
         public Vector3 velocity;
 
-        
+
         //TODO ***** merge usetools + game1.checkSelectionBlock to have currentSelected and currentSelectedAdjacent
 
         public PositionedBlock? currentSelection;
 
         public PositionedBlock? currentSelectedAdjacent; // = where a block would be added with the add tool
-        
 
-        Tool Left = new BlockRemover();
-        Tool Right = new BlockAdder(); 
+
+        public Tool LeftTool;
+        public Tool RightTool;
         //keep it stupid simple for now, left hand/mousebutton & right hand/mousebutton
 
-      
+        public Player(World world)
+        {
+            this.world = world;
+            LeftTool = new BlockRemover(this);
+            //LeftTool = new PowerDrill(this);
+            
+            
+            RightTool = new BlockAdder(this);
+        }
+
     }
 }

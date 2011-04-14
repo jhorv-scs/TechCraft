@@ -7,7 +7,17 @@ namespace NewTake.model.tools
 {
     public class BlockRemover : Tool
     {
-        public override void Use() { }
+
+        public BlockRemover(Player player) : base(player){}
+
+        public override void Use() {
+
+            if (player.currentSelection.HasValue)
+            {
+                player.world.setBlock(player.currentSelection.Value.position, new Block(BlockType.None, false));
+            }
+        
+        }
 
     }
 }

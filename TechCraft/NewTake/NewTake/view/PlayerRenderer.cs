@@ -65,14 +65,13 @@ namespace NewTake.view
 
         public void update(GameTime gameTime)
         {
-
-            cameraController.Update(gameTime);
             Matrix previousView = camera.View;
-            //TODO alternative would be checking input states changed
+            cameraController.Update(gameTime);
+            // alternative would be checking input states changed
             camera.Update(gameTime);
 
             //do not do this each tick
-            if (previousView.Equals(camera.View))
+            if (! previousView.Equals(camera.View))
             {
 
                 Matrix rotationMatrix = Matrix.CreateRotationX(camera.UpDownRotation) * Matrix.CreateRotationY(camera.LeftRightRotation);
@@ -95,18 +94,13 @@ namespace NewTake.view
 
             if (mouseState.RightButton == ButtonState.Pressed
              && previousMouseState.RightButton != ButtonState.Pressed) {
-                if (player.currentSelectedAdjacent.HasValue){
-                    player.world.setBlock(player.currentSelectedAdjacent.Value.position, new Block(BlockType.Tree,true));                    
-                }
+                 player.RightTool.Use();   
             }
             
             if (mouseState.LeftButton == ButtonState.Pressed
              && previousMouseState.LeftButton != ButtonState.Pressed)
             {
-                if (player.currentSelection.HasValue)
-                {
-                    player.world.setBlock(player.currentSelection.Value.position, new Block(BlockType.None, false));
-                }
+                player.LeftTool.Use();   
             }
 
             previousMouseState = Mouse.GetState();  
@@ -115,11 +109,9 @@ namespace NewTake.view
         public void Draw(GameTime gameTime)
         {
             //TODO draw the player / 3rd person /  tools
-
+          
             RenderSelectionBlock(gameTime);
         }
-
-
 
 
         public void RenderSelectionBlock(GameTime gameTime)
