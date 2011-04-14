@@ -17,10 +17,7 @@ namespace NewTake.model
 
         public Vector3 position;
         public Vector3 velocity;
-
-
-        //TODO ***** merge usetools + game1.checkSelectionBlock to have currentSelected and currentSelectedAdjacent
-
+  
         public PositionedBlock? currentSelection;
 
         public PositionedBlock? currentSelectedAdjacent; // = where a block would be added with the add tool

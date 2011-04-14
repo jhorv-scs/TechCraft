@@ -5,24 +5,21 @@ using System.Text;
 
 namespace NewTake.model.types
 {
-    public class Dictionary3<T> : Dictionary<ulong, T>
+    public class Dictionary2<T> : Dictionary<ulong, T>
     {
         const ulong size = UInt32.MaxValue;
-        const ulong sizeSquared = (ulong)UInt32.MaxValue * UInt32.MaxValue;
-        //and get some oolong tea
 
-        public T this[uint x, uint y, uint z]
+        public T this[uint x, uint z]
         {
             get
             {
-                T outVal = default(T);
-                TryGetValue((ulong)(x + (y * size) + (z * sizeSquared)), out outVal);
+                T outVal = default( T); 
+                TryGetValue((ulong)(x + (z * size)),out outVal);
                 return outVal;
             }
             set
             {
-                ulong key = (ulong)(x + (y * size) + (z * sizeSquared));
-
+                ulong key = (ulong)(x + (z * size));
                 T outVal = default(T);
                 if (TryGetValue(key, out outVal))
                 {

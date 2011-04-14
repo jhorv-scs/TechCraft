@@ -78,7 +78,6 @@ namespace NewTake
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
             world = new World();
 
             player1 = new Player(world);

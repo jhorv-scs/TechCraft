@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 
 using NewTake.model.terrain;
 using NewTake.model.terrain.biome;
+using NewTake.model.types;
 
 namespace NewTake.model
 {
@@ -15,7 +16,7 @@ namespace NewTake.model
 
         #region inits
 
-        public SparseMatrix<Chunk> viewableChunks;
+        public Dictionary2<Chunk> viewableChunks;
 
         public const byte VIEW_CHUNKS_X = 4;
         public const byte VIEW_CHUNKS_Y = 1; 
@@ -45,7 +46,7 @@ namespace NewTake.model
 
         public World()
         {
-            viewableChunks = new SparseMatrix<Chunk>();
+            viewableChunks = new Dictionary2<Chunk>();
         }
 
         public void visitChunks(Action<Vector3i> visitor)
