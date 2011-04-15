@@ -51,13 +51,23 @@ namespace NewTake.view
             this.world = world;
             this.GraphicsDevice = graphicsDevice;
             ChunkRenderers = new Dictionary<Vector3i, ChunkRenderer>();
+
             // Generate the initial chunks
-            Debug.WriteLine("Generating initial chunks");
+            var generatingWatch = new Stopwatch();
+            generatingWatch.Start();
+            Debug.Write("Generating initial chunks.. ");
             world.visitChunks(DoGenerate);
+            generatingWatch.Stop();
+            Debug.WriteLine(generatingWatch.Elapsed);
+
             // Build the initial chunks
-            Debug.WriteLine("Building initial chunks");
+            var buildWatch = new Stopwatch();
+            buildWatch.Start();
+            Debug.Write("Building initial chunks.. ");
             world.visitChunks(DoBuild);
-            // Generate
+            buildWatch.Stop();
+            Debug.WriteLine(buildWatch.Elapsed);
+
             this.camera = camera;
 
             this.previousChunkIndex = new Vector3i();

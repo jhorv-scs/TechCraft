@@ -29,8 +29,12 @@ namespace NewTake.model.terrain
 
             BlockType blockType = BlockType.None;
 
-            chunk.Blocks[x, groundHeight, z] = new Block(BlockType.Grass,true);
-            chunk.Blocks[x, 0, z] = new Block(BlockType.Dirt, true);
+            //chunk.Blocks[x, groundHeight, z] = new Block(BlockType.Grass,true);
+            //chunk.Blocks[x, 0, z] = new Block(BlockType.Dirt, true);
+
+            int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX;
+            chunk.Blocks[offset + groundHeight] = new Block(BlockType.Grass, true);
+            chunk.Blocks[offset] = new Block(BlockType.Dirt, true);
 
             for (int y = Chunk.CHUNK_YMAX - 1; y > 0; y--)
             {

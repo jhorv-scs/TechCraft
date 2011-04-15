@@ -77,11 +77,13 @@ namespace NewTake.view
             _vertexList.Clear();
             for (uint x = 0; x < Chunk.CHUNK_XMAX; x++)
             {
-                for (uint y = 0; y < Chunk.CHUNK_YMAX; y++)
+                for (uint z = 0; z < Chunk.CHUNK_ZMAX; z++)
                 {
-                    for (uint z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                    uint offset = x * (uint)Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX;
+                    for (uint y = 0; y < Chunk.CHUNK_YMAX; y++)
                     {
-                        Block block = chunk.Blocks[x, y, z];
+                        //Block block = chunk.Blocks[x, y, z];
+                        Block block = chunk.Blocks[offset + y];
                         if (block.Type != BlockType.None)
                         {
                             // Vector3i blockPosition = chunk.Position + new Vector3i(x, y, z);
@@ -96,8 +98,8 @@ namespace NewTake.view
                                 Chunk neighbouringChunk = world.viewableChunks[chunk.Index.X - 1, chunk.Index.Z];
                                 if (neighbouringChunk != null)
                                 {
-                                    // If we have a loaded neigbouring chunk
-                                    Block neighbouringBlock = neighbouringChunk.Blocks[Chunk.CHUNK_XMAX - 1, y, z];
+                                    //Block neighbouringBlock = neighbouringChunk.Blocks[Chunk.CHUNK_XMAX - 1, y, z];
+                                    Block neighbouringBlock = chunk.Blocks[(Chunk.CHUNK_XMAX - 1) * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX + y];
                                     if (neighbouringBlock.Solid)
                                     {
                                         // And a solid neighbouring block 
@@ -112,7 +114,8 @@ namespace NewTake.view
                                 if (neighbouringChunk != null)
                                 {
                                     // If we have a loaded neigbouring chunk
-                                    Block neighbouringBlock = neighbouringChunk.Blocks[0, y, z];
+                                    //Block neighbouringBlock = neighbouringChunk.Blocks[0, y, z];
+                                    Block neighbouringBlock = chunk.Blocks[z * Chunk.CHUNK_YMAX + y];
                                     if (neighbouringBlock.Solid)
                                     {
                                         // And a solid neighbouring block 
@@ -133,7 +136,8 @@ namespace NewTake.view
                                 if (neighbouringChunk != null)
                                 {
                                     // If we have a loaded neigbouring chunk
-                                    Block neighbouringBlock = neighbouringChunk.Blocks[x, y, Chunk.CHUNK_ZMAX - 1];
+                                    //Block neighbouringBlock = neighbouringChunk.Blocks[x, y, Chunk.CHUNK_ZMAX - 1];
+                                    Block neighbouringBlock = neighbouringChunk.Blocks[x * Chunk.FlattenOffset + (Chunk.CHUNK_ZMAX - 1) * Chunk.CHUNK_YMAX + y];
                                     if (neighbouringBlock.Solid)
                                     {
                                         // And a solid neighbouring block 
@@ -148,7 +152,8 @@ namespace NewTake.view
                                 if (neighbouringChunk != null)
                                 {
                                     // If we have a loaded neigbouring chunk
-                                    Block neighbouringBlock = neighbouringChunk.Blocks[x, y, 0];
+                                    //Block neighbouringBlock = neighbouringChunk.Blocks[x, y, 0];
+                                    Block neighbouringBlock = neighbouringChunk.Blocks[x * Chunk.FlattenOffset + y];
                                     if (neighbouringBlock.Solid)
                                     {
                                         // And a solid neighbouring block 
@@ -190,7 +195,8 @@ namespace NewTake.view
             }
             else
             {
-                blockXDecreasing = chunk.Blocks[chunkRelativePosition.X - 1, chunkRelativePosition.Y, chunkRelativePosition.Z];
+                //blockXDecreasing = chunk.Blocks[chunkRelativePosition.X - 1, chunkRelativePosition.Y, chunkRelativePosition.Z];
+                blockXDecreasing = chunk.Blocks[(chunkRelativePosition.X - 1) * Chunk.FlattenOffset + chunkRelativePosition.Z * Chunk.CHUNK_YMAX + chunkRelativePosition.Y];
             }
             if (chunkRelativePosition.X == Chunk.SIZE.X - 1)
             {
@@ -198,7 +204,8 @@ namespace NewTake.view
             }
             else
             {
-                blockXIncreasing = chunk.Blocks[chunkRelativePosition.X + 1, chunkRelativePosition.Y, chunkRelativePosition.Z];
+                //blockXIncreasing = chunk.Blocks[chunkRelativePosition.X + 1, chunkRelativePosition.Y, chunkRelativePosition.Z];
+                blockXIncreasing = chunk.Blocks[(chunkRelativePosition.X + 1) * Chunk.FlattenOffset + chunkRelativePosition.Z * Chunk.CHUNK_YMAX + chunkRelativePosition.Y];
             }
 
             // Y Boundary
@@ -208,7 +215,8 @@ namespace NewTake.view
             }
             else
             {
-                blockYDecreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y - 1, chunkRelativePosition.Z];
+                //blockYDecreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y - 1, chunkRelativePosition.Z];
+                blockYDecreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + chunkRelativePosition.Z * Chunk.CHUNK_YMAX + (chunkRelativePosition.Y - 1)];
             }
             if (chunkRelativePosition.Y == Chunk.SIZE.Y - 1)
             {
@@ -216,7 +224,8 @@ namespace NewTake.view
             }
             else
             {
-                blockYIncreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y + 1, chunkRelativePosition.Z];
+                //blockYIncreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y + 1, chunkRelativePosition.Z];
+                blockYIncreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + chunkRelativePosition.Z * Chunk.CHUNK_YMAX + (chunkRelativePosition.Y + 1)];
             }
 
             // Z Boundary
@@ -226,7 +235,8 @@ namespace NewTake.view
             }
             else
             {
-                blockZDecreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y, chunkRelativePosition.Z - 1];
+                //blockZDecreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y, chunkRelativePosition.Z - 1];
+                blockZDecreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + (chunkRelativePosition.Z - 1) * Chunk.CHUNK_YMAX + chunkRelativePosition.Y];
             }
             if (chunkRelativePosition.Z == Chunk.SIZE.Z - 1)
             {
@@ -234,7 +244,8 @@ namespace NewTake.view
             }
             else
             {
-                blockZIncreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y, chunkRelativePosition.Z + 1];
+                //blockZIncreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y, chunkRelativePosition.Z + 1];
+                blockZIncreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + (chunkRelativePosition.Z + 1) * Chunk.CHUNK_YMAX + chunkRelativePosition.Y];
             }
 
             if (!blockXDecreasing.Solid) blocksRenderer.BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.XDecreasing, block.Type);

@@ -107,7 +107,8 @@ namespace NewTake.model.terrain
 
                 if (chunk.outOfBounds((byte)lx, (byte)ly, (byte)lz) == false)
                 {
-                    if (chunk.Blocks[lx, ly, lz].Type == BlockType.None)
+                    //if (chunk.Blocks[lx, ly, lz].Type == BlockType.None)
+                    if (chunk.Blocks[lx * Chunk.FlattenOffset + lz * Chunk.CHUNK_YMAX + ly].Type == BlockType.None)
                         chunk.setBlock(lx, ly, lz, new Block(BlockType.Leaves, 0));
                 }
             }
