@@ -10,12 +10,32 @@ using NewTake.model;
 
 namespace NewTake.view.blocks
 {
+
+    /*
+     * 
+     * 
+     * **************************************************************************************************************
+     * 
+     * 
+     *    deprecated - but before deleting pull out the small optimisations of Vector.UnitX and the likes from BuildFaceVertices
+     *        
+     * 
+     * **************************************************************************************************************
+     * 
+     * 
+     */
+
+
     public class VertexBlockRenderer
     {
         private readonly World world;
 
+        private static Vector3 vector101 = new Vector3(1, 0, 1);
+        private static Vector3 vector110 = new Vector3(1, 1, 0);
+        private static Vector3 vector011 = new Vector3(0, 1, 1);
+
         public VertexBlockRenderer(World world)
-        {        
+        {
             this.world = world;
         }
 
@@ -34,12 +54,12 @@ namespace NewTake.view.blocks
 
             Block blockXDecreasing, blockXIncreasing, blockYDecreasing, blockYIncreasing, blockZDecreasing, blockZIncreasing;
 
-            if (chunkRelativePosition.X == 0 || 
-                chunkRelativePosition.Y == 0 || 
-                chunkRelativePosition.Z == 0 || 
-                chunkRelativePosition.X == Chunk.SIZE.X - 1 || 
-                chunkRelativePosition.Y == Chunk.SIZE.Y - 1 || 
-                chunkRelativePosition.Z == Chunk.SIZE.Z - 1 )
+            if (chunkRelativePosition.X == 0 ||
+                chunkRelativePosition.Y == 0 ||
+                chunkRelativePosition.Z == 0 ||
+                chunkRelativePosition.X == Chunk.SIZE.X - 1 ||
+                chunkRelativePosition.Y == Chunk.SIZE.Y - 1 ||
+                chunkRelativePosition.Z == Chunk.SIZE.Z - 1)
             {
                 blockXDecreasing = world.BlockAt(blockPosition.X - 1, blockPosition.Y, blockPosition.Z);
                 blockYDecreasing = world.BlockAt(blockPosition.X, blockPosition.Y - 1, blockPosition.Z);
@@ -66,7 +86,7 @@ namespace NewTake.view.blocks
                 blockZDecreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + (chunkRelativePosition.Z - 1) * Chunk.CHUNK_YMAX + chunkRelativePosition.Y];
 
                 //blockZIncreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y, chunkRelativePosition.Z + 1];
-                blockZIncreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + (chunkRelativePosition.Z + 1) * Chunk.CHUNK_YMAX + chunkRelativePosition.Y];   
+                blockZIncreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + (chunkRelativePosition.Z + 1) * Chunk.CHUNK_YMAX + chunkRelativePosition.Y];
             }
 
             if (!blockXDecreasing.Solid) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.XDecreasing, block.Type);
@@ -113,72 +133,72 @@ namespace NewTake.view.blocks
             Vector2[] UVList = TextureHelper.UVMappings[(int)texture * 6 + faceIndex];
 
             float light = 2;//TODO light hardcoded to 2
-           
+
             switch (faceDir)
             {
                 case BlockFaceDirection.XIncreasing:
                     {
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, new Vector3(1, 1, 1), new Vector3(1, 0, 0), light, UVList[0]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 1, 0), new Vector3(1, 0, 0), light, UVList[1]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 0, 1), new Vector3(1, 0, 0), light, UVList[2]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 0, 1), new Vector3(1, 0, 0), light, UVList[3]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 1, 0), new Vector3(1, 0, 0), light, UVList[4]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 0, 0), new Vector3(1, 0, 0), light, UVList[5]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.One, Vector3.UnitX, light, UVList[0]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, vector110, Vector3.UnitX, light, UVList[1]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, vector101, Vector3.UnitX, light, UVList[2]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, vector101, Vector3.UnitX, light, UVList[3]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, vector110, Vector3.UnitX, light, UVList[4]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitX, Vector3.UnitX, light, UVList[5]));
                     }
                     break;
 
                 case BlockFaceDirection.XDecreasing:
                     {
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 1, 0), new Vector3(-1, 0, 0), light, UVList[0]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 1, 1), new Vector3(-1, 0, 0), light, UVList[1]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 0, 1), new Vector3(-1, 0, 0), light, UVList[2]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 1, 0), new Vector3(-1, 0, 0), light, UVList[3]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 0, 1), new Vector3(-1, 0, 0), light, UVList[4]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 0, 0), new Vector3(-1, 0, 0), light, UVList[5]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitY, Vector3.Left, light, UVList[0]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, vector011, Vector3.Left, light, UVList[1]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitZ, Vector3.Left, light, UVList[2]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitY, Vector3.Left, light, UVList[3]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitZ, Vector3.Left, light, UVList[4]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.Zero, Vector3.Left, light, UVList[5]));
                     }
                     break;
 
                 case BlockFaceDirection.YIncreasing:
                     {
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 1, 0), new Vector3(0, 1, 0), light, UVList[0]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 1, 0), new Vector3(0, 1, 0), light, UVList[1]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 1, 1), new Vector3(0, 1, 0), light, UVList[2]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 1, 0), new Vector3(0, 1, 0), light, UVList[3]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 1, 1), new Vector3(0, 1, 0), light, UVList[4]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 1, 1), new Vector3(0, 1, 0), light, UVList[5]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitY, Vector3.UnitY, light, UVList[0]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, vector110, Vector3.UnitY, light, UVList[1]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.One, Vector3.UnitY, light, UVList[2]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitY, Vector3.UnitY, light, UVList[3]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.One, Vector3.UnitY, light, UVList[4]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, vector011, Vector3.UnitY, light, UVList[5]));
                     }
                     break;
 
                 case BlockFaceDirection.YDecreasing:
                     {
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 0, 1), new Vector3(0, -1, 0), light, UVList[0]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 0, 0), new Vector3(0, -1, 0), light, UVList[1]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 0, 1), new Vector3(0, -1, 0), light, UVList[2]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 0, 1), new Vector3(0, -1, 0), light, UVList[3]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 0, 0), new Vector3(0, -1, 0), light, UVList[4]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 0, 0), new Vector3(0, -1, 0), light, UVList[5]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, vector101, Vector3.Down, light, UVList[0]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitX, Vector3.Down, light, UVList[1]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitZ, Vector3.Down, light, UVList[2]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitZ, Vector3.Down, light, UVList[3]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitX, Vector3.Down, light, UVList[4]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.Zero, Vector3.Down, light, UVList[5]));
                     }
                     break;
 
                 case BlockFaceDirection.ZIncreasing:
                     {
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 1, 1), new Vector3(0, 0, 1), light, UVList[0]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 1, 1), new Vector3(0, 0, 1), light, UVList[1]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 0, 1), new Vector3(0, 0, 1), light, UVList[2]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 1,  1), new Vector3(0, 0, 1), light, UVList[3]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 0,  1), new Vector3(0, 0, 1), light, UVList[4]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 0,  1), new Vector3(0, 0, 1), light, UVList[5]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, vector011, Vector3.UnitZ, light, UVList[0]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.One, Vector3.UnitZ, light, UVList[1]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, vector101, Vector3.UnitZ, light, UVList[2]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, vector011, Vector3.UnitZ, light, UVList[3]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, vector101, Vector3.UnitZ, light, UVList[4]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitZ, Vector3.UnitZ, light, UVList[5]));
                     }
                     break;
 
                 case BlockFaceDirection.ZDecreasing:
                     {
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 1, 0), new Vector3(0, 0, -1), light, UVList[0]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 1, 0), new Vector3(0, 0, -1), light, UVList[1]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 0, 0), new Vector3(0, 0, -1), light, UVList[2]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(1, 0, 0), new Vector3(0, 0, -1), light, UVList[3]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 1, 0), new Vector3(0, 0, -1), light, UVList[4]));
-                        vertexList.Add(ToVertexPositionTextureShade(blockPosition,new Vector3(0, 0, 0), new Vector3(0, 0, -1), light, UVList[5]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, vector110, Vector3.Forward, light, UVList[0]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitY, Vector3.Forward, light, UVList[1]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitX, Vector3.Forward, light, UVList[2]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitX, Vector3.Forward, light, UVList[3]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.UnitY, Vector3.Forward, light, UVList[4]));
+                        vertexList.Add(ToVertexPositionTextureShade(blockPosition, Vector3.Zero, Vector3.Forward, light, UVList[5]));
                     }
                     break;
             }

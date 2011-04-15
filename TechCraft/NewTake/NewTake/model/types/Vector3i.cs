@@ -64,15 +64,8 @@ namespace NewTake
 
         public override int GetHashCode()
         {
-            //TODO this hashcode impl is wrong
-            uint hash = 23;
-            unchecked
-            {
-                hash = hash * 37 + X;
-                hash = hash * 37 + Y;
-                hash = hash * 37 + Z;
-            }
-            return (int)hash;
+            //TODO check this hashcode impl           
+            return (int)(X ^ Y ^ Z);
         }
 
         public override string ToString()

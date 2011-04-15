@@ -15,6 +15,8 @@ namespace NewTake.model
         public const byte CHUNK_YMAX = 128;
         public const byte CHUNK_ZMAX = 16;
 
+        public Chunk N, S, E, W, NE, NW, SE, SW; //TODO infinite y would require Top , Bottom, maybe vertical diagonals
+
         public static Vector3i SIZE = new Vector3i(CHUNK_XMAX, CHUNK_YMAX, CHUNK_ZMAX);
 
         //public Block[, ,] Blocks;
