@@ -76,7 +76,7 @@ namespace NewTake.model
             else
             {
                 //Debug.WriteLine("no block at  ({0},{1},{2}) ", x, y, z);
-                return new Block(BlockType.None, false); //TODO blocktype.unknown ( with matrix films green symbols texture ? ) 
+                return new Block(BlockType.None); //TODO blocktype.unknown ( with matrix films green symbols texture ? ) 
             }
         }
 
@@ -99,7 +99,7 @@ namespace NewTake.model
                 Block old = chunk.Blocks[localX * Chunk.FlattenOffset + localZ * Chunk.CHUNK_YMAX + localY];
                 
                //chunk.setBlock is also called by terrain generators for Y loops min max optimisation
-               chunk.setBlock(localX, localY, localZ, new Block(newType.Type, old.LightAmount));
+               chunk.setBlock(localX, localY, localZ, new Block(newType.Type));
                //TODO ( maybe ? )  when digging, mark neighbours chunks as dirty to fill rendering holes                                       
                
                 chunk.dirty = true;

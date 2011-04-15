@@ -46,7 +46,7 @@ namespace NewTake.model.terrain.biome
                 {
                     sunlit = true;
                 }
-                chunk.setBlock(blockXInChunk, (byte)y, blockZInChunk, new Block(blockType, sunlit));
+                chunk.setBlock(blockXInChunk, (byte)y, blockZInChunk, new Block(blockType));
             }
 
         }
@@ -86,17 +86,17 @@ namespace NewTake.model.terrain.biome
                             break;
                         }
                       
-                        chunk.setBlock(x, y, z,new Block(blockType, 0));
+                        chunk.setBlock(x, y, z,new Block(blockType));
                     }
 
                     for (byte y = WATERLEVEL + 27; y >= WATERLEVEL; y--)
                     {
                         //if ((y > 11) && (chunk.Blocks[x, y, z].Type == BlockType.Grass)) chunk.setBlock(x, y, z, new Block(BlockType.Snow, sunlit));
-                        if ((y > 11) && (chunk.Blocks[offset + y].Type == BlockType.Grass)) chunk.setBlock(x, y, z, new Block(BlockType.Snow, sunlit));
+                        if ((y > 11) && (chunk.Blocks[offset + y].Type == BlockType.Grass)) chunk.setBlock(x, y, z, new Block(BlockType.Snow));
                         //if ((chunk.Blocks[x, y, z].Type == BlockType.Dirt) || (chunk.Blocks[x, y, z].Type == BlockType.Grass))
                         if ((chunk.Blocks[offset + y].Type == BlockType.Dirt) || (chunk.Blocks[offset + y].Type == BlockType.Grass))
                         {
-                            chunk.setBlock(x, y, z,new Block(BlockType.Snow, sunlit));
+                            chunk.setBlock(x, y, z,new Block(BlockType.Snow));
                         }
                     }
                 }

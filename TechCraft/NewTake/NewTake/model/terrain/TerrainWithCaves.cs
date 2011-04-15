@@ -33,8 +33,8 @@ namespace NewTake.model.terrain
             //chunk.Blocks[x, 0, z] = new Block(BlockType.Dirt, true);
 
             int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX;
-            chunk.Blocks[offset + groundHeight] = new Block(BlockType.Grass, true);
-            chunk.Blocks[offset] = new Block(BlockType.Dirt, true);
+            chunk.Blocks[offset + groundHeight] = new Block(BlockType.Grass);
+            chunk.Blocks[offset] = new Block(BlockType.Dirt);
 
             for (byte y = Chunk.CHUNK_YMAX - 1; y > 0; y--)
             {
@@ -80,7 +80,7 @@ namespace NewTake.model.terrain
                     }
                 }
                 
-                chunk.setBlock(x, y, z, new Block(blockType, sunlit));
+                chunk.setBlock(x, y, z, new Block(blockType));
                 
             }
         }

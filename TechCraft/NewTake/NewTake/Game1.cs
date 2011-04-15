@@ -90,7 +90,7 @@ namespace NewTake
 
             //renderer = new WorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             //renderer = new SingleThreadWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
-            renderer = new SingleThreadAOWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            renderer = new SingleThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             //TODO refactor WorldRenderer needs player position + view frustum 
 
          

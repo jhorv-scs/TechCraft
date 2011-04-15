@@ -22,7 +22,7 @@ namespace NewTake.model.terrain
                 {
                     for (byte z = 0; z < sizeZ; z++)
                     {
-                        Block block = new Block(BlockType.None,true);
+                        Block block = new Block(BlockType.None);
 
                         if (y < sizeY / 4)
                             block.Type = BlockType.Lava;

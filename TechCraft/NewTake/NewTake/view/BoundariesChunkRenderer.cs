@@ -186,7 +186,7 @@ namespace NewTake.view
 
             Vector3i blockPosition = chunk.Position + chunkRelativePosition;
             Block blockXDecreasing, blockXIncreasing, blockYDecreasing, blockYIncreasing, blockZDecreasing, blockZIncreasing;
-            Block solidBlock = new Block(BlockType.Rock, false);
+            Block solidBlock = new Block(BlockType.Rock);
 
             // X Boundary
             if (chunkRelativePosition.X == 0)

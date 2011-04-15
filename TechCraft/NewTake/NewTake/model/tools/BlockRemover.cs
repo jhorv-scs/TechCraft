@@ -14,7 +14,7 @@ namespace NewTake.model.tools
 
             if (player.currentSelection.HasValue)
             {
-                player.world.setBlock(player.currentSelection.Value.position, new Block(BlockType.None, false));
+                player.world.setBlock(player.currentSelection.Value.position, new Block(BlockType.None));
             }
         
         }

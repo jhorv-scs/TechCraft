@@ -20,7 +20,7 @@ namespace NewTake.model.tools
 
                 for (uint y = position.Y; y > 0; y--)
                 {
-                    player.world.setBlock(position.X,y,position.Z, new Block(BlockType.None, false));
+                    player.world.setBlock(position.X,y,position.Z, new Block(BlockType.None));
                 }
                     
             }

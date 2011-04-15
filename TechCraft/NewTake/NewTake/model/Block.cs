@@ -25,24 +25,14 @@ namespace NewTake.model
     public struct Block
     {
         public  BlockType Type;
-        public byte LightAmount;
+        public byte Sun;
+        public byte R, G, B;
         
-        public Block(BlockType blockType, bool sunlit)
+        public Block(BlockType blockType)
         {
             Type=blockType;
-            if (sunlit) LightAmount=15;
-            else LightAmount=0;
-        }
-
-        public Block(BlockType blockType, byte lightAmount)
-        {
-            Type=blockType;
-            this.LightAmount=lightAmount;
-        }
-
-        public void debug(String s)
-        {
-            Debug.WriteLine("["+s +"] ->"+ Type + ", " + LightAmount);         
+            Sun = 0;
+            R = 0; G = 0; B = 0;
         }
 
         public bool Solid

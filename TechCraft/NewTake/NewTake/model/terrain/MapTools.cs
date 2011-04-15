@@ -16,7 +16,7 @@ namespace NewTake.model.terrain
                 {
                     for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
                     {
-                        chunk.setBlock(x, y, z, new Block(BlockType.None, 0));
+                        chunk.setBlock(x, y, z, new Block(BlockType.None));
                     }
                 }
             }

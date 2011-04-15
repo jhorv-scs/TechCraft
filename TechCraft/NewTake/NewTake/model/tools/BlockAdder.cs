@@ -13,7 +13,7 @@ namespace NewTake.model.tools
         {
             if (player.currentSelectedAdjacent.HasValue)
             {
-                player.world.setBlock(player.currentSelectedAdjacent.Value.position, new Block(BlockType.Tree, true));
+                player.world.setBlock(player.currentSelectedAdjacent.Value.position, new Block(BlockType.Tree));
             }
         }
     }

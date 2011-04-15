@@ -48,7 +48,7 @@ namespace NewTake.view
         {
             if (chunkRelativePositon.Y < 0 || chunkRelativePositon.Y > Chunk.CHUNK_YMAX - 1)
             {
-                return new Block(BlockType.Rock, false);
+                return new Block(BlockType.Rock);
             }
             else if (chunkRelativePositon.X < 0 || chunkRelativePositon.Z < 0 ||
                 chunkRelativePositon.X > Chunk.CHUNK_XMAX - 1 || chunkRelativePositon.Z > Chunk.CHUNK_ZMAX - 1)
@@ -62,7 +62,7 @@ namespace NewTake.view
                 }
                 else
                 {
-                    return new Block(BlockType.Rock, false);
+                    return new Block(BlockType.Rock);
                 }
             }
             else
@@ -104,6 +104,10 @@ namespace NewTake.view
             }
         }
         #endregion
+
+        public virtual void DoLighting()
+        {
+        }
 
         #region update
         //TODO currently only used by single thread impl 

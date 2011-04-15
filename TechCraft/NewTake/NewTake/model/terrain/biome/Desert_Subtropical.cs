@@ -48,7 +48,7 @@ namespace NewTake.model.terrain.biome
                 {
                     sunlit = true;
                 }
-                chunk.setBlock( blockXInChunk, (byte)y,blockZInChunk,new Block(blockType, sunlit));
+                chunk.setBlock( blockXInChunk, (byte)y,blockZInChunk,new Block(blockType));
             }
 
         }
@@ -60,7 +60,7 @@ namespace NewTake.model.terrain.biome
             Debug.WriteLine("New tree    at {0},{1},{2}={3}", tx, ty, tz, height);
             for (byte y = ty; y < ty + height; y++)
             {
-                chunk.setBlock(tx, y, tz,new Block(BlockType.Tree, 0));
+                chunk.setBlock(tx, y, tz,new Block(BlockType.Tree));
             }
         }
         #endregion
@@ -93,7 +93,7 @@ namespace NewTake.model.terrain.biome
                     {
                         if (chunk.outOfBounds((byte)(tx + xoff), (byte)y, (byte)(tz + zoff)) == false)
                         {
-                            chunk.setBlock((byte)(tx + xoff), (byte)y, (byte)(tz + zoff), new Block(BlockType.Leaves, 0));
+                            chunk.setBlock((byte)(tx + xoff), (byte)y, (byte)(tz + zoff), new Block(BlockType.Leaves));
                             //Debug.WriteLine("rad={0},xoff={1},zoff={2},y={3},start={4},end={5}", rad, xoff, zoff, y, start, end);
                         }
                     }
@@ -136,19 +136,19 @@ namespace NewTake.model.terrain.biome
                             break;
                         }
                       
-                        chunk.setBlock(x, y, z,new Block(blockType, 0));
+                        chunk.setBlock(x, y, z,new Block(blockType));
                     }
 
                     for (byte y = WATERLEVEL + 27; y >= WATERLEVEL; y--)
                     {
                         //if ((y > 11) && (chunk.Blocks[x, y, z].Type == BlockType.Grass)) chunk.setBlock(x, y, z, new Block(BlockType.Sand, sunlit));
-                        if ((y > 11) && (chunk.Blocks[offset + y].Type == BlockType.Grass)) chunk.setBlock(x, y, z, new Block(BlockType.Sand, sunlit));
+                        if ((y > 11) && (chunk.Blocks[offset + y].Type == BlockType.Grass)) chunk.setBlock(x, y, z, new Block(BlockType.Sand));
 
                         //if ((chunk.Blocks[x, y, z].Type == BlockType.Dirt) || (chunk.Blocks[x, y, z].Type == BlockType.Grass))
                         if ((chunk.Blocks[offset + y].Type == BlockType.Dirt) || (chunk.Blocks[offset + y].Type == BlockType.Grass))
 
                         {
-                            chunk.setBlock(x, y, z,new Block(BlockType.Sand, sunlit));
+                            chunk.setBlock(x, y, z,new Block(BlockType.Sand));
                         }
                     }
                 }

@@ -74,7 +74,7 @@ namespace NewTake.model.terrain
                 }
                 
                 
-                chunk.setBlock(  blockXInChunk, (byte)y, blockZInChunk,new Block(blockType, sunlit));
+                chunk.setBlock(  blockXInChunk, (byte)y, blockZInChunk,new Block(blockType));
                 
                 
                 //  Debug.WriteLine(string.Format("chunk {0} : ({1},{2},{3})={4}", chunk.Position, blockXInChunk, y, blockZInChunk, blockType));
@@ -92,7 +92,7 @@ namespace NewTake.model.terrain
             {
                 for (byte y = ty; y < ty + height; y++)
                 {
-                    chunk.setBlock(tx, y, tz, new Block(BlockType.Tree, 0));
+                    chunk.setBlock(tx, y, tz, new Block(BlockType.Tree));
                 }
             }
 
@@ -109,7 +109,7 @@ namespace NewTake.model.terrain
                 {
                     //if (chunk.Blocks[lx, ly, lz].Type == BlockType.None)
                     if (chunk.Blocks[lx * Chunk.FlattenOffset + lz * Chunk.CHUNK_YMAX + ly].Type == BlockType.None)
-                        chunk.setBlock((byte)lx, (byte)ly, (byte)lz, new Block(BlockType.Leaves, 0));
+                        chunk.setBlock((byte)lx, (byte)ly, (byte)lz, new Block(BlockType.Leaves));
                 }
             }
 
