@@ -17,7 +17,7 @@ namespace NewTake.model
 
         public Chunk N, S, E, W, NE, NW, SE, SW; //TODO infinite y would require Top , Bottom, maybe vertical diagonals
 
-        public static Vector3i SIZE = new Vector3i(CHUNK_XMAX, CHUNK_YMAX, CHUNK_ZMAX);
+        public static Vector3b SIZE = new Vector3b(CHUNK_XMAX, CHUNK_YMAX, CHUNK_ZMAX);
 
         //public Block[, ,] Blocks;
 
@@ -57,10 +57,10 @@ namespace NewTake.model
 
         private BoundingBox _boundingBox;
 
-        public Vector3i highestSolidBlock = new Vector3i(0, 0, 0);
+        public Vector3b highestSolidBlock = new Vector3b(0, 0, 0);
         //highestNoneBlock starts at 0 so it will be adjusted. if you start at highest it will never be adjusted ! 
-        
-        public Vector3i lowestNoneBlock = new Vector3i(0, CHUNK_YMAX, 0);
+
+        public Vector3b lowestNoneBlock = new Vector3b(0, CHUNK_YMAX, 0);
 
         public Chunk(Vector3i index)
         {
@@ -76,22 +76,24 @@ namespace NewTake.model
             _boundingBox = new BoundingBox(new Vector3(Position.X, Position.Y, Position.Z), new Vector3(Position.X + CHUNK_XMAX, Position.Y + CHUNK_YMAX, Position.Z + CHUNK_ZMAX));
         }
 
-        public void setBlock(int x, int y, int z, Block b)
+        public void setBlock(byte x, byte y, byte z, Block b)
         {
             if (b.Type == BlockType.None)
             {
                 if (lowestNoneBlock.Y > y)
                 {
-                    lowestNoneBlock = new Vector3i((uint)x, (uint)y, (uint)z);
+                    lowestNoneBlock = new Vector3b(x, y, z);
                 }
             }
             else if (highestSolidBlock.Y < y)
             {
                 //TODO uint vs int is currently a mess and in fact here it should be bytes !
-                highestSolidBlock = new Vector3i((uint)x, (uint)y, (uint)z);
+                highestSolidBlock = new Vector3b(x, y, z);
             }
              
-            //Blocks[x, y, z] = b;//comment this line : you should have nothing on screen, else you ve been setting blocks directly in array !
+            //Blocks[x, y, z] = b;
+            
+            //comment this line : you should have nothing on screen, else you ve been setting blocks directly in array !
             Blocks[x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX + y] = b;
         }
 

@@ -12,7 +12,7 @@ namespace NewTake.model.terrain
     {
 
         #region generateTerrain
-        protected sealed override void generateTerrain(Chunk chunk, int x, int z, int blockX, int blockZ)
+        protected sealed override void generateTerrain(Chunk chunk, byte x, byte z, uint blockX, uint blockZ)
         {
             int groundHeight = (int)GetBlockNoise(blockX, blockZ);
             if (groundHeight < 1)
@@ -36,7 +36,7 @@ namespace NewTake.model.terrain
             chunk.Blocks[offset + groundHeight] = new Block(BlockType.Grass, true);
             chunk.Blocks[offset] = new Block(BlockType.Dirt, true);
 
-            for (int y = Chunk.CHUNK_YMAX - 1; y > 0; y--)
+            for (byte y = Chunk.CHUNK_YMAX - 1; y > 0; y--)
             {
                 if (y > groundHeight)
                 {
@@ -48,7 +48,7 @@ namespace NewTake.model.terrain
                     // Since we are at or below ground height, let's see if we need
                     // to make
                     // a cave
-                    int noiseX = (blockX + World.SEED);
+                    uint noiseX = (blockX + (uint)World.SEED);
                     float octave1 = PerlinSimplexNoise.noise(noiseX * 0.009f, blockZ * 0.009f, y * 0.009f) * 0.25f;
 
                     float initialNoise = octave1 + PerlinSimplexNoise.noise(noiseX * 0.04f, blockZ * 0.04f, y * 0.04f) * 0.15f;
@@ -86,7 +86,7 @@ namespace NewTake.model.terrain
         }
         #endregion
 
-        private float GetBlockNoise(int blockX, int blockZ)
+        private float GetBlockNoise(uint blockX, uint blockZ)
         {
             float mediumDetail = PerlinSimplexNoise.noise(blockX / 300.0f, blockZ / 300.0f, 20);
             float fineDetail = PerlinSimplexNoise.noise(blockX / 80.0f, blockZ / 80.0f, 30);

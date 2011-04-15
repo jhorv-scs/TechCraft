@@ -113,6 +113,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="model\types\Vector3b.cs" />
     <Compile Include="model\types\Dictionary2.cs" />
     <Compile Include="model\Player.cs" />
     <Compile Include="model\terrain\biome\Biome.cs" />

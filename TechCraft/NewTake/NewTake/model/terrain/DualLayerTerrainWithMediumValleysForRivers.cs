@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using NewTake;
+using System.Diagnostics;
 
 namespace NewTake.model.terrain
 {
@@ -17,16 +18,18 @@ namespace NewTake.model.terrain
         }
 
         #region generateTerrain
-        protected sealed override void generateTerrain(Chunk chunk, int blockXInChunk, int blockZInChunk, int worldX, int worldZ)
+        protected sealed override void generateTerrain(Chunk chunk, byte blockXInChunk, byte blockZInChunk, uint worldX, uint worldZ)
         {
-
-            float lowerGroundHeight = GetLowerGroundHeight(chunk, worldX, worldZ, blockXInChunk, blockZInChunk);
+            Debug.WriteLine(chunk);
+           
+            float lowerGroundHeight = GetLowerGroundHeight(chunk, worldX, worldZ);
             int upperGroundHeight = GetUpperGroundHeight(chunk, worldX, worldZ, lowerGroundHeight);
 
             bool sunlit = true;
 
             for (int y = Chunk.CHUNK_YMAX - 1; y >= 0; y--)
             {
+                
                 // Everything above ground height...is air.
                 BlockType blockType;
                 if (y > upperGroundHeight)
@@ -58,7 +61,7 @@ namespace NewTake.model.terrain
                             {
                                 if (r.Next(100) == 1)
                                 {
-                                    base.BuildTree(chunk, blockXInChunk, y, blockZInChunk);
+                                    base.BuildTree(chunk, blockXInChunk, (byte)y, blockZInChunk);
                                 }
                                 else
                                 {
@@ -95,7 +98,7 @@ namespace NewTake.model.terrain
                         sunlit = false;
                     }
                 }
-                chunk.setBlock( blockXInChunk, y,blockZInChunk,new Block(blockType, sunlit));
+                chunk.setBlock( blockXInChunk, (byte)y,blockZInChunk,new Block(blockType, sunlit));
             }
         }
 
@@ -109,12 +112,12 @@ namespace NewTake.model.terrain
             
             bool sunlit = true;
 
-            for (int x = 0; x < Chunk.CHUNK_XMAX; x++)
+            for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
             {
-                for (int z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
                 {
                     int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX;
-                    for (int y = WATERLEVEL + 9; y >= MINIMUMGROUNDHEIGHT; y--)
+                    for (byte y = WATERLEVEL + 9; y >= MINIMUMGROUNDHEIGHT; y--)
                     {
                         //if (chunk.Blocks[x, y, z].Type == BlockType.None)
                         if (chunk.Blocks[offset + y].Type == BlockType.None)
@@ -138,7 +141,7 @@ namespace NewTake.model.terrain
                         chunk.setBlock(x, y, z,new Block(blockType, 0));
                     }
 
-                    for (int y = WATERLEVEL + 11; y >= WATERLEVEL + 8; y--)
+                    for (byte y = WATERLEVEL + 11; y >= WATERLEVEL + 8; y--)
                     {
                         //if ((chunk.Blocks[x, y, z].Type == BlockType.Dirt) || (chunk.Blocks[x, y, z].Type == BlockType.Grass))
                         if ((chunk.Blocks[offset + y].Type == BlockType.Dirt) || (chunk.Blocks[offset + y].Type == BlockType.Grass))
@@ -152,7 +155,7 @@ namespace NewTake.model.terrain
         #endregion
 
         #region GetUpperGroundHeight
-        private static int GetUpperGroundHeight(Chunk chunk, int blockX, int blockY, float lowerGroundHeight)
+        private static int GetUpperGroundHeight(Chunk chunk, uint blockX, uint blockY, float lowerGroundHeight)
         {
             float octave1 = PerlinSimplexNoise.noise((blockX + 100) * 0.001f, blockY * 0.001f) * 0.5f;
             float octave2 = PerlinSimplexNoise.noise((blockX + 100) * 0.002f, blockY * 0.002f) * 0.25f;
@@ -164,7 +167,7 @@ namespace NewTake.model.terrain
         #endregion
 
         #region GetLowerGroundHeight
-        private static float GetLowerGroundHeight(Chunk chunk, int blockX, int blockY, int blockXInChunk, int blockZInChunk)
+        private static float GetLowerGroundHeight(Chunk chunk, uint blockX, uint blockY)
         {
             int minimumGroundheight = Chunk.CHUNK_YMAX / 4;
             int minimumGroundDepth = (int)(Chunk.CHUNK_YMAX * 0.5f);

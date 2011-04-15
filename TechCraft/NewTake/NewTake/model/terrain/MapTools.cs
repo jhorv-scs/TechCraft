@@ -10,11 +10,11 @@ namespace NewTake.model.terrain
 
         public static void ClearChunkBlocks(Chunk chunk)
         {
-            for (int x = 0; x < Chunk.CHUNK_XMAX; x++)
+            for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
             {
-                for (int y = 0; y < Chunk.CHUNK_YMAX; y++)
+                for (byte y = 0; y < Chunk.CHUNK_YMAX; y++)
                 {
-                    for (int z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                    for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
                     {
                         chunk.setBlock(x, y, z, new Block(BlockType.None, 0));
                     }

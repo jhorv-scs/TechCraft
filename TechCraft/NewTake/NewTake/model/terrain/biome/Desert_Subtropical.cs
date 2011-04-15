@@ -20,10 +20,9 @@ namespace NewTake.model.terrain.biome
         }
 
         #region generateTerrain
-        protected sealed override void generateTerrain(Chunk chunk, int blockXInChunk, int blockZInChunk, int worldX, int worldZ)
+        protected sealed override void generateTerrain(Chunk chunk, byte blockXInChunk, byte blockZInChunk, uint worldX, uint worldZ)
         {
-
-            float lowerGroundHeight = GetLowerGroundHeight(chunk, worldX, worldZ, blockXInChunk, blockZInChunk);
+            float lowerGroundHeight = GetLowerGroundHeight(chunk, worldX, worldZ);
             int upperGroundHeight = GetUpperGroundHeight(chunk, worldX, worldZ, lowerGroundHeight);
 
             bool sunlit = true;
@@ -49,17 +48,17 @@ namespace NewTake.model.terrain.biome
                 {
                     sunlit = true;
                 }
-                chunk.setBlock( blockXInChunk, y,blockZInChunk,new Block(blockType, sunlit));
+                chunk.setBlock( blockXInChunk, (byte)y,blockZInChunk,new Block(blockType, sunlit));
             }
 
         }
         #endregion
 
         #region MakeTreeTrunk
-        private void MakeTreeTrunk(Chunk chunk, int tx, int ty, int tz, int height)
+        private void MakeTreeTrunk(Chunk chunk, byte tx, byte ty, byte tz, int height)
         {
             Debug.WriteLine("New tree    at {0},{1},{2}={3}", tx, ty, tz, height);
-            for (int y = ty; y < ty + height; y++)
+            for (byte y = ty; y < ty + height; y++)
             {
                 chunk.setBlock(tx, y, tz,new Block(BlockType.Tree, 0));
             }
@@ -94,7 +93,7 @@ namespace NewTake.model.terrain.biome
                     {
                         if (chunk.outOfBounds((byte)(tx + xoff), (byte)y, (byte)(tz + zoff)) == false)
                         {
-                            chunk.setBlock(tx + xoff, y, tz + zoff, new Block(BlockType.Leaves, 0));
+                            chunk.setBlock((byte)(tx + xoff), (byte)y, (byte)(tz + zoff), new Block(BlockType.Leaves, 0));
                             //Debug.WriteLine("rad={0},xoff={1},zoff={2},y={3},start={4},end={5}", rad, xoff, zoff, y, start, end);
                         }
                     }
@@ -110,12 +109,12 @@ namespace NewTake.model.terrain.biome
             
             bool sunlit = true;
 
-            for (int x = 0; x < Chunk.CHUNK_XMAX; x++)
+            for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
             {
-                for (int z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
                 {
                     int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX;
-                    for (int y = WATERLEVEL + 9; y >= MINIMUMGROUNDHEIGHT; y--)
+                    for (byte y = WATERLEVEL + 9; y >= MINIMUMGROUNDHEIGHT; y--)
                     {
                         blockType = BlockType.None;
                         //if (chunk.Blocks[x, y, z].Type == BlockType.None)
@@ -140,7 +139,7 @@ namespace NewTake.model.terrain.biome
                         chunk.setBlock(x, y, z,new Block(blockType, 0));
                     }
 
-                    for (int y = WATERLEVEL + 27; y >= WATERLEVEL; y--)
+                    for (byte y = WATERLEVEL + 27; y >= WATERLEVEL; y--)
                     {
                         //if ((y > 11) && (chunk.Blocks[x, y, z].Type == BlockType.Grass)) chunk.setBlock(x, y, z, new Block(BlockType.Sand, sunlit));
                         if ((y > 11) && (chunk.Blocks[offset + y].Type == BlockType.Grass)) chunk.setBlock(x, y, z, new Block(BlockType.Sand, sunlit));
@@ -158,7 +157,7 @@ namespace NewTake.model.terrain.biome
         #endregion
 
         #region GetUpperGroundHeight
-        private static int GetUpperGroundHeight(Chunk chunk, int blockX, int blockY, float lowerGroundHeight)
+        private static int GetUpperGroundHeight(Chunk chunk, uint blockX, uint blockY, float lowerGroundHeight)
         {
 
             float octave1 = PerlinSimplexNoise.noise((blockX+50) * 0.0002f, blockY * 0.0002f) * 0.05f;
@@ -174,7 +173,7 @@ namespace NewTake.model.terrain.biome
         #endregion
 
         #region GetLowerGroundHeight
-        private static float GetLowerGroundHeight(Chunk chunk, int blockX, int blockY, int blockXInChunk, int blockZInChunk)
+        private static float GetLowerGroundHeight(Chunk chunk, uint blockX, uint blockY)
         {
             int minimumGroundheight = Chunk.CHUNK_YMAX / 4;
             int minimumGroundDepth = (int)(Chunk.CHUNK_YMAX * 0.5f);

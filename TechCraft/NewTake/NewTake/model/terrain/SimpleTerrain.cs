@@ -24,13 +24,13 @@ namespace NewTake.model.terrain
         #region build
         public virtual void Generate(Chunk chunk)
         {
-            for (int x = 0; x < Chunk.CHUNK_XMAX; x++)
+            for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
             {
-                int worldX = (int)chunk.Position.X + x + World.SEED ;
+                uint worldX = (uint)chunk.Position.X + x + (uint)World.SEED ;
 
-                for (int z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
                 {
-                    int worldZ = (int)chunk.Position.Z + z;
+                    uint worldZ = (uint)chunk.Position.Z + z;
                     generateTerrain(chunk, x, z, worldX, worldZ);
                 }
             }
@@ -39,7 +39,7 @@ namespace NewTake.model.terrain
         #endregion
 
         #region generateTerrain
-        protected virtual void generateTerrain(Chunk chunk, int blockXInChunk, int blockZInChunk, int worldX, int worldY)
+        protected virtual void generateTerrain(Chunk chunk, byte blockXInChunk, byte blockZInChunk, uint worldX, uint worldY)
         {
             // The lower ground level is at least this high.
             int minimumGroundheight = Chunk.CHUNK_YMAX / 4;
@@ -74,7 +74,7 @@ namespace NewTake.model.terrain
                 }
                 
                 
-                chunk.setBlock(  blockXInChunk, y, blockZInChunk,new Block(blockType, sunlit));
+                chunk.setBlock(  blockXInChunk, (byte)y, blockZInChunk,new Block(blockType, sunlit));
                 
                 
                 //  Debug.WriteLine(string.Format("chunk {0} : ({1},{2},{3})={4}", chunk.Position, blockXInChunk, y, blockZInChunk, blockType));
@@ -83,14 +83,14 @@ namespace NewTake.model.terrain
         #endregion
 
         #region BuildTree
-        public virtual void BuildTree(Chunk chunk, int tx, int ty, int tz)
+        public virtual void BuildTree(Chunk chunk, byte tx, byte ty, byte tz)
         {
 
             // Trunk
-            int height = 4 + r.Next(3);
+            byte height = (byte)(4 + (byte)r.Next(3));
             if ((ty + height) < Chunk.CHUNK_YMAX - 1)
             {
-                for (int y = ty; y < ty + height; y++)
+                for (byte y = ty; y < ty + height; y++)
                 {
                     chunk.setBlock(tx, y, tz, new Block(BlockType.Tree, 0));
                 }
@@ -109,7 +109,7 @@ namespace NewTake.model.terrain
                 {
                     //if (chunk.Blocks[lx, ly, lz].Type == BlockType.None)
                     if (chunk.Blocks[lx * Chunk.FlattenOffset + lz * Chunk.CHUNK_YMAX + ly].Type == BlockType.None)
-                        chunk.setBlock(lx, ly, lz, new Block(BlockType.Leaves, 0));
+                        chunk.setBlock((byte)lx, (byte)ly, (byte)lz, new Block(BlockType.Leaves, 0));
                 }
             }
 

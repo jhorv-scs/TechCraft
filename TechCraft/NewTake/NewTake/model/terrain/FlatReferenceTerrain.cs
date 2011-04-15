@@ -16,12 +16,11 @@ namespace NewTake.model.terrain
             int sizeX = Chunk.CHUNK_XMAX;
             int sizeZ = Chunk.CHUNK_ZMAX;
 
-            for (int y = 0; y < sizeY; y++)
+            for (byte y = 0; y < sizeY; y++)
             {
-                for (int x = 0; x < sizeX; x++)
+                for (byte x = 0; x < sizeX; x++)
                 {
-
-                    for (int z = 0; z < sizeZ; z++)
+                    for (byte z = 0; z < sizeZ; z++)
                     {
                         Block block = new Block(BlockType.None,true);
 
