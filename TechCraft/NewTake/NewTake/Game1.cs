@@ -161,6 +161,12 @@ namespace NewTake
         {
             KeyboardState keyState = Keyboard.GetState();
 
+            //toggle fullscreen
+            if (_oldKeyboardState.IsKeyUp(Keys.F11) && keyState.IsKeyDown(Keys.F11))
+            {
+                graphics.ToggleFullScreen();
+            }
+            
             //freelook mode
             if (_oldKeyboardState.IsKeyUp(Keys.F1) && keyState.IsKeyDown(Keys.F1))
             {
