@@ -161,6 +161,12 @@ namespace NewTake
         {
             KeyboardState keyState = Keyboard.GetState();
 
+            //freelook mode
+            if (_oldKeyboardState.IsKeyUp(Keys.F1) && keyState.IsKeyDown(Keys.F1))
+            {
+                player1Renderer.freeCam = ! player1Renderer.freeCam;
+            }
+            
             //wireframe mode
             if (_oldKeyboardState.IsKeyUp(Keys.F7) && keyState.IsKeyDown(Keys.F7))
             {
@@ -174,7 +180,7 @@ namespace NewTake
             }
 
             // Release the mouse pointer
-            if (_oldKeyboardState.IsKeyUp(Keys.Space) && keyState.IsKeyDown(Keys.Space))
+            if (_oldKeyboardState.IsKeyUp(Keys.F) && keyState.IsKeyDown(Keys.F))
             {
                 this.releaseMouse = !this.releaseMouse;
                 this.IsMouseVisible = !this.IsMouseVisible;

@@ -44,7 +44,7 @@ namespace NewTake.view
     {
 
         public readonly Player player;
-        private readonly Viewport  viewport;
+        private readonly Viewport viewport;
         public readonly FirstPersonCamera camera;
         private readonly FirstPersonCameraController cameraController;
 
@@ -60,6 +60,7 @@ namespace NewTake.view
         public Model SelectionBlock;
         BasicEffect _selectionBlockEffect;
         Texture2D SelectionBlockTexture;
+        public bool freeCam;
 
         public PlayerRenderer(GraphicsDevice graphicsDevice, Player player)
         {
@@ -73,7 +74,7 @@ namespace NewTake.view
 
         public void Initialize()
         {
-           
+
             camera.Initialize();
             camera.Position = new Vector3(World.origin * Chunk.CHUNK_XMAX, Chunk.CHUNK_YMAX, World.origin * Chunk.CHUNK_ZMAX);
             player.position = camera.Position;
@@ -95,16 +96,24 @@ namespace NewTake.view
         public void update(GameTime gameTime)
         {
             Matrix previousView = camera.View;
-            cameraController.Update(gameTime);
-            // alternative would be checking input states changed
-            camera.Update(gameTime);
 
+            if (freeCam)
+            {
+                cameraController.ProcessInput(gameTime);
+                player.position = camera.Position;
+            }
+
+            cameraController.Update(gameTime);
+
+            camera.Update(gameTime);
+            
+            //Do not change metho order, its not very clean but works fine
+            if (! freeCam)
+                physics.move(gameTime);
 
             //do not do this each tick
-            if (! previousView.Equals(camera.View))
+            if (!previousView.Equals(camera.View))
             {
-
-                physics.move(gameTime);
 
                 Matrix rotationMatrix = Matrix.CreateRotationX(camera.UpDownRotation) * Matrix.CreateRotationY(camera.LeftRightRotation);
                 lookVector = Vector3.Transform(Vector3.Forward, rotationMatrix);
@@ -120,29 +129,30 @@ namespace NewTake.view
             }
 
             MouseState mouseState = Mouse.GetState();
-            
+
 
             if (mouseState.RightButton == ButtonState.Pressed
-             && previousMouseState.RightButton != ButtonState.Pressed) {
-                 player.RightTool.Use();   
+             && previousMouseState.RightButton != ButtonState.Pressed)
+            {
+                player.RightTool.Use();
             }
-            
+
             if (mouseState.LeftButton == ButtonState.Pressed
              && previousMouseState.LeftButton != ButtonState.Pressed)
             {
-                player.LeftTool.Use();   
+                player.LeftTool.Use();
             }
 
-            previousMouseState = Mouse.GetState();  
+            previousMouseState = Mouse.GetState();
         }
 
-      
+
 
 
         public void Draw(GameTime gameTime)
         {
             //TODO draw the player / 3rd person /  tools
-          
+
             RenderSelectionBlock(gameTime);
         }
 
@@ -158,13 +168,14 @@ namespace NewTake.view
 
             Vector3 position = intargetPoint + new Vector3(0.5f, 0.5f, 0.5f);
             */
-            if (!player.currentSelection.HasValue) {
+            if (!player.currentSelection.HasValue)
+            {
                 return;
             }
-            
+
             //TODO why the +0.5f for rendering slection block ?
             Vector3 position = player.currentSelection.Value.position.asVector3() + new Vector3(0.5f, 0.5f, 0.5f);
-              
+
             Matrix matrix_a, matrix_b;
             Matrix identity = Matrix.Identity;                       // setup the matrix prior to translation and scaling  
             Matrix.CreateTranslation(ref position, out matrix_a);    // translate the position a half block in each direction
@@ -215,7 +226,7 @@ namespace NewTake.view
 
                 Block block = player.world.BlockAt(targetPoint);
 
-                if (block.Type != BlockType.None && ( waterSelectable || block.Type != BlockType.Water))
+                if (block.Type != BlockType.None && (waterSelectable || block.Type != BlockType.Water))
                 {
                     //Debug.WriteLine(
                     //    (Math.Abs((uint)targetPoint.X % Chunk.CHUNK_XMAX)) + "-" +
@@ -223,7 +234,7 @@ namespace NewTake.view
                     //    (Math.Abs((uint)targetPoint.Z % Chunk.CHUNK_ZMAX)) + "->" +
                     //    blockType + ", x=" + x);
 
-                    player.currentSelection =  new PositionedBlock(new Vector3i(targetPoint), block);
+                    player.currentSelection = new PositionedBlock(new Vector3i(targetPoint), block);
                     return x;
                 }
             }
@@ -236,7 +247,7 @@ namespace NewTake.view
             {
                 Vector3 targetPoint = camera.Position + (lookVector * x);
                 Block block = player.world.BlockAt(targetPoint);
-                
+
                 //TODO smelly - check we really iterate here, and parametrize the type.none
                 if (player.world.BlockAt(targetPoint).Type == BlockType.None)
                 {
