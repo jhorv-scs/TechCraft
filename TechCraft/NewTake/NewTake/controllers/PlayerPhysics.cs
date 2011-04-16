@@ -5,16 +5,16 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using NewTake.model;
 using Microsoft.Xna.Framework.Input;
+using NewTake.view;
 
-namespace NewTake.view
+namespace NewTake.controllers
 {
    public class PlayerPhysics
     {
        private readonly Player player;
        private readonly FirstPersonCamera camera;
-       //private MouseState previousMouseState;       
 
-       //TODO set constants 
+     
        const float PLAYERJUMPVELOCITY = 6f;
        const float PLAYERGRAVITY = -15f;
        const float PLAYERMOVESPEED = 3.5f;
