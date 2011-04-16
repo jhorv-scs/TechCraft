@@ -113,6 +113,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="model\ChunkPersitence.cs" />
     <Compile Include="model\types\Vector3b.cs" />
     <Compile Include="model\types\Dictionary2.cs" />
     <Compile Include="model\Player.cs" />
@@ -128,6 +129,7 @@
     <Compile Include="model\tools\Tool.cs" />
     <Compile Include="model\types\Dictionary3.cs" />
     <Compile Include="model\types\PositionedBlock.cs" />
+    <Compile Include="model\ChunkManager.cs" />
     <Compile Include="profiling\FrameRateCounter.cs" />
     <Compile Include="model\types\SparseMatrix2.cs" />
     <Compile Include="controllers\FirstPersonCameraController.cs" />

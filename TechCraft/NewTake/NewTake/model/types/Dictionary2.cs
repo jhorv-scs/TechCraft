@@ -35,27 +35,30 @@ namespace NewTake.model.types
     {
         const ulong size = UInt32.MaxValue;
 
-        public T this[uint x, uint z]
+        public ulong KeyFromCoords(uint x, uint z)
+        {
+            return (ulong)(x + (z * size));
+        }
+
+        //prefer to let the key calculation inlined here
+        public virtual T this[uint x, uint z]
         {
             get
             {
-                T outVal = default( T); 
-                TryGetValue((ulong)(x + (z * size)),out outVal);
+                T outVal = default(T);
+                TryGetValue((ulong)(x + (z * size)), out outVal);
                 return outVal;
             }
             set
             {
                 ulong key = (ulong)(x + (z * size));
-                //T outVal = default(T);
-                //if (TryGetValue(key, out outVal))
-                //{
-                    this[key] = value; 
-                //}
-                //else
-                //{
-                //    Add(key, value);
-                //}
-             }
+           
+                this[key] = value;
+            }
+        }
+
+        public virtual void Remove(uint x, uint z) {
+            Remove(KeyFromCoords(x, z));
         }
     }
 }
