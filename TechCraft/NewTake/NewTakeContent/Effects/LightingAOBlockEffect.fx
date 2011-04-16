@@ -46,6 +46,9 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
     output.CameraView = normalize(CameraPosition - worldPosition);
     output.Distance = length(CameraPosition - worldPosition);
+
+	//output.Position.y -= output.Distance * output.Distance * 0.005f;
+
     output.TexCoords1 = input.TexCoords1;
 
 	float3 sunColor = float3(1,1,1);
