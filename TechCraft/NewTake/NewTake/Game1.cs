@@ -1,0 +1,267 @@
+#region license
+
+//  TechCraft - http://techcraft.codeplex.com
+//  This source code is offered under the Microsoft Public License (Ms-PL) which is outlined as follows:
+
+//  Microsoft Public License (Ms-PL)
+//  This license governs use of the accompanying software. If you use the software, you accept this license. If you do not accept the license, do not use the software.
+
+//  1. Definitions
+//  The terms "reproduce," "reproduction," "derivative works," and "distribution" have the same meaning here as under U.S. copyright law.
+//  A "contribution" is the original software, or any additions or changes to the software.
+//  A "contributor" is any person that distributes its contribution under this license.
+//  "Licensed patents" are a contributor's patent claims that read directly on its contribution.
+
+//  2. Grant of Rights
+//  (A) Copyright Grant- Subject to the terms of this license, including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free copyright license to reproduce its contribution, prepare derivative works of its contribution, and distribute its contribution or any derivative works that you create.
+//  (B) Patent Grant- Subject to the terms of this license, including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free license under its licensed patents to make, have made, use, sell, offer for sale, import, and/or otherwise dispose of its contribution in the software or derivative works of the contribution in the software.
+
+//  3. Conditions and Limitations
+//  (A) No Trademark License- This license does not grant you rights to use any contributors' name, logo, or trademarks.
+//  (B) If you bring a patent claim against any contributor over patents that you claim are infringed by the software, your patent license from such contributor to the software ends automatically.
+//  (C) If you distribute any portion of the software, you must retain all copyright, patent, trademark, and attribution notices that are present in the software.
+//  (D) If you distribute any portion of the software in source code form, you may do so only under this license by including a complete copy of this license with your distribution. If you distribute any portion of the software in compiled or object code form, you may only do so under a license that complies with this license.
+//  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
+#endregion
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Diagnostics;
+
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+
+using fbDeprofiler;
+
+using NewTake.model;
+using NewTake.view;
+using NewTake.controllers;
+using NewTake.view.blocks;
+using NewTake.profiling;
+
+namespace NewTake
+{
+    /// <summary>
+    /// This is the main type for your game
+    /// </summary>
+    public class Game1 : Microsoft.Xna.Framework.Game
+    {
+        #region inits
+
+        private GraphicsDeviceManager graphics;
+        private World world;
+        private WorldRenderer renderer;
+
+        private KeyboardState _oldKeyboardState;
+
+        private bool releaseMouse = false;
+
+        private int preferredBackBufferHeight, preferredBackBufferWidth;
+
+       
+
+        private HudRenderer hud;
+
+        private Player player1;//wont add a player2 for some time, but naming like this helps designing  
+        private PlayerRenderer player1Renderer;
+
+        #endregion
+
+        public Game1()
+        {
+            DeProfiler.Run();
+            graphics = new GraphicsDeviceManager(this);
+            
+            //graphics.IsFullScreen = true;
+
+            preferredBackBufferHeight = graphics.PreferredBackBufferHeight;
+            preferredBackBufferWidth = graphics.PreferredBackBufferWidth;
+            
+            //enter stealth mode at start
+           // graphics.PreferredBackBufferHeight = 100;
+           // graphics.PreferredBackBufferWidth = 160;
+
+            FrameRateCounter frameRate = new FrameRateCounter(this);
+            frameRate.DrawOrder = 1;
+            Components.Add(frameRate);
+
+            Content.RootDirectory = "Content";
+            graphics.SynchronizeWithVerticalRetrace = true; // press f3 to set it to false at runtime 
+        }
+
+        #region Initialize
+        /// <summary>
+        /// Allows the game to perform any initialization it needs to before starting to run.
+        /// This is where it can query for any required services and load any non-graphic
+        /// related content.  Calling base.Initialize will enumerate through any components
+        /// and initialize them as well.
+        /// </summary>
+        protected override void Initialize()
+        {
+            world = new World();
+
+            player1 = new Player(world);
+
+            player1Renderer = new PlayerRenderer(GraphicsDevice,player1);
+            player1Renderer.Initialize();
+
+            hud = new HudRenderer(GraphicsDevice);
+            hud.Initialize();
+
+            //renderer = new WorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            //renderer = new SingleThreadWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            renderer = new SingleThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            //TODO refactor WorldRenderer needs player position + view frustum 
+
+         
+
+            base.Initialize();
+        }
+        #endregion
+
+        protected override void OnExiting(Object sender, EventArgs args)
+        {
+            //renderer._running = false;
+            base.OnExiting(sender, args);
+        }
+
+        #region LoadContent
+        /// <summary>
+        /// LoadContent will be called once per game and is the place to load
+        /// all of your content.
+        /// </summary>
+        protected override void LoadContent()
+        {
+
+            renderer.loadContent(Content);
+            player1Renderer.LoadContent(Content);
+            hud.loadContent(Content);
+        }
+        #endregion
+
+        #region UnloadContent
+        /// <summary>
+        /// UnloadContent will be called once per game and is the place to unload
+        /// all content.
+        /// </summary>
+        protected override void UnloadContent()
+        {
+            // TODO: Unload any non ContentManager content here
+        }
+        #endregion
+
+        #region ProcessDebugKeys
+        private void ProcessDebugKeys()
+        {
+            KeyboardState keyState = Keyboard.GetState();
+
+            //toggle fullscreen
+            if (_oldKeyboardState.IsKeyUp(Keys.F11) && keyState.IsKeyDown(Keys.F11))
+            {
+                graphics.ToggleFullScreen();
+            }
+            
+            //freelook mode
+            if (_oldKeyboardState.IsKeyUp(Keys.F1) && keyState.IsKeyDown(Keys.F1))
+            {
+                player1Renderer.freeCam = ! player1Renderer.freeCam;
+            }
+            
+            //wireframe mode
+            if (_oldKeyboardState.IsKeyUp(Keys.F7) && keyState.IsKeyDown(Keys.F7))
+            {
+                renderer.ToggleRasterMode();
+            }
+
+            // Allows the game to exit
+            if (keyState.IsKeyDown(Keys.Escape))
+            {
+                this.Exit();
+            }
+
+            // Release the mouse pointer
+            if (_oldKeyboardState.IsKeyUp(Keys.F) && keyState.IsKeyDown(Keys.F))
+            {
+                this.releaseMouse = !this.releaseMouse;
+                this.IsMouseVisible = !this.IsMouseVisible;
+            }
+
+            if (_oldKeyboardState.IsKeyUp(Keys.F3) && keyState.IsKeyDown(Keys.F3))
+            {
+                graphics.SynchronizeWithVerticalRetrace = !graphics.SynchronizeWithVerticalRetrace;
+                this.IsFixedTimeStep = !this.IsFixedTimeStep;
+                Debug.WriteLine("FixedTimeStep and v synch are " + this.IsFixedTimeStep);
+                graphics.ApplyChanges();
+            }
+
+            // stealth mode / keep screen space for profilers
+            if (_oldKeyboardState.IsKeyUp(Keys.F4) && keyState.IsKeyDown(Keys.F4))
+            {
+                if (graphics.PreferredBackBufferHeight == preferredBackBufferHeight)
+                {
+                    graphics.PreferredBackBufferHeight = 100;
+                    graphics.PreferredBackBufferWidth = 160;
+                }
+                else
+                {
+                    graphics.PreferredBackBufferHeight = preferredBackBufferHeight;
+                    graphics.PreferredBackBufferWidth = preferredBackBufferWidth;
+                }
+                graphics.ApplyChanges();
+            }
+
+            this._oldKeyboardState = keyState;
+        }
+        #endregion
+
+       
+        #region Update
+        /// <summary>
+        /// Allows the game to run logic such as updating the world,
+        /// checking for collisions, gathering input, and playing audio.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        protected override void Update(GameTime gameTime)
+        {
+            ProcessDebugKeys();
+
+            if (this.IsActive)
+            {
+                if (!releaseMouse)
+                {
+                    player1Renderer.update(gameTime);
+                }
+
+                renderer.Update(gameTime);
+                base.Update(gameTime);
+            }
+        }
+        #endregion
+
+        #region Draw
+        /// <summary>
+        /// This is called when the game should draw itself.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.SkyBlue);
+            renderer.Draw(gameTime);
+
+            player1Renderer.Draw(gameTime);
+       
+            hud.Draw(gameTime);
+
+            base.Draw(gameTime);
+
+        }
+        #endregion
+
+    }
+}
