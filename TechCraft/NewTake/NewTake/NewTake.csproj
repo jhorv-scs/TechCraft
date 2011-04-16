@@ -175,9 +175,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NewTakeContent\NewTakeContent.contentproj">
-      <Name>NewTakeContent %28Content%29</Name>
+      <Name>NewTakeContent</Name>
       <XnaReferenceType>Content</XnaReferenceType>
-      <Project>{35EEEC38-EFE4-47ED-A0F4-926DFD9D6FE2}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

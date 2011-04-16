@@ -57,9 +57,9 @@ namespace NewTake.controllers
 
         #endregion
 
-        public FirstPersonCameraController(FirstPersonCamera camera) 
+        public FirstPersonCameraController(FirstPersonCamera camera)
         {
-            this.camera=camera;
+            this.camera = camera;
         }
 
         public void Initialize()
@@ -67,19 +67,14 @@ namespace NewTake.controllers
             _mouseState = Mouse.GetState();
         }
 
-        public void Update(GameTime gameTime)
-        {
-            ProcessInput(gameTime);
-        }
 
-        #region ProcessInput
         public void ProcessInput(GameTime gameTime)
         {
             //PlayerIndex activeIndex;
 
-            Vector3 moveVector = new Vector3(0,0,0);
+            Vector3 moveVector = new Vector3(0, 0, 0);
             KeyboardState keyState = Keyboard.GetState();
-            
+
             if (keyState.IsKeyDown(Keys.W))
             {
                 moveVector += Vector3.Forward;
@@ -103,6 +98,10 @@ namespace NewTake.controllers
                 Vector3 rotatedVector = Vector3.Transform(moveVector, rotationMatrix);
                 camera.Position += rotatedVector * MOVEMENTSPEED;
             }
+        }
+
+        public void Update(GameTime gameTime)
+        {
 
             MouseState currentMouseState = Mouse.GetState();
 
@@ -124,11 +123,11 @@ namespace NewTake.controllers
             _mouseMoveState = new MouseState(camera.viewport.Width / 2,
                     camera.viewport.Height / 2,
                     0, ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released);
-                
+
             Mouse.SetPosition((int)_mouseMoveState.X, (int)_mouseMoveState.Y);
             _mouseState = Mouse.GetState();
         }
-        #endregion
+    
 
     }
 }

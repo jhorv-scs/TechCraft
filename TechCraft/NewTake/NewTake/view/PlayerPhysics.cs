@@ -28,19 +28,8 @@ namespace NewTake.view
        public void move(GameTime gameTime)
        {
 
-           MouseState mouseState = Mouse.GetState();
-
-           if (mouseState.MiddleButton==ButtonState.Pressed )
-           {
-               Vector3 footPosition = player.position + new Vector3(0f, -1.5f, 0f);
-               //XXX fly mode
-               if (player.world.BlockAt(footPosition).Solid &&  player.velocity.Y == 0)
-               {
-               player.velocity.Y = PLAYERJUMPVELOCITY;
-               float amountBelowSurface = ((ushort)footPosition.Y) + 1 - footPosition.Y;
-               player.position.Y += amountBelowSurface + 0.01f;
-               }
-           }
+         
+          
            UpdatePosition(gameTime);
 
            float headbobOffset = (float)Math.Sin(player.headBob) * 0.06f;
@@ -144,19 +133,29 @@ namespace NewTake.view
 
             Vector3 moveVector = new Vector3();
 
-            if (kstate.IsKeyDown(Keys.Up))
+            if (kstate.IsKeyDown(Keys.Space))
+            {
+                if (player.world.BlockAt(footPosition).Solid && player.velocity.Y == 0)
+                {
+                    player.velocity.Y = PLAYERJUMPVELOCITY;
+                    float amountBelowSurface = ((ushort)footPosition.Y) + 1 - footPosition.Y;
+                    player.position.Y += amountBelowSurface + 0.01f;
+                }
+            }
+
+            if (kstate.IsKeyDown(Keys.W))
             {
                 moveVector += Vector3.Forward * 2;
             }
-            if (kstate.IsKeyDown(Keys.Down))
+            if (kstate.IsKeyDown(Keys.S))
             {
                 moveVector += Vector3.Backward * 2;
             }
-            if (kstate.IsKeyDown(Keys.Left))
+            if (kstate.IsKeyDown(Keys.A))
             {
                 moveVector += Vector3.Left * 2;
             }
-            if (kstate.IsKeyDown(Keys.Right))
+            if (kstate.IsKeyDown(Keys.D))
             {
                 moveVector += Vector3.Right * 2;
             }
