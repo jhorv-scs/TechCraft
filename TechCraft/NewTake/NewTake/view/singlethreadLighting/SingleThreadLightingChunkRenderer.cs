@@ -102,6 +102,7 @@ namespace NewTake.view
                     bool inShade = false;
                     for (byte y = Chunk.CHUNK_YMAX - 1; y > 0; y--)
                     {
+                        if (chunk.Blocks[offset + y].Type != BlockType.None) inShade = true;
                         if (!inShade)
                         {
                             chunk.Blocks[offset + y].Sun = MAX_SUN_VALUE;
@@ -109,8 +110,7 @@ namespace NewTake.view
                         else
                         {
                             chunk.Blocks[offset + y].Sun = 0;
-                        }
-                        if (chunk.Blocks[offset + y].Type != BlockType.None) inShade = true;
+                        }                        
                     }
                 }
             }
@@ -123,7 +123,7 @@ namespace NewTake.view
             if (chunk.Blocks[offset].Sun >= light) return;
             chunk.Blocks[offset].Sun = light;            
 
-            if (light > 2)
+            if (light > 1)
             {
                 light = (byte)(light - 1);
 
@@ -145,7 +145,7 @@ namespace NewTake.view
                     int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX; // we don't want this x-z value to be calculated each in in y-loop!
                     for (byte y = 0; y < Chunk.CHUNK_YMAX; y++)
                     {
-                        if (chunk.Blocks[offset + y].Sun > 2)
+                        if (chunk.Blocks[offset+y].Type==BlockType.None && chunk.Blocks[offset + y].Sun > 1)
                         {
                             byte light = (byte)(chunk.Blocks[offset + y].Sun - 1);
                             if (x > 0) PropogateLight((byte)(x - 1), y, z, light);
@@ -248,45 +248,56 @@ namespace NewTake.view
             blockBotS = BlockAt(new Vector3i(chunkRelativePosition.X, chunkRelativePosition.Y - 1, chunkRelativePosition.Z - 1));
             blockBotSE = BlockAt(new Vector3i(chunkRelativePosition.X + 1, chunkRelativePosition.Y - 1, chunkRelativePosition.Z - 1));
 
-            float lightTopNW, lightTopNE, lightTopSW, lightTopSE;
-            float lightBotNW, lightBotNE, lightBotSW, lightBotSE;
-
-            lightTopNW = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopN.Sun + blockTopW.Sun + blockTopM.Sun + blockMidNW.Sun + blockMidN.Sun + blockMidW.Sun + blockMidM.Sun) / 8);
-            lightTopNE = (1f / MAX_SUN_VALUE) * ((blockTopN.Sun + blockTopNE.Sun + blockTopM.Sun + blockTopE.Sun + blockMidN.Sun + blockMidNE.Sun + blockMidM.Sun + blockMidE.Sun) / 8);
-            lightTopSW = (1f / MAX_SUN_VALUE) * ((blockTopW.Sun + blockTopM.Sun + blockTopSW.Sun + blockTopS.Sun + blockMidW.Sun + blockMidM.Sun + blockMidSW.Sun + blockMidS.Sun) / 8);
-            lightTopSE = (1f / MAX_SUN_VALUE) * ((blockTopM.Sun + blockTopE.Sun + blockTopS.Sun + blockTopSE.Sun + blockMidM.Sun + blockMidE.Sun + blockMidS.Sun + blockMidSE.Sun) / 8);
-
-            lightBotNW = (1f / MAX_SUN_VALUE) * ((blockBotNW.Sun + blockBotN.Sun + blockBotW.Sun + blockBotM.Sun + blockMidNW.Sun + blockMidN.Sun + blockMidW.Sun + blockMidM.Sun) / 8);
-            lightBotNE = (1f / MAX_SUN_VALUE) * ((blockBotN.Sun + blockBotNE.Sun + blockBotM.Sun + blockBotE.Sun + blockMidN.Sun + blockMidNE.Sun + blockMidM.Sun + blockMidE.Sun) / 8);
-            lightBotSW = (1f / MAX_SUN_VALUE) * ((blockBotW.Sun + blockBotM.Sun + blockBotSW.Sun + blockBotS.Sun + blockMidW.Sun + blockMidM.Sun + blockMidSW.Sun + blockMidS.Sun) / 8);
-            lightBotSE = (1f / MAX_SUN_VALUE) * ((blockBotM.Sun + blockBotE.Sun + blockBotS.Sun + blockBotSE.Sun + blockMidM.Sun + blockMidE.Sun + blockMidS.Sun + blockMidSE.Sun) / 8);
-
-            float light = (1f / MAX_SUN_VALUE) * block.Sun;
+            float lTR, lTL, lBR, lBL;
 
             // XDecreasing
             if (!blockMidW.Solid)
             {
-                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.XDecreasing, block.Type, lightTopNW, lightTopSW, lightBotNW, lightBotSW);
+                lTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopW.Sun + blockMidNW.Sun + blockMidW.Sun) / 4);
+                lTR = (1f / MAX_SUN_VALUE) * ((blockTopSW.Sun + blockTopW.Sun + blockMidSW.Sun + blockMidW.Sun) / 4);
+                lBL = (1f / MAX_SUN_VALUE) * ((blockBotNW.Sun + blockBotW.Sun + blockMidNW.Sun + blockMidW.Sun) / 4);
+                lBR = (1f / MAX_SUN_VALUE) * ((blockBotSW.Sun + blockBotW.Sun + blockMidSW.Sun + blockMidW.Sun) / 4);
+                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.XDecreasing, block.Type, lTL, lTR, lBL, lBR);
             }
             if (!blockMidE.Solid)
             {
-                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.XIncreasing, block.Type, lightTopSE, lightTopNE, lightBotSE, lightBotNE);
+                lTL = (1f / MAX_SUN_VALUE) * ((blockTopSE.Sun + blockTopE.Sun + blockMidSE.Sun + blockMidE.Sun) / 4);
+                lTR = (1f / MAX_SUN_VALUE) * ((blockTopNE.Sun + blockTopE.Sun + blockMidNE.Sun + blockMidE.Sun) / 4);
+                lBL = (1f / MAX_SUN_VALUE) * ((blockBotSE.Sun + blockBotE.Sun + blockMidSE.Sun + blockMidE.Sun) / 4);
+                lBR = (1f / MAX_SUN_VALUE) * ((blockBotNE.Sun + blockBotE.Sun + blockMidNE.Sun + blockMidE.Sun) / 4);
+                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.XIncreasing, block.Type, lTL,lTR,lBL,lBR);
             }
             if (!blockBotM.Solid)
             {
-                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.YDecreasing, block.Type, lightBotNW, lightBotNE, lightBotSW, lightBotSE);
+                lBL = (1f / MAX_SUN_VALUE) * ((blockBotSW.Sun + blockBotS.Sun + blockBotM.Sun + blockTopW.Sun) / 4);
+                lBR = (1f / MAX_SUN_VALUE) * ((blockBotSE.Sun + blockBotS.Sun + blockBotM.Sun + blockTopE.Sun) / 4);
+                lTL = (1f / MAX_SUN_VALUE) * ((blockBotNW.Sun + blockBotN.Sun + blockBotM.Sun + blockTopW.Sun) / 4);
+                lTR = (1f / MAX_SUN_VALUE) * ((blockBotNE.Sun + blockBotN.Sun + blockBotM.Sun + blockTopE.Sun) / 4);
+                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.YDecreasing, block.Type, lTL, lTR, lBL, lBR);
             }
             if (!blockTopM.Solid)
             {
-                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.YIncreasing, block.Type, lightTopNW, lightTopNE, lightTopSW, lightTopSE);
+                lTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopN.Sun + blockTopW.Sun + blockTopM.Sun) / 4);
+                lTR = (1f / MAX_SUN_VALUE) * ((blockTopNE.Sun + blockTopN.Sun + blockTopE.Sun + blockTopM.Sun) / 4);
+                lBL = (1f / MAX_SUN_VALUE) * ((blockTopSW.Sun + blockTopS.Sun + blockTopW.Sun + blockTopM.Sun) / 4);
+                lBR = (1f / MAX_SUN_VALUE) * ((blockTopSE.Sun + blockTopS.Sun + blockTopE.Sun + blockTopM.Sun) / 4);
+                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.YIncreasing, block.Type, lTL, lTR, lBL, lBR);
             }
             if (!blockMidS.Solid)
             {
-                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.ZDecreasing, block.Type, lightTopSW, lightTopSE, lightBotSW, lightBotSE);
+                lTL = (1f / MAX_SUN_VALUE) * ((blockTopSW.Sun + blockTopS.Sun + blockMidSW.Sun + blockMidS.Sun) / 4);
+                lTR = (1f / MAX_SUN_VALUE) * ((blockTopSE.Sun + blockTopS.Sun + blockMidSE.Sun + blockMidS.Sun) / 4);
+                lBL = (1f / MAX_SUN_VALUE) * ((blockBotSW.Sun + blockBotS.Sun + blockMidSW.Sun + blockMidS.Sun) / 4);
+                lBR = (1f / MAX_SUN_VALUE) * ((blockBotSE.Sun + blockBotS.Sun + blockMidSE.Sun + blockMidS.Sun) / 4);
+                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.ZDecreasing, block.Type, lTL,lTR,lBL,lBR);
             }
             if (!blockMidN.Solid)
             {
-                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.ZIncreasing, block.Type, lightTopNE, lightTopNW, lightBotNE, lightBotNW);
+                lTL = (1f / MAX_SUN_VALUE) * ((blockTopNE.Sun + blockTopN.Sun + blockMidNE.Sun + blockMidN.Sun) / 4);
+                lTR = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopN.Sun + blockMidNW.Sun + blockMidN.Sun) / 4);
+                lBL = (1f / MAX_SUN_VALUE) * ((blockBotNE.Sun + blockBotN.Sun + blockMidNE.Sun + blockMidN.Sun) / 4);
+                lBR = (1f / MAX_SUN_VALUE) * ((blockBotNW.Sun + blockBotN.Sun + blockMidNW.Sun + blockMidN.Sun) / 4);
+                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.ZIncreasing, block.Type, lTL, lTR, lBL, lBR);
             }
 
         }
