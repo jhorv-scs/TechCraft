@@ -42,8 +42,9 @@ namespace NewTake.model
 
 
         public Vector3 position;
-        public Vector3 velocity;
-  
+        public Vector3 velocity;        
+        public double headBob;
+
         public PositionedBlock? currentSelection;
 
         public PositionedBlock? currentSelectedAdjacent; // = where a block would be added with the add tool
