@@ -17,7 +17,7 @@ namespace NewTake.view
     public class PlayerRenderer
     {
 
-        private readonly Player player;
+        public readonly Player player;
         private readonly Viewport  viewport;
         public readonly FirstPersonCamera camera;
         private readonly FirstPersonCameraController cameraController;
@@ -28,6 +28,7 @@ namespace NewTake.view
 
         private readonly GraphicsDevice GraphicsDevice;
 
+        private PlayerPhysics physics;
 
         // SelectionBlock
         public Model SelectionBlock;
@@ -41,6 +42,7 @@ namespace NewTake.view
             this.viewport = graphicsDevice.Viewport;
             this.camera = new FirstPersonCamera(viewport);
             this.cameraController = new FirstPersonCameraController(camera);
+            physics = new PlayerPhysics(this);
         }
 
         public void Initialize()
@@ -48,6 +50,7 @@ namespace NewTake.view
            
             camera.Initialize();
             camera.Position = new Vector3(World.origin * Chunk.CHUNK_XMAX, Chunk.CHUNK_YMAX, World.origin * Chunk.CHUNK_ZMAX);
+            player.position = camera.Position;
             camera.LookAt(Vector3.Down);
 
             cameraController.Initialize();
@@ -70,15 +73,16 @@ namespace NewTake.view
             // alternative would be checking input states changed
             camera.Update(gameTime);
 
+
             //do not do this each tick
             if (! previousView.Equals(camera.View))
             {
 
+                physics.move(gameTime);
+
                 Matrix rotationMatrix = Matrix.CreateRotationX(camera.UpDownRotation) * Matrix.CreateRotationY(camera.LeftRightRotation);
                 lookVector = Vector3.Transform(Vector3.Forward, rotationMatrix);
                 lookVector.Normalize();
-
-             
 
                 bool waterSelectable = false;
                 float x = setPlayerSelectedBlock(waterSelectable);
@@ -105,6 +109,9 @@ namespace NewTake.view
 
             previousMouseState = Mouse.GetState();  
         }
+
+      
+
 
         public void Draw(GameTime gameTime)
         {

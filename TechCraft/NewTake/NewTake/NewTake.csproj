@@ -139,6 +139,7 @@
     <Compile Include="view\BoundariesChunkRenderer.cs" />
     <Compile Include="view\Camera.cs" />
     <Compile Include="view\HudRenderer.cs" />
+    <Compile Include="view\PlayerPhysics.cs" />
     <Compile Include="view\PlayerRenderer.cs" />
     <Compile Include="view\singlethreadAO\SingleThreadAOWorldRenderer.cs" />
     <Compile Include="view\singlethreadAO\SingleThreadAOChunkRenderer.cs" />
