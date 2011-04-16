@@ -64,8 +64,6 @@ namespace NewTake
 
         private int preferredBackBufferHeight, preferredBackBufferWidth;
 
-       
-
         private HudRenderer hud;
 
         private Player player1;//wont add a player2 for some time, but naming like this helps designing  
@@ -77,8 +75,6 @@ namespace NewTake
         {
             DeProfiler.Run();
             graphics = new GraphicsDeviceManager(this);
-            
-            //graphics.IsFullScreen = true;
 
             preferredBackBufferHeight = graphics.PreferredBackBufferHeight;
             preferredBackBufferWidth = graphics.PreferredBackBufferWidth;
@@ -111,7 +107,7 @@ namespace NewTake
             player1Renderer = new PlayerRenderer(GraphicsDevice,player1);
             player1Renderer.Initialize();
 
-            hud = new HudRenderer(GraphicsDevice);
+            hud = new HudRenderer(GraphicsDevice, world, player1Renderer.camera);
             hud.Initialize();
 
             //renderer = new WorldRenderer(GraphicsDevice, player1Renderer.camera, world);
@@ -172,7 +168,13 @@ namespace NewTake
             {
                 player1Renderer.freeCam = ! player1Renderer.freeCam;
             }
-            
+
+            //minimap mode
+            if (_oldKeyboardState.IsKeyUp(Keys.M) && keyState.IsKeyDown(Keys.M))
+            {
+                hud.showMinimap = !hud.showMinimap;
+            }
+
             //wireframe mode
             if (_oldKeyboardState.IsKeyUp(Keys.F7) && keyState.IsKeyDown(Keys.F7))
             {
@@ -219,7 +221,6 @@ namespace NewTake
             this._oldKeyboardState = keyState;
         }
         #endregion
-
        
         #region Update
         /// <summary>
