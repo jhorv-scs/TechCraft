@@ -32,29 +32,58 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 
+using NewTake.view.blocks;
+using NewTake.model;
+using NewTake;
+using NewTake.controllers;
+
 namespace NewTake.view
 {
     public class HudRenderer
     {
 
-        GraphicsDevice GraphicsDevice;
+        #region minimap
+        // Minimap
+        SpriteBatch _spriteBatchmap;
+        Texture2D MinimapTex;
+        Color MinimapBGCol = new Color(150, 150, 150, 150);
+        Color[] maptexture = new Color[Chunk.CHUNK_XMAX * Chunk.CHUNK_ZMAX];
+        Rectangle MinimapBGRect = new Rectangle(650, 20, 64, 64);
+        Rectangle BlockPos = new Rectangle(0, 0, 8, 8);
+        #endregion
 
-        public HudRenderer(GraphicsDevice device)
+        GraphicsDevice GraphicsDevice;
+        public readonly FirstPersonCamera _camera;
+        public readonly World world;
+
+        public bool showMinimap = false;
+
+        public HudRenderer(GraphicsDevice device, World world, FirstPersonCamera camera)
         {
             this.GraphicsDevice = device;
+            this._camera = camera;
+            this.world = world;
         }
 
         // Crosshair
         private Texture2D _crosshairTexture;
         private SpriteBatch _spriteBatch;
 
-
         public void Initialize()
         {
             // Used for crosshair sprite/texture at the moment
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-        }
 
+            #region Minimap
+            _spriteBatchmap = new SpriteBatch(GraphicsDevice);
+            MinimapTex = new Texture2D(GraphicsDevice, 1, 1);
+            Color[] texcol = new Color[1];
+            MinimapTex.GetData(texcol);
+            texcol[0] = Color.White;
+            MinimapTex.SetData(texcol);
+            #endregion
+
+        }
 
         public void loadContent(ContentManager Content)
         {
@@ -62,7 +91,59 @@ namespace NewTake.view
             _crosshairTexture = Content.Load<Texture2D>("Textures\\crosshair");
         }
 
+        #region generateMinimapTexture
+        public void generateMinimapTexture()
+        {
+            uint x = (uint)_camera.Position.X;
+            uint z = (uint)_camera.Position.Z;
 
+            uint cx = x / Chunk.CHUNK_XMAX;
+            uint cz = z / Chunk.CHUNK_ZMAX;
+
+            Chunk chunk = world.viewableChunks[cx, cz];
+
+            for (int xx = 0; xx < Chunk.CHUNK_XMAX; xx++)
+            {
+                for (int zz = 0; zz < Chunk.CHUNK_ZMAX; zz++)
+                {
+                    int offset = xx * Chunk.FlattenOffset + zz * Chunk.CHUNK_YMAX;
+                    for (int y = Chunk.CHUNK_YMAX - 1; y > 0; y--)
+                    {
+                        BlockType blockcheck = chunk.Blocks[offset + y].Type;
+                        if (blockcheck != BlockType.None)
+                        {
+                            int index = xx * (Chunk.CHUNK_XMAX) + zz;
+                            switch (blockcheck)
+                            {
+                                case BlockType.Grass:
+                                    maptexture[index] = new Color(0, y, 0);
+                                    break;
+                                case BlockType.Dirt:
+                                    maptexture[index] = Color.Khaki;
+                                    break;
+                                case BlockType.Snow:
+                                    maptexture[index] = new Color(y, y, y);
+                                    break;
+                                case BlockType.Sand:
+                                    maptexture[index] = new Color(193 + (y / 2), 154 + (y / 2), 107 + (y / 2));
+                                    break;
+                                case BlockType.Water:
+                                    maptexture[index] = new Color(0, 0, y + 64);
+                                    break;
+                                case BlockType.Leaves:
+                                    maptexture[index] = new Color(0, 128, 0);
+                                    break;
+                                default:
+                                    maptexture[index] = new Color(0, 0, 0);
+                                    break;
+                            }
+                            y = 0;
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
 
         public void Draw(Microsoft.Xna.Framework.GameTime gameTime)
         {
@@ -72,6 +153,25 @@ namespace NewTake.view
                 (GraphicsDevice.Viewport.Width / 2) - 10,
                 (GraphicsDevice.Viewport.Height / 2) - 10), Color.White);
             _spriteBatch.End();
+
+            #region minimap
+            if (showMinimap)
+            {
+                generateMinimapTexture();
+                _spriteBatchmap.Begin();
+                for (int i = 0; i < 16; i++)
+                {
+                    for (int j = 0; j < 16; j++)
+                    {
+                        BlockPos.X = i * 8 + 650;
+                        BlockPos.Y = j * 8 + 20;
+                        _spriteBatchmap.Draw(MinimapTex, BlockPos, this.maptexture[i * Chunk.CHUNK_XMAX + j]);
+                    }
+                }
+                _spriteBatchmap.End();
+            }
+            #endregion
+
         }
     }
 }
