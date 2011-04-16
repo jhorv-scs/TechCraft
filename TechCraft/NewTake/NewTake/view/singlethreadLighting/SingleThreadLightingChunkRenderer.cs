@@ -100,7 +100,7 @@ namespace NewTake.view
                 {
                     int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX; // we don't want this x-z value to be calculated each in in y-loop!
                     bool inShade = false;
-                    for (byte y = Chunk.CHUNK_YMAX-1; y >0; y--)
+                    for (byte y = Chunk.CHUNK_YMAX - 1; y > 0; y--)
                     {
                         if (!inShade)
                         {
@@ -118,17 +118,10 @@ namespace NewTake.view
 
         private void PropogateLight(byte x, byte y, byte z, byte light)
         {
-            int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX + y; 
-            Block block = chunk.Blocks[offset];
-
+            int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX + y;
+            if (chunk.Blocks[offset].Type != BlockType.None) return;
             if (chunk.Blocks[offset].Sun >= light) return;
-            if (light > 16)
-            {
-                Debug.WriteLine("OUCH");
-            }
-            chunk.Blocks[offset].Sun = light;
-
-            if (block.Type != BlockType.None) return;
+            chunk.Blocks[offset].Sun = light;            
 
             if (light > 2)
             {
@@ -171,6 +164,7 @@ namespace NewTake.view
         #region BuildVertexList
         public override void BuildVertexList()
         {
+            DoLighting();
             _blockRenderer.Clear();
 
             //lowestNoneBlock and highestNoneBlock come from the terrain gen (Eventually, if the terraingen did not set them you gain nothing)
@@ -254,123 +248,45 @@ namespace NewTake.view
             blockBotS = BlockAt(new Vector3i(chunkRelativePosition.X, chunkRelativePosition.Y - 1, chunkRelativePosition.Z - 1));
             blockBotSE = BlockAt(new Vector3i(chunkRelativePosition.X + 1, chunkRelativePosition.Y - 1, chunkRelativePosition.Z - 1));
 
-            float aoTL, aoTR, aoBL, aoBR;
-
             float lightTopNW, lightTopNE, lightTopSW, lightTopSE;
             float lightBotNW, lightBotNE, lightBotSW, lightBotSE;
 
+            lightTopNW = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopN.Sun + blockTopW.Sun + blockTopM.Sun + blockMidNW.Sun + blockMidN.Sun + blockMidW.Sun + blockMidM.Sun) / 8);
+            lightTopNE = (1f / MAX_SUN_VALUE) * ((blockTopN.Sun + blockTopNE.Sun + blockTopM.Sun + blockTopE.Sun + blockMidN.Sun + blockMidNE.Sun + blockMidM.Sun + blockMidE.Sun) / 8);
+            lightTopSW = (1f / MAX_SUN_VALUE) * ((blockTopW.Sun + blockTopM.Sun + blockTopSW.Sun + blockTopS.Sun + blockMidW.Sun + blockMidM.Sun + blockMidSW.Sun + blockMidS.Sun) / 8);
+            lightTopSE = (1f / MAX_SUN_VALUE) * ((blockTopM.Sun + blockTopE.Sun + blockTopS.Sun + blockTopSE.Sun + blockMidM.Sun + blockMidE.Sun + blockMidS.Sun + blockMidSE.Sun) / 8);
 
-            float lTL, lTR, lBL, lBR;
+            lightBotNW = (1f / MAX_SUN_VALUE) * ((blockBotNW.Sun + blockBotN.Sun + blockBotW.Sun + blockBotM.Sun + blockMidNW.Sun + blockMidN.Sun + blockMidW.Sun + blockMidM.Sun) / 8);
+            lightBotNE = (1f / MAX_SUN_VALUE) * ((blockBotN.Sun + blockBotNE.Sun + blockBotM.Sun + blockBotE.Sun + blockMidN.Sun + blockMidNE.Sun + blockMidM.Sun + blockMidE.Sun) / 8);
+            lightBotSW = (1f / MAX_SUN_VALUE) * ((blockBotW.Sun + blockBotM.Sun + blockBotSW.Sun + blockBotS.Sun + blockMidW.Sun + blockMidM.Sun + blockMidSW.Sun + blockMidS.Sun) / 8);
+            lightBotSE = (1f / MAX_SUN_VALUE) * ((blockBotM.Sun + blockBotE.Sun + blockBotS.Sun + blockBotSE.Sun + blockMidM.Sun + blockMidE.Sun + blockMidS.Sun + blockMidSE.Sun) / 8);
 
-            float aoVertexWeight = 0.05f;
             float light = (1f / MAX_SUN_VALUE) * block.Sun;
 
             // XDecreasing
             if (!blockMidW.Solid)
             {
-                aoTL = 1f; aoTR = 1f; aoBL = 1; aoBR = 1;
-
-                if (blockTopNW.Solid) { aoTL -= aoVertexWeight; }
-                if (blockTopW.Solid) { aoTL -= aoVertexWeight; aoTR -= aoVertexWeight; }
-                if (blockTopSW.Solid) { aoTR -= aoVertexWeight; }
-                if (blockMidNW.Solid) { aoTL -= aoVertexWeight; aoBL -= aoVertexWeight; }
-                if (blockMidSW.Solid) { aoTR -= aoVertexWeight; aoBR -= aoVertexWeight; }
-                if (blockBotNW.Solid) { aoBL -= aoVertexWeight; }
-                if (blockBotW.Solid) { aoBL -= aoVertexWeight; aoBR -= aoVertexWeight; }
-                if (blockBotSW.Solid) { aoBR -= aoVertexWeight; }
-
-                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.XDecreasing, block.Type, aoTL * light, aoTR * light, aoBL * light, aoBR * light);
-
-                //_blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.XDecreasing, block.Type, lTL, lTR, lBL, lBR);
+                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.XDecreasing, block.Type, lightTopNW, lightTopSW, lightBotNW, lightBotSW);
             }
             if (!blockMidE.Solid)
             {
-                aoTL = 1f; aoTR = 1f; aoBL = 1; aoBR = 1;
-
-                if (blockTopNE.Solid) { aoTR -= aoVertexWeight; }
-                if (blockTopE.Solid) { aoTL -= aoVertexWeight; aoTR -= aoVertexWeight; }
-                if (blockTopSE.Solid) { aoTL -= aoVertexWeight; }
-
-                if (blockMidNE.Solid) { aoTR -= aoVertexWeight; aoBR -= aoVertexWeight; }
-                if (blockMidSE.Solid) { aoTL -= aoVertexWeight; aoBL -= aoVertexWeight; }
-
-                if (blockBotNE.Solid) { aoBR -= aoVertexWeight; }
-                if (blockBotE.Solid) { aoBL -= aoVertexWeight; aoBR -= aoVertexWeight; }
-                if (blockBotSE.Solid) { aoBL -= aoVertexWeight; }
-
-                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.XIncreasing, block.Type, aoTL * light, aoTR * light, aoBL * light, aoBR * light);
+                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.XIncreasing, block.Type, lightTopSE, lightTopNE, lightBotSE, lightBotNE);
             }
             if (!blockBotM.Solid)
             {
-                aoTL = 1f; aoTR = 1f; aoBL = 1; aoBR = 1;
-
-                if (blockBotNW.Solid) { aoTR -= aoVertexWeight; }
-                if (blockBotN.Solid) { aoTL -= aoVertexWeight; aoTR -= aoVertexWeight; }
-                if (blockBotNE.Solid) { aoTL -= aoVertexWeight; }
-
-                if (blockBotW.Solid) { aoTR -= aoVertexWeight; aoBR -= aoVertexWeight; }
-                if (blockBotE.Solid) { aoTL -= aoVertexWeight; aoBL -= aoVertexWeight; }
-
-                if (blockBotSW.Solid) { aoBR -= aoVertexWeight; }
-                if (blockBotS.Solid) { aoBL -= aoVertexWeight; aoBR -= aoVertexWeight; }
-                if (blockBotSE.Solid) { aoBL -= aoVertexWeight; }
-
-                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.YDecreasing, block.Type, aoTL * light, aoTR * light, aoBL * light, aoBR * light);
-
+                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.YDecreasing, block.Type, lightBotNW, lightBotNE, lightBotSW, lightBotSE);
             }
             if (!blockTopM.Solid)
             {
-                aoTL = 1f; aoTR = 1f; aoBL = 1; aoBR = 1;
-
-                if (blockTopNW.Solid) { aoTL -= aoVertexWeight; }
-                if (blockTopN.Solid) { aoTL -= aoVertexWeight; aoTR -= aoVertexWeight; }
-                if (blockTopNE.Solid) { aoTR -= aoVertexWeight; }
-
-                if (blockTopW.Solid) { aoTL -= aoVertexWeight; aoBL -= aoVertexWeight; }
-                if (blockTopE.Solid) { aoTR -= aoVertexWeight; aoBR -= aoVertexWeight; }
-
-                if (blockTopSW.Solid) { aoBL -= aoVertexWeight; }
-                if (blockTopS.Solid) { aoBL -= aoVertexWeight; aoBR -= aoVertexWeight; }
-                if (blockTopSE.Solid) { aoBR -= aoVertexWeight; }
-
-                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.YIncreasing, block.Type, aoTL * light, aoTR * light, aoBL * light, aoBR * light);
+                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.YIncreasing, block.Type, lightTopNW, lightTopNE, lightTopSW, lightTopSE);
             }
             if (!blockMidS.Solid)
             {
-                aoTL = 1f; aoTR = 1f; aoBL = 1; aoBR = 1;
-                //aoTL = light; aoTR = light; aoBL = light; aoBR = light;
-
-                if (blockTopSW.Solid) { aoTL -= aoVertexWeight; }
-                if (blockTopS.Solid) { aoTL -= aoVertexWeight; aoTR -= aoVertexWeight; }
-                if (blockTopSE.Solid) { aoTR -= aoVertexWeight; }
-
-                if (blockMidSW.Solid) { aoTL -= aoVertexWeight; aoBL -= aoVertexWeight; }
-                if (blockMidSE.Solid) { aoTR -= aoVertexWeight; aoBR -= aoVertexWeight; }
-
-                if (blockBotSW.Solid) { aoBL -= aoVertexWeight; }
-                if (blockBotS.Solid) { aoBL -= aoVertexWeight; aoBR -= aoVertexWeight; }
-                if (blockBotSE.Solid) { aoBR -= aoVertexWeight; }
-
-
-                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.ZDecreasing, block.Type, aoTL * light, aoTR * light, aoBL * light, aoBR * light);
-
+                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.ZDecreasing, block.Type, lightTopSW, lightTopSE, lightBotSW, lightBotSE);
             }
             if (!blockMidN.Solid)
             {
-                aoTL = 1f; aoTR = 1f; aoBL = 1; aoBR = 1;
-
-                if (blockTopNW.Solid) { aoTR -= aoVertexWeight; }
-                if (blockTopN.Solid) { aoTL -= aoVertexWeight; aoTR -= aoVertexWeight; }
-                if (blockTopNE.Solid) { aoTL -= aoVertexWeight; }
-
-                if (blockMidNW.Solid) { aoTR -= aoVertexWeight; aoBR -= aoVertexWeight; }
-                if (blockMidNE.Solid) { aoTL -= aoVertexWeight; aoBL -= aoVertexWeight; }
-
-                if (blockBotNW.Solid) { aoBR -= aoVertexWeight; }
-                if (blockBotN.Solid) { aoBL -= aoVertexWeight; aoBR -= aoVertexWeight; }
-                if (blockBotNE.Solid) { aoBL -= aoVertexWeight; }
-
-                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.ZIncreasing, block.Type, aoTL * light, aoTR * light, aoBL * light, aoBR * light);
+                _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.ZIncreasing, block.Type, lightTopNE, lightTopNW, lightBotNE, lightBotNW);
             }
 
         }
