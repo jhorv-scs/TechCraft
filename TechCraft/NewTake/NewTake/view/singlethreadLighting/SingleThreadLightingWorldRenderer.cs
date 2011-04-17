@@ -81,11 +81,16 @@ namespace NewTake.view
         public override void DoBuild(Vector3i vector)
         {
             Chunk chunk = world.viewableChunks[vector.X, vector.Z];
-            chunk.Renderer.DoLighting();
+
+            this.ChunkRenderers[chunk.Index].DoLighting();
+            //chunk.Renderer.DoLighting();
+            
             // Build a vertex buffer for this chunks
-            chunk.Renderer.BuildVertexList();
+            //chunk.Renderer.BuildVertexList();
+            this.ChunkRenderers[chunk.Index].BuildVertexList();
+            
             // Add the renderer to the list so that it is drawn
-            ChunkRenderers.Add(chunk.Index, chunk.Renderer);
+            //TODO ?????????? ChunkRenderers.Add(chunk.Index, chunk.Renderer);
 
             chunk.built = true;
         }
@@ -93,14 +98,14 @@ namespace NewTake.view
         public override void DoGenerate(Vector3i vector)
         {
             // Create a new chunk
-            Chunk chunk = new Chunk(vector);
+            Chunk chunk = new Chunk(world,vector);
             // Assign a renderer
             ChunkRenderer cRenderer = new SingleThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
-            chunk.Renderer = cRenderer;
+            this.ChunkRenderers.Add(chunk.Index,cRenderer);
             // Generate the chunk with the current generator
             world.Generator.Generate(chunk);
             // Calculate lighting
-            chunk.Renderer.DoLighting();
+            cRenderer.DoLighting();
             // Store the chunk in the view
             world.viewableChunks[vector.X, vector.Z] = chunk;
 

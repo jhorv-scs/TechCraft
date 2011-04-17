@@ -10,9 +10,10 @@ namespace NewTake.model.types
 {
     public class ChunkManager : Dictionary2<Chunk>
     {
-        private ChunkPersitence persistence;
+        private IChunkPersitence persistence;
 
-        public ChunkManager(ChunkPersitence persistence   ){
+        public ChunkManager(IChunkPersitence persistence)
+        {
             this.persistence=persistence;
         }
         
@@ -36,9 +37,11 @@ namespace NewTake.model.types
             get
             {
                 Chunk chunk = base[x, z];
-                if (chunk == default(Chunk))
+                if (chunk == null)
                 {
-                    chunk = whenNull(x, z);
+                    Vector3i index = new Vector3i(x,0,z);
+
+                    chunk = whenNull(index);
                 }
                 return chunk;
             }
@@ -48,9 +51,9 @@ namespace NewTake.model.types
             }
         }
 
-        private Chunk whenNull(uint x, uint z)
+        private Chunk whenNull(Vector3i index)
         {
-           return persistence.load(new Vector3i(x, 0, z));
+            return persistence.load(index);
         }
 
 

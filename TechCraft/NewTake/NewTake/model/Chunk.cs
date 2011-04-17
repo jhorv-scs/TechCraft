@@ -79,7 +79,9 @@ namespace NewTake.model
         public bool generated;
         public bool built;
 
-        public ChunkRenderer Renderer;
+        public readonly World world;
+
+        //public ChunkRenderer Renderer;
 
         private BoundingBox _boundingBox;
 
@@ -88,12 +90,14 @@ namespace NewTake.model
 
         public Vector3b lowestNoneBlock = new Vector3b(0, CHUNK_YMAX, 0);
 
-        public Chunk(Vector3i index)
+        public Chunk(World world,Vector3i index)
         {
+            this.world = world;
+            
             dirty = true;
             visible = true;
             generated = false;
-
+            
             Index = index;
 
             Position = new Vector3i(index.X * CHUNK_XMAX, index.Y * CHUNK_YMAX, index.Z * CHUNK_ZMAX);
@@ -131,6 +135,35 @@ namespace NewTake.model
         public bool outOfBounds(byte x, byte y, byte z)
         {
             return (x < 0 || x >= CHUNK_XMAX || y < 0 || y >= CHUNK_YMAX || z < 0 || z >= CHUNK_ZMAX);
+        }
+
+        public Block BlockAt(Vector3i chunkRelativePositon)
+        {
+            if (chunkRelativePositon.Y < 0 || chunkRelativePositon.Y > Chunk.CHUNK_YMAX - 1)
+            {
+                return new Block(BlockType.Rock);
+            }
+            else if (chunkRelativePositon.X < 0 || chunkRelativePositon.Z < 0 ||
+                chunkRelativePositon.X > Chunk.CHUNK_XMAX - 1 || chunkRelativePositon.Z > Chunk.CHUNK_ZMAX - 1)
+            {
+                Vector3i worldPosition = new Vector3i(Position.X + chunkRelativePositon.X, Position.Y + chunkRelativePositon.Y, Position.Z + chunkRelativePositon.Z);
+                Chunk nChunk = world.viewableChunks[worldPosition.X / Chunk.CHUNK_XMAX, worldPosition.Z / Chunk.CHUNK_ZMAX];
+                if (nChunk != null)
+                {
+                    Vector3i chunkBlockPosition = new Vector3i(worldPosition.X - nChunk.Position.X, worldPosition.Y - nChunk.Position.Y, worldPosition.Z - nChunk.Position.Z);
+
+                    return nChunk.BlockAt(chunkBlockPosition);
+                }
+                else
+                {
+                    return new Block(BlockType.Rock);
+                }
+            }
+            else
+            {
+                //return chunk.Blocks[chunkRelativePositon.X, chunkRelativePositon.Y, chunkRelativePositon.Z];
+                return Blocks[chunkRelativePositon.X * Chunk.FlattenOffset + chunkRelativePositon.Z * Chunk.CHUNK_YMAX + chunkRelativePositon.Y];
+            }
         }
 
     }

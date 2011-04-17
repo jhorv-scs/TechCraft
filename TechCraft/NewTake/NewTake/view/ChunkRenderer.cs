@@ -70,33 +70,7 @@ namespace NewTake.view
             return chunk.BoundingBox.Intersects(viewFrustum);
         }
 
-        public Block BlockAt(Vector3i chunkRelativePositon)
-        {
-            if (chunkRelativePositon.Y < 0 || chunkRelativePositon.Y > Chunk.CHUNK_YMAX - 1)
-            {
-                return new Block(BlockType.Rock);
-            }
-            else if (chunkRelativePositon.X < 0 || chunkRelativePositon.Z < 0 ||
-                chunkRelativePositon.X > Chunk.CHUNK_XMAX - 1 || chunkRelativePositon.Z > Chunk.CHUNK_ZMAX - 1)
-            {
-                Vector3i worldPosition = new Vector3i(chunk.Position.X + chunkRelativePositon.X, chunk.Position.Y + chunkRelativePositon.Y, chunk.Position.Z + chunkRelativePositon.Z);
-                Chunk nChunk = world.viewableChunks[worldPosition.X / Chunk.CHUNK_XMAX, worldPosition.Z / Chunk.CHUNK_ZMAX];
-                if (nChunk != null)
-                {
-                    Vector3i chunkBlockPosition = new Vector3i(worldPosition.X - nChunk.Position.X, worldPosition.Y - nChunk.Position.Y, worldPosition.Z - nChunk.Position.Z);
-                    return nChunk.Renderer.BlockAt(chunkBlockPosition);
-                }
-                else
-                {
-                    return new Block(BlockType.Rock);
-                }
-            }
-            else
-            {
-                //return chunk.Blocks[chunkRelativePositon.X, chunkRelativePositon.Y, chunkRelativePositon.Z];
-                return chunk.Blocks[chunkRelativePositon.X * Chunk.FlattenOffset + chunkRelativePositon.Z * Chunk.CHUNK_YMAX + chunkRelativePositon.Y];
-            }
-        }
+        
 
         #region BuildVertexList
         public virtual void BuildVertexList()
