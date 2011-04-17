@@ -183,13 +183,14 @@ namespace NewTake.view
             //currently a copy paste of base class but currently only :)
 
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
-            
-            GraphicsDevice.Clear(Color.White);
-            GraphicsDevice.RasterizerState = !this._wireframed ? this._normalRaster : this._wireframedRaster;
 
             // Generate the clouds
             float time = (float)gameTime.TotalGameTime.TotalMilliseconds / 100.0f;
             GeneratePerlinNoise(time);
+
+            GraphicsDevice.Clear(Color.White);
+            GraphicsDevice.RasterizerState = !this._wireframed ? this._normalRaster : this._wireframedRaster;
+
             // Draw the skyDome
             DrawSkyDome(camera.View);
 
