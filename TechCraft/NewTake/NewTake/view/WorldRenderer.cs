@@ -44,9 +44,9 @@ namespace NewTake.view
     {
         #region inits
 
-        public const float FARPLANE = 140 * 4;
-        public const int FOGNEAR = 90 * 4;
-        public const int FOGFAR = 140 * 4;
+        public const float FARPLANE = 140 * 2;
+        public const int FOGNEAR = 90 * 2;
+        public const int FOGFAR = 140 * 2;
 
         protected World world;
         protected readonly GraphicsDevice GraphicsDevice;
