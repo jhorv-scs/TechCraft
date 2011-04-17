@@ -113,7 +113,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="model\ChunkPersitence.cs" />
+    <Compile Include="model\persistence\ChunkPersitence.cs" />
+    <Compile Include="model\persistence\FakeChunkPersitence.cs" />
+    <Compile Include="model\persistence\IChunkPersitence.cs" />
     <Compile Include="model\types\Vector3b.cs" />
     <Compile Include="model\types\Dictionary2.cs" />
     <Compile Include="model\Player.cs" />
@@ -145,8 +147,6 @@
     <Compile Include="view\HudRenderer.cs" />
     <Compile Include="controllers\PlayerPhysics.cs" />
     <Compile Include="view\PlayerRenderer.cs" />
-    <Compile Include="view\singlethreadAO\SingleThreadAOWorldRenderer.cs" />
-    <Compile Include="view\singlethreadAO\SingleThreadAOChunkRenderer.cs" />
     <Compile Include="view\IChunkRenderer.cs" />
     <Compile Include="view\FirstPersonCamera.cs" />
     <Compile Include="Tests.cs" />

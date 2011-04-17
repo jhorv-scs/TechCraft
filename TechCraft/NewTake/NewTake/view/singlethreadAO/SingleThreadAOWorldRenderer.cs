@@ -71,7 +71,8 @@ namespace NewTake.view
             Chunk chunk = new Chunk(vector);
             // Assign a renderer
             ChunkRenderer cRenderer = new SingleThreadAOChunkRenderer(GraphicsDevice, world, chunk);
-            chunk.Renderer = cRenderer;
+            this.ChunkRenderers.Add(chunk.Index,cRenderer);
+
             // Generate the chunk with the current generator
             world.Generator.Generate(chunk);
             // Store the chunk in the view

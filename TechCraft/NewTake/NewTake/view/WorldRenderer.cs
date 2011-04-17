@@ -145,7 +145,7 @@ namespace NewTake.view
                         {
                             Chunk chunk = world.viewableChunks[j, l];
                             chunk.visible = false;
-                            world.viewableChunks[j, l] = null;
+                            world.viewableChunks.Remove(j, l);
                             ChunkRenderers.Remove(chunk.Index);
                             //Debug.WriteLine(string.Format("Removed Chunk {0}-{1}-{2}", (int)chunk.Position.X, (int)chunk.Position.Y, (int)chunk.Position.Z));
                         }
@@ -192,7 +192,7 @@ namespace NewTake.view
                                 Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
                                 Chunk chunk = world.viewableChunks[j, l];
                                 chunk.visible = false;
-                                world.viewableChunks[j, l] = null;
+                                world.viewableChunks.Remove( j, l);
                                 ChunkRenderers.Remove(newIndex);
                                 //Debug.WriteLine("Removed chunk at {0},{1},{2}", chunk.Position.X, chunk.Position.Y, chunk.Position.Z);
                             }
