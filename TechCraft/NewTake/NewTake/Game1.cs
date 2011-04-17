@@ -252,7 +252,7 @@ namespace NewTake
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.SkyBlue);
+            GraphicsDevice.Clear(Color.White);
             renderer.Draw(gameTime);
 
             player1Renderer.Draw(gameTime);
