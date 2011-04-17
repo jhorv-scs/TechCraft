@@ -44,10 +44,17 @@ namespace NewTake.view
     {
         private Texture2D ambientOcclusionMap;
         
+        // SkyDome
         Model skyDome;
         Matrix projectionMatrix;
         Texture2D cloudMap;
         float rotation;
+
+        // GPU generated clouds
+        Texture2D cloudStaticMap;
+        RenderTarget2D cloudsRenderTarget;
+        Effect _perlinNoiseEffect;
+        VertexPositionTexture[] fullScreenVertices;
 
         public SingleThreadLightingWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world) :
             base(graphicsDevice, camera, world) { }
@@ -57,11 +64,18 @@ namespace NewTake.view
             _textureAtlas = content.Load<Texture2D>("Textures\\blocks");
             _solidBlockEffect = content.Load<Effect>("Effects\\LightingAOBlockEffect");
 
+            // SkyDome
             skyDome = content.Load<Model>("Models\\dome");
             skyDome.Meshes[0].MeshParts[0].Effect = content.Load<Effect>("Effects\\SkyDome");
             cloudMap = content.Load<Texture2D>("Textures\\cloudMap");
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 1000.0f);
 
+            // GPU Generated Clouds
+            _perlinNoiseEffect = content.Load<Effect>("Effects\\PerlinNoise");
+            PresentationParameters pp = GraphicsDevice.PresentationParameters;
+            cloudsRenderTarget = new RenderTarget2D(GraphicsDevice,pp.BackBufferWidth,pp.BackBufferHeight,true,SurfaceFormat.Color,DepthFormat.None);
+            cloudStaticMap = CreateStaticMap(32);
+            fullScreenVertices = SetUpFullscreenVertices();
         }
 
         public override void DoBuild(Vector3i vector)
@@ -98,7 +112,8 @@ namespace NewTake.view
 
             Matrix[] modelTransforms = new Matrix[skyDome.Bones.Count];
             skyDome.CopyAbsoluteBoneTransformsTo(modelTransforms);
-            rotation += 0.0001f;
+            //rotation += 0.0005f;
+            rotation = 0;
 
             Matrix wMatrix = Matrix.CreateRotationY(rotation) * Matrix.CreateTranslation(0, 0, 0) * Matrix.CreateScale(100) * Matrix.CreateTranslation(camera.Position);
             foreach (ModelMesh mesh in skyDome.Meshes)
@@ -117,16 +132,65 @@ namespace NewTake.view
             }
         }
 
+        private Texture2D CreateStaticMap(int resolution)
+        {
+            Random rand = new Random();
+            Color[] noisyColors = new Color[resolution * resolution];
+            for (int x = 0; x < resolution; x++)
+                for (int y = 0; y < resolution; y++)
+                    noisyColors[x + y * resolution] = new Color(new Vector3((float)rand.Next(1000) / 1000.0f, 0, 0));
+
+            Texture2D noiseImage = new Texture2D(GraphicsDevice, resolution, resolution, true, SurfaceFormat.Color);
+            noiseImage.SetData(noisyColors);
+            return noiseImage;
+        }
+
+        private VertexPositionTexture[] SetUpFullscreenVertices()
+        {
+            VertexPositionTexture[] vertices = new VertexPositionTexture[4];
+
+            vertices[0] = new VertexPositionTexture(new Vector3(-1, 1, 0f), new Vector2(0, 1));
+            vertices[1] = new VertexPositionTexture(new Vector3(1, 1, 0f), new Vector2(1, 1));
+            vertices[2] = new VertexPositionTexture(new Vector3(-1, -1, 0f), new Vector2(0, 0));
+            vertices[3] = new VertexPositionTexture(new Vector3(1, -1, 0f), new Vector2(1, 0));
+
+            return vertices;
+        }
+
+        private void GeneratePerlinNoise(float time)
+        {
+            GraphicsDevice.SetRenderTarget(cloudsRenderTarget);
+            GraphicsDevice.Clear(Color.White);
+
+            _perlinNoiseEffect.CurrentTechnique = _perlinNoiseEffect.Techniques["PerlinNoise"];
+            _perlinNoiseEffect.Parameters["xTexture"].SetValue(cloudStaticMap);
+            _perlinNoiseEffect.Parameters["xOvercast"].SetValue(1.1f);
+            _perlinNoiseEffect.Parameters["xTime"].SetValue(time / 1000.0f);
+
+            foreach (EffectPass pass in _perlinNoiseEffect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleStrip, fullScreenVertices, 0, 2);
+            }
+
+            GraphicsDevice.SetRenderTarget(null);
+            cloudMap = cloudsRenderTarget;
+        }
+
         #region Draw
         public override void Draw(GameTime gameTime)
         {
             //currently a copy paste of base class but currently only :)
 
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
-
+            
             GraphicsDevice.Clear(Color.White);
             GraphicsDevice.RasterizerState = !this._wireframed ? this._normalRaster : this._wireframedRaster;
 
+            // Generate the clouds
+            float time = (float)gameTime.TotalGameTime.TotalMilliseconds / 100.0f;
+            GeneratePerlinNoise(time);
+            // Draw the skyDome
             DrawSkyDome(camera.View);
 
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
