@@ -43,6 +43,11 @@ namespace NewTake.view
     class SingleThreadLightingWorldRenderer : WorldRenderer
     {
         private Texture2D ambientOcclusionMap;
+        
+        Model skyDome;
+        Matrix projectionMatrix;
+        Texture2D cloudMap;
+        float rotation;
 
         public SingleThreadLightingWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world) :
             base(graphicsDevice, camera, world) { }
@@ -51,6 +56,12 @@ namespace NewTake.view
         {
             _textureAtlas = content.Load<Texture2D>("Textures\\blocks");
             _solidBlockEffect = content.Load<Effect>("Effects\\LightingAOBlockEffect");
+
+            skyDome = content.Load<Model>("Models\\dome");
+            skyDome.Meshes[0].MeshParts[0].Effect = content.Load<Effect>("Effects\\SkyDome");
+            cloudMap = content.Load<Texture2D>("Textures\\cloudMap");
+            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 1000.0f);
+
         }
 
         public override void DoBuild(Vector3i vector)
@@ -82,6 +93,30 @@ namespace NewTake.view
             chunk.generated = true;
         }
 
+        private void DrawSkyDome(Matrix currentViewMatrix)
+        {
+
+            Matrix[] modelTransforms = new Matrix[skyDome.Bones.Count];
+            skyDome.CopyAbsoluteBoneTransformsTo(modelTransforms);
+            rotation += 0.0001f;
+
+            Matrix wMatrix = Matrix.CreateRotationY(rotation) * Matrix.CreateTranslation(0, 0, 0) * Matrix.CreateScale(100) * Matrix.CreateTranslation(camera.Position);
+            foreach (ModelMesh mesh in skyDome.Meshes)
+            {
+                foreach (Effect currentEffect in mesh.Effects)
+                {
+                    Matrix worldMatrix = modelTransforms[mesh.ParentBone.Index] * wMatrix;
+
+                    currentEffect.CurrentTechnique = currentEffect.Techniques["SkyDome"];
+                    currentEffect.Parameters["xWorld"].SetValue(worldMatrix);
+                    currentEffect.Parameters["xView"].SetValue(currentViewMatrix);
+                    currentEffect.Parameters["xProjection"].SetValue(projectionMatrix);
+                    currentEffect.Parameters["xTexture"].SetValue(cloudMap);
+                }
+                mesh.Draw();
+            }
+        }
+
         #region Draw
         public override void Draw(GameTime gameTime)
         {
@@ -89,8 +124,10 @@ namespace NewTake.view
 
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
 
-            GraphicsDevice.Clear(Color.LightSkyBlue);
+            GraphicsDevice.Clear(Color.White);
             GraphicsDevice.RasterizerState = !this._wireframed ? this._normalRaster : this._wireframedRaster;
+
+            DrawSkyDome(camera.View);
 
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.BlendState = BlendState.Opaque;
@@ -99,7 +136,7 @@ namespace NewTake.view
             _solidBlockEffect.Parameters["View"].SetValue(camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(camera.Projection);
             _solidBlockEffect.Parameters["CameraPosition"].SetValue(camera.Position);
-            _solidBlockEffect.Parameters["FogColor"].SetValue(Color.LightSkyBlue.ToVector4());
+            _solidBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
             _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
@@ -116,7 +153,6 @@ namespace NewTake.view
                     }
                 }
             }
-
         }
         #endregion
 
