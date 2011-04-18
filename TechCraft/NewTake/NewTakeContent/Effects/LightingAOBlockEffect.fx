@@ -7,6 +7,7 @@ float3 CameraPosition;
 float FogNear = 250;
 float FogFar = 300;
 float4 FogColor = {0.5,0.5,0.5,1.0};
+float3 SunColor = float3(1,1,1);
 
 Texture Texture1;
 sampler Texture1Sampler = sampler_state
@@ -51,8 +52,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
     output.TexCoords1 = input.TexCoords1;
 
-	float3 sunColor = float3(1,1,1);
-	output.Color.rgb = (sunColor * input.SunLight) + input.LocalLight.rgb;
+	output.Color.rgb = (SunColor * input.SunLight) + (input.LocalLight.rgb);
 	output.Color.a = 1;
 
     return output;
