@@ -24,6 +24,7 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
+#region using
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,7 @@ using Microsoft.Xna.Framework.Input;
 using NewTake.view.blocks;
 using NewTake.model.types;
 using Microsoft.Xna.Framework.Content;
+#endregion
 
 namespace NewTake.view
 {
@@ -43,6 +45,7 @@ namespace NewTake.view
     public class PlayerRenderer
     {
 
+        #region inits
         public readonly Player player;
         private readonly Viewport viewport;
         public readonly FirstPersonCamera camera;
@@ -61,6 +64,7 @@ namespace NewTake.view
         BasicEffect _selectionBlockEffect;
         Texture2D SelectionBlockTexture;
         public bool freeCam;
+        #endregion
 
         public PlayerRenderer(GraphicsDevice graphicsDevice, Player player)
         {
@@ -93,70 +97,7 @@ namespace NewTake.view
             SelectionBlockTexture = content.Load<Texture2D>("Textures\\SelectionBlock");
         }
 
-        public void update(GameTime gameTime)
-        {
-            Matrix previousView = camera.View;
-
-            if (freeCam)
-            {
-                cameraController.ProcessInput(gameTime);
-                player.position = camera.Position;
-            }
-
-            cameraController.Update(gameTime);
-
-            camera.Update(gameTime);
-            
-            //Do not change metho order, its not very clean but works fine
-            if (! freeCam)
-                physics.move(gameTime);
-
-            //do not do this each tick
-            if (!previousView.Equals(camera.View))
-            {
-
-                Matrix rotationMatrix = Matrix.CreateRotationX(camera.UpDownRotation) * Matrix.CreateRotationY(camera.LeftRightRotation);
-                lookVector = Vector3.Transform(Vector3.Forward, rotationMatrix);
-                lookVector.Normalize();
-
-                bool waterSelectable = false;
-                float x = setPlayerSelectedBlock(waterSelectable);
-                if (x != 0) // x==0 is equivalent to payer.currentSelection == null
-                {
-                    setPlayerAdjacentSelectedBlock(x);
-                }
-
-            }
-
-            MouseState mouseState = Mouse.GetState();
-
-
-            if (mouseState.RightButton == ButtonState.Pressed
-             && previousMouseState.RightButton != ButtonState.Pressed)
-            {
-                player.RightTool.Use();
-            }
-
-            if (mouseState.LeftButton == ButtonState.Pressed
-             && previousMouseState.LeftButton != ButtonState.Pressed)
-            {
-                player.LeftTool.Use();
-            }
-
-            previousMouseState = Mouse.GetState();
-        }
-
-
-
-
-        public void Draw(GameTime gameTime)
-        {
-            //TODO draw the player / 3rd person /  tools
-
-            RenderSelectionBlock(gameTime);
-        }
-
-
+        #region SelectionBlock
         public void RenderSelectionBlock(GameTime gameTime)
         {
 
@@ -256,5 +197,71 @@ namespace NewTake.view
                 }
             }
         }
+        #endregion
+
+        #region Update
+        public void Update(GameTime gameTime)
+        {
+            Matrix previousView = camera.View;
+
+            if (freeCam)
+            {
+                cameraController.ProcessInput(gameTime);
+                player.position = camera.Position;
+            }
+
+            cameraController.Update(gameTime);
+
+            camera.Update(gameTime);
+            
+            //Do not change metho order, its not very clean but works fine
+            if (! freeCam)
+                physics.move(gameTime);
+
+            //do not do this each tick
+            if (!previousView.Equals(camera.View))
+            {
+
+                Matrix rotationMatrix = Matrix.CreateRotationX(camera.UpDownRotation) * Matrix.CreateRotationY(camera.LeftRightRotation);
+                lookVector = Vector3.Transform(Vector3.Forward, rotationMatrix);
+                lookVector.Normalize();
+
+                bool waterSelectable = false;
+                float x = setPlayerSelectedBlock(waterSelectable);
+                if (x != 0) // x==0 is equivalent to payer.currentSelection == null
+                {
+                    setPlayerAdjacentSelectedBlock(x);
+                }
+
+            }
+
+            MouseState mouseState = Mouse.GetState();
+
+
+            if (mouseState.RightButton == ButtonState.Pressed
+             && previousMouseState.RightButton != ButtonState.Pressed)
+            {
+                player.RightTool.Use();
+            }
+
+            if (mouseState.LeftButton == ButtonState.Pressed
+             && previousMouseState.LeftButton != ButtonState.Pressed)
+            {
+                player.LeftTool.Use();
+            }
+
+            previousMouseState = Mouse.GetState();
+        }
+        #endregion
+
+        #region Draw
+        public void Draw(GameTime gameTime)
+        {
+            //TODO draw the player / 3rd person /  tools
+
+            RenderSelectionBlock(gameTime);
+        }
+        #endregion
+
     }
 }

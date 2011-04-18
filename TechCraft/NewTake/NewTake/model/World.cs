@@ -24,6 +24,7 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
+#region using
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,7 @@ using Microsoft.Xna.Framework;
 using NewTake.model.terrain;
 using NewTake.model.terrain.biome;
 using NewTake.model.types;
+#endregion
 
 namespace NewTake.model
 {
@@ -59,6 +61,7 @@ namespace NewTake.model
 
         #endregion
 
+        #region choose terrain generation
         //public IChunkGenerator Generator = new SimpleTerrain();
         //public IChunkGenerator Generator = new FlatReferenceTerrain();
         //public IChunkGenerator Generator = new TerrainWithCaves();
@@ -68,6 +71,7 @@ namespace NewTake.model
         //public IChunkGenerator Generator = new Tundra_Alpine();
         //public IChunkGenerator Generator = new Desert_Subtropical();
         //public IChunkGenerator Generator = new Grassland_Temperate();
+        #endregion
 
         public static uint origin = 1000; 
         //TODO UInt32 requires decoupling rendering coordinates to avoid float problems
@@ -75,7 +79,7 @@ namespace NewTake.model
         public World()
         {
             //viewableChunks = new Dictionary2<Chunk>();//
-            viewableChunks = new ChunkManager(new ChunkPersitence(this));
+            viewableChunks = new ChunkManager(new ChunkPersistence(this));
         }
 
         public void visitChunks(Action<Vector3i> visitor)
@@ -89,6 +93,7 @@ namespace NewTake.model
             }
         }
 
+        #region BlockAt
         public Block BlockAt(Vector3 position)
         {
             return BlockAt((uint)position.X, (uint)position.Y, (uint)position.Z);
@@ -108,7 +113,9 @@ namespace NewTake.model
                 return new Block(BlockType.None); //TODO blocktype.unknown ( with matrix films green symbols texture ? ) 
             }
         }
+        #endregion
 
+        #region setBlock
         public Block setBlock(Vector3i pos, Block b)
         {
             return setBlock(pos.X,pos.Y,pos.Z,b);
@@ -140,7 +147,9 @@ namespace NewTake.model
                 throw new NotImplementedException();
             }
         }
+        #endregion
 
+        #region InView
         public bool InView(uint x, uint y, uint z)
         {
             if (viewableChunks[x / Chunk.CHUNK_XMAX, z / Chunk.CHUNK_ZMAX] == null)
@@ -161,5 +170,7 @@ namespace NewTake.model
             }
             return true;
         }
+        #endregion
+
     }
 }

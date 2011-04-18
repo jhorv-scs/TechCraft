@@ -37,6 +37,6 @@ namespace NewTake.view
     {
          void BuildVertexList();
 
-         void draw(GameTime gameTime);
+         void Draw(GameTime gameTime);
     }
 }

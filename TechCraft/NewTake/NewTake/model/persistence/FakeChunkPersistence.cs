@@ -29,40 +29,40 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using NewTake.view;
-using NewTake.controllers;
-using NewTake.model.tools;
-using NewTake.model.types;
+using System.Diagnostics;
+using System.IO;
 #endregion
 
 namespace NewTake.model
 {
-    public class Player
+    public class MockChunkPersistence : IChunkPersistence
     {
 
-        #region inits
-        public readonly World world;
+        private readonly World world;
 
-        public Vector3 position;
-        public Vector3 velocity;        
-        public double headBob;
-
-        public PositionedBlock? currentSelection;
-        public PositionedBlock? currentSelectedAdjacent; // = where a block would be added with the add tool
-
-        public Tool LeftTool;
-        public Tool RightTool;
-        //keep it stupid simple for now, left hand/mousebutton & right hand/mousebutton
-        #endregion
-
-        public Player(World world)
+        public MockChunkPersistence(World world)
         {
             this.world = world;
-            LeftTool = new BlockRemover(this);
-            //LeftTool = new PowerDrill(this);
-            RightTool = new BlockAdder(this);
         }
 
+        public void save(Chunk chunk)
+        {
+            Debug.WriteLine("would be saving " + GetFilename(chunk.Position));
+
+        }
+
+        public Chunk load(Vector3i index)
+        {
+            Vector3i position = new Vector3i(index.X * Chunk.CHUNK_XMAX, index.Y * Chunk.CHUNK_YMAX, index.Z * Chunk.CHUNK_ZMAX);
+
+            string filename = GetFilename(position);
+            Debug.WriteLine("Would be loading " + filename);
+            return null;
+        }
+
+        private string GetFilename(Vector3i position)
+        {
+            return string.Format("{0}\\{1}-{2}-{3}","LEVELFOLDER", position.X, position.Y, position.Z);
+        }
     }
 }

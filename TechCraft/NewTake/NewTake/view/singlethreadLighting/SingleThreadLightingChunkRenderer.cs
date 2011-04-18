@@ -24,6 +24,7 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
+#region using
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,10 +36,10 @@ using Microsoft.Xna.Framework;
 using NewTake.model;
 using NewTake.view.blocks;
 using System.Diagnostics;
+#endregion
 
 namespace NewTake.view
 {
-
     //this is the same code as in boundariesChunkRenderer. 
 
     class SingleThreadLightingChunkRenderer : ChunkRenderer
@@ -52,38 +53,6 @@ namespace NewTake.view
             : base(graphicsDevice, world, chunk)
         {
             _blockRenderer = new LightingVertexBlockRenderer(world);
-        }
-
-        public override void draw(GameTime gameTime)
-        {
-            if (!chunk.generated) return;
-            if (!chunk.visible)
-            {
-                _vertexList.Clear();
-                vertexBuffer.Dispose();
-                chunk.dirty = false;
-            }
-
-            if (vertexBuffer != null)
-            {
-                if (vertexBuffer.IsDisposed)
-                {
-                    return;
-                }
-
-                if (vertexBuffer.VertexCount > 0)
-                {
-                    graphicsDevice.SetVertexBuffer(vertexBuffer);
-                    graphicsDevice.Indices = indexBuffer;
-                    //graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexBuffer.VertexCount / 3);
-                    graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexBuffer.VertexCount, 0, indexBuffer.IndexCount / 3);
-                }
-
-                else
-                {
-                    Debug.WriteLine("no vertices");
-                }
-            }
         }
 
         public override void DoLighting()
@@ -159,7 +128,6 @@ namespace NewTake.view
                 }
             }
         }
-
 
         #region BuildVertexList
         public override void BuildVertexList()
@@ -300,6 +268,40 @@ namespace NewTake.view
                 _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.ZIncreasing, block.Type, lTL, lTR, lBL, lBR);
             }
 
+        }
+        #endregion
+
+        #region Draw
+        public override void Draw(GameTime gameTime)
+        {
+            if (!chunk.generated) return;
+            if (!chunk.visible)
+            {
+                _vertexList.Clear();
+                vertexBuffer.Dispose();
+                chunk.dirty = false;
+            }
+
+            if (vertexBuffer != null)
+            {
+                if (vertexBuffer.IsDisposed)
+                {
+                    return;
+                }
+
+                if (vertexBuffer.VertexCount > 0)
+                {
+                    graphicsDevice.SetVertexBuffer(vertexBuffer);
+                    graphicsDevice.Indices = indexBuffer;
+                    //graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexBuffer.VertexCount / 3);
+                    graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexBuffer.VertexCount, 0, indexBuffer.IndexCount / 3);
+                }
+
+                else
+                {
+                    Debug.WriteLine("no vertices");
+                }
+            }
         }
         #endregion
 

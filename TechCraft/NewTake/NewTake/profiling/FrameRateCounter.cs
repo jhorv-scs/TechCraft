@@ -37,6 +37,8 @@ namespace NewTake.profiling
     /// </summary>
     public class FrameRateCounter : DrawableGameComponent
     {
+
+        #region inits
         ContentManager content;
         SpriteBatch spriteBatch;
         SpriteFont spriteFont;
@@ -45,6 +47,7 @@ namespace NewTake.profiling
         int frameRate = 0;
         int frameCounter = 0;
         TimeSpan elapsedTime = TimeSpan.Zero;
+        #endregion
 
         /// <summary>
         /// Constructor initializes the numbers array for garbage free strings later.
@@ -70,6 +73,7 @@ namespace NewTake.profiling
             spriteFont = content.Load<SpriteFont>("Fonts/console");
         }
 
+        #region Update
         /// <summary>
         /// The framerate is calculated in this method.  It actually calculates
         /// the update rate, but when fixed time step and syncronize with retrace 
@@ -87,7 +91,9 @@ namespace NewTake.profiling
                 frameCounter = 0;
             }
         }
+        #endregion
 
+        #region Draw
         /// <summary>
         /// Draws the framerate to screen with a shadow outline to make it easy
         /// to see in any game.
@@ -122,5 +128,7 @@ namespace NewTake.profiling
 
             spriteBatch.End();
         }
+        #endregion
+
     }
 }

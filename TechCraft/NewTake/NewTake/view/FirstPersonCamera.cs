@@ -24,6 +24,7 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
+#region using
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
+#endregion
 
 namespace NewTake.view
 {
@@ -50,6 +52,7 @@ namespace NewTake.view
 
         public FirstPersonCamera(Viewport viewport) : base(viewport) { }
 
+        #region Initialize
         public override void Initialize()
         {
             _upDownRotation = 0;
@@ -57,12 +60,7 @@ namespace NewTake.view
 
             base.Initialize();
         }
-
-        public override void Update(GameTime gameTime)
-        {
-            CalculateView();
-            base.Update(gameTime);
-        }
+        #endregion
 
         public Vector3 Target
         {
@@ -107,5 +105,14 @@ namespace NewTake.view
             // Should calculate rotations here!
             View = Matrix.CreateLookAt(Position, target, Vector3.Up);
         }
+
+        #region Update
+        public override void Update(GameTime gameTime)
+        {
+            CalculateView();
+            base.Update(gameTime);
+        }
+        #endregion
+
     }
 }

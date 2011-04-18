@@ -24,6 +24,7 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
+#region using
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,6 +41,7 @@ using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
 
 using NewTake.view;
+#endregion
 
 namespace NewTake.controllers
 {
@@ -67,7 +69,7 @@ namespace NewTake.controllers
             _mouseState = Mouse.GetState();
         }
 
-
+        #region ProcessInput
         public void ProcessInput(GameTime gameTime)
         {
             //PlayerIndex activeIndex;
@@ -99,10 +101,11 @@ namespace NewTake.controllers
                 camera.Position += rotatedVector * MOVEMENTSPEED;
             }
         }
+        #endregion
 
+        #region Update
         public void Update(GameTime gameTime)
         {
-
             MouseState currentMouseState = Mouse.GetState();
 
             float mouseDX = currentMouseState.X - _mouseMoveState.X;
@@ -127,7 +130,7 @@ namespace NewTake.controllers
             Mouse.SetPosition((int)_mouseMoveState.X, (int)_mouseMoveState.Y);
             _mouseState = Mouse.GetState();
         }
-    
+        #endregion
 
     }
 }
