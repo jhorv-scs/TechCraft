@@ -58,24 +58,13 @@ namespace NewTake.view.blocks
         }
 
         #region BuildFaceVertices
-        public void BuildFaceVertices(Vector3i blockPosition, Vector3i chunkRelativePosition, BlockFaceDirection faceDir, BlockType blockType, float aoTL, float aoTR, float aoBL, float aoBR)
+        public void BuildFaceVertices(Vector3i blockPosition, Vector3i chunkRelativePosition, BlockFaceDirection faceDir, BlockType blockType, float sunLightTL, float sunLightTR, float sunLightBL, float sunLightBR, Color localLightTL, Color localLightTR, Color localLightBL, Color localLightBR)
         {
             BlockTexture texture = BlockInformation.GetTexture(blockType, faceDir);
 
             int faceIndex = (int)faceDir;
 
             Vector2[] UVList = TextureHelper.UVMappings[(int)texture * 6 + faceIndex];
-
-            float sunLightTR, sunLightTL, sunLightBR, sunLightBL;
-            //sunLightTR = 1f; sunLightTL = 1f; sunLightBR = 1f; sunLightBL = 1f;
-            sunLightTR = aoTR; sunLightTL = aoTL; sunLightBR = aoBR; sunLightBL = aoBL;
-
-            Vector3 localLightTR, localLightTL, localLightBR, localLightBL;
-
-            localLightTR = Color.White.ToVector3();
-            localLightTL = Color.White.ToVector3();
-            localLightBR = Color.White.ToVector3();
-            localLightBL = Color.White.ToVector3();
 
             switch (faceDir)
             {
@@ -148,9 +137,9 @@ namespace NewTake.view.blocks
         }
         #endregion
 
-        private void AddVertex(Vector3i blockPosition, Vector3i chunkRelativePosition, Vector3 vertexAdd, Vector3 normal, Vector2 uv1, float sunLight, Vector3 localLight)
+        private void AddVertex(Vector3i blockPosition, Vector3i chunkRelativePosition, Vector3 vertexAdd, Vector3 normal, Vector2 uv1, float sunLight, Color localLight)
         {
-            vertexList.Add(new VertexPositionTextureLight(blockPosition.asVector3() + vertexAdd, uv1, sunLight, localLight));
+            vertexList.Add(new VertexPositionTextureLight(blockPosition.asVector3() + vertexAdd, uv1, sunLight, localLight.ToVector3()));
         }
 
         private void AddIndex(short i1, short i2, short i3, short i4, short i5, short i6)

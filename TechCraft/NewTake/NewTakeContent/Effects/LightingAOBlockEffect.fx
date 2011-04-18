@@ -52,7 +52,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     output.TexCoords1 = input.TexCoords1;
 
 	float3 sunColor = float3(1,1,1);
-	output.Color.rgb = sunColor * input.SunLight;
+	output.Color.rgb = (sunColor * input.SunLight) + input.LocalLight.rgb;
 	output.Color.a = 1;
 
     return output;
