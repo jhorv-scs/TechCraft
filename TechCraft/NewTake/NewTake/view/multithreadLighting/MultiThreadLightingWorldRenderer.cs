@@ -362,7 +362,7 @@ namespace NewTake.view
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
 
-            _solidBlockEffect.Parameters["SunColor"].SetValue(Color.DarkBlue.ToVector3());
+            _solidBlockEffect.Parameters["SunColor"].SetValue(Color.White.ToVector3());
 
             foreach (EffectPass pass in _solidBlockEffect.CurrentTechnique.Passes)
             {
