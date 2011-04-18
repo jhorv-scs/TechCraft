@@ -79,6 +79,7 @@ namespace NewTake.view
             this.GraphicsDevice = graphicsDevice;
             ChunkRenderers = new Dictionary<Vector3i, ChunkRenderer>();
 
+            #region Generate the initial chunks
             // Generate the initial chunks
             var generatingWatch = new Stopwatch();
             generatingWatch.Start();
@@ -86,7 +87,9 @@ namespace NewTake.view
             world.visitChunks(DoGenerate);
             generatingWatch.Stop();
             Debug.WriteLine(generatingWatch.Elapsed);
+            #endregion
 
+            #region Build the initial chunks
             // Build the initial chunks
             var buildWatch = new Stopwatch();
             buildWatch.Start();
@@ -94,6 +97,7 @@ namespace NewTake.view
             world.visitChunks(DoBuild);
             buildWatch.Stop();
             Debug.WriteLine(buildWatch.Elapsed);
+            #endregion
 
             this.camera = camera;
 
