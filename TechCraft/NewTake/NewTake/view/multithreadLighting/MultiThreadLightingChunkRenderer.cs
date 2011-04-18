@@ -42,7 +42,7 @@ namespace NewTake.view
 {
     //this is the same code as in boundariesChunkRenderer. 
 
-    class SingleThreadLightingChunkRenderer : ChunkRenderer
+    class MultiThreadLightingChunkRenderer : ChunkRenderer
     {
 
         #region inits
@@ -52,7 +52,7 @@ namespace NewTake.view
         private LightingVertexBlockRenderer _blockRenderer;
         #endregion
 
-        public SingleThreadLightingChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk)
+        public MultiThreadLightingChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk)
             : base(graphicsDevice, world, chunk)
         {
             _blockRenderer = new LightingVertexBlockRenderer(world);
