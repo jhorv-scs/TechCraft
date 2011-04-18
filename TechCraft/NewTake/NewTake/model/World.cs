@@ -140,6 +140,24 @@ namespace NewTake.model
                
                 chunk.dirty = true;
 
+                //TODO use Chunk.N/SW/E accessors
+                if (localX == 0)
+                {
+                    viewableChunks[(x / Chunk.CHUNK_XMAX) - 1, z / Chunk.CHUNK_ZMAX].dirty = true;
+                }
+                if (localX == Chunk.CHUNK_XMAX - 1)
+                {
+                    viewableChunks[(x / Chunk.CHUNK_XMAX) + 1, z / Chunk.CHUNK_ZMAX].dirty = true;
+                }
+                if (localZ == 0)
+                {
+                    viewableChunks[x / Chunk.CHUNK_XMAX, (z / Chunk.CHUNK_ZMAX) - 1].dirty = true;
+                }
+                if (localZ == Chunk.CHUNK_ZMAX - 1)
+                {
+                    viewableChunks[x / Chunk.CHUNK_XMAX, (z / Chunk.CHUNK_ZMAX) + 1].dirty = true;
+                }
+                
                 return old;
             }
             else
