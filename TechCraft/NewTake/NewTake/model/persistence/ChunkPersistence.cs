@@ -51,7 +51,7 @@ namespace NewTake.model
 
         public void save(Chunk chunk)
         {
-            Debug.WriteLine("saving " + GetFilename(chunk.Position));
+            //Debug.WriteLine("saving " + GetFilename(chunk.Position));
             FileStream fs = File.Open(GetFilename(chunk.Position), FileMode.Create);
             BinaryWriter writer = new BinaryWriter(fs);
             Save(chunk,writer);
@@ -67,7 +67,7 @@ namespace NewTake.model
 
             if (File.Exists(filename))
             {
-                Debug.WriteLine("Loading " + filename);
+                //Debug.WriteLine("Loading " + filename);
                 FileStream fs = File.Open(filename, FileMode.Open);
 
                 BinaryReader reader = new BinaryReader(fs);
@@ -79,7 +79,7 @@ namespace NewTake.model
             }
             else
             {
-                Debug.WriteLine("New " + filename);
+                //Debug.WriteLine("New " + filename);
                 return null;
             }
         }

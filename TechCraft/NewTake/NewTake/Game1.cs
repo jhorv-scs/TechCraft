@@ -114,8 +114,8 @@ namespace NewTake
 
             //renderer = new WorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             //renderer = new SingleThreadWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
-            //renderer = new SingleThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
-            renderer = new MultiThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            renderer = new SingleThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            //renderer = new MultiThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             //TODO refactor WorldRenderer needs player position + view frustum 
 
          
@@ -254,7 +254,7 @@ namespace NewTake
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.White);
+            //GraphicsDevice.Clear(Color.Black);
             renderer.Draw(gameTime);
 
             player1Renderer.Draw(gameTime);
