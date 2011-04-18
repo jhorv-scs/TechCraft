@@ -88,7 +88,7 @@ namespace NewTake.view
                         if (chunk.Blocks[offset + y].Type == BlockType.Tree)
                         {
                             chunk.Blocks[offset + y].R = 16;
-                            chunk.Blocks[offset + y].G = 8;
+                            chunk.Blocks[offset + y].G = 0;
                             chunk.Blocks[offset + y].B = 0;
                         }
                         else
@@ -118,7 +118,7 @@ namespace NewTake.view
                 if (x > 0) PropogateSunLight((byte)(x - 1), y, z, light);
                 if (x < Chunk.CHUNK_XMAX - 1) PropogateSunLight((byte)(x + 1), y, z, light);
                 if (y > 0) PropogateSunLight(x, (byte)(y - 1), z, light);
-                if (y < Chunk.CHUNK_XMAX - 1) PropogateSunLight(x, (byte)(y + 1), z, light);
+                if (y < Chunk.CHUNK_YMAX - 1) PropogateSunLight(x, (byte)(y + 1), z, light);
                 if (z > 0) PropogateSunLight(x, y, (byte)(z - 1), light);
                 if (z < Chunk.CHUNK_ZMAX - 1) PropogateSunLight(x, y, (byte)(z + 1), light);
             }
@@ -138,7 +138,7 @@ namespace NewTake.view
                 if (x > 0) PropogateLightR((byte)(x - 1), y, z, lightR);
                 if (x < Chunk.CHUNK_XMAX - 1) PropogateLightR((byte)(x + 1), y, z, lightR);
                 if (y > 0) PropogateLightR(x, (byte)(y - 1), z, lightR);
-                if (y < Chunk.CHUNK_XMAX - 1) PropogateLightR(x, (byte)(y + 1), z, lightR);
+                if (y < Chunk.CHUNK_YMAX - 1) PropogateLightR(x, (byte)(y + 1), z, lightR);
                 if (z > 0) PropogateLightR(x, y, (byte)(z - 1), lightR);
                 if (z < Chunk.CHUNK_ZMAX - 1) PropogateLightR(x, y, (byte)(z + 1), lightR);
             }
@@ -158,7 +158,7 @@ namespace NewTake.view
                 if (x > 0) PropogateLightG((byte)(x - 1), y, z, lightG);
                 if (x < Chunk.CHUNK_XMAX - 1) PropogateLightG((byte)(x + 1), y, z, lightG);
                 if (y > 0) PropogateLightG(x, (byte)(y - 1), z, lightG);
-                if (y < Chunk.CHUNK_XMAX - 1) PropogateLightG(x, (byte)(y + 1), z, lightG);
+                if (y < Chunk.CHUNK_YMAX - 1) PropogateLightG(x, (byte)(y + 1), z, lightG);
                 if (z > 0) PropogateLightG(x, y, (byte)(z - 1), lightG);
                 if (z < Chunk.CHUNK_ZMAX - 1) PropogateLightG(x, y, (byte)(z + 1), lightG);
             }
@@ -178,7 +178,7 @@ namespace NewTake.view
                 if (x > 0) PropogateLightB((byte)(x - 1), y, z, lightB);
                 if (x < Chunk.CHUNK_XMAX - 1) PropogateLightB((byte)(x + 1), y, z, lightB);
                 if (y > 0) PropogateLightB(x, (byte)(y - 1), z, lightB);
-                if (y < Chunk.CHUNK_XMAX - 1) PropogateLightB(x, (byte)(y + 1), z, lightB);
+                if (y < Chunk.CHUNK_YMAX - 1) PropogateLightB(x, (byte)(y + 1), z, lightB);
                 if (z > 0) PropogateLightB(x, y, (byte)(z - 1), lightB);
                 if (z < Chunk.CHUNK_ZMAX - 1) PropogateLightB(x, y, (byte)(z + 1), lightB);
             }
