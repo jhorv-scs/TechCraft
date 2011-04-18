@@ -97,6 +97,7 @@ namespace NewTake.view
             this.camera = camera;
 
             this.previousChunkIndex = new Vector3i();
+        
          }
 
         public virtual void DoBuild(Vector3i vector)
@@ -204,8 +205,8 @@ namespace NewTake.view
                         // Generate Chunks
                         else if ((distancecx > World.VIEW_CHUNKS_X) || (distancecz > World.VIEW_CHUNKS_Z))
                         {
-                            // A new chunk is coming into view - we need to generate it
-                            if (world.viewableChunks[j, l] == null) // Chunk is not created, therefore create
+                            // A new chunk is coming into view - we need to generate or load it
+                            if (world.viewableChunks[j, l] == null) // Chunk is not created or loaded, therefore create - 
                             {
                                 Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
                                 DoGenerate(newIndex);
@@ -216,7 +217,7 @@ namespace NewTake.view
                         else
                         {
                             Chunk chunk = world.viewableChunks[j, l];
-                            if ((!chunk.built) && (chunk.generated))
+                            if ((!chunk.built) && (chunk.generated))//TODO why can it be null now 
                             {
                                 // We have a chunk in view - it has been generated but we haven't built a vertex buffer for it
                                 Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera

@@ -42,6 +42,8 @@ namespace NewTake.view
 {
     class SingleThreadLightingWorldRenderer : WorldRenderer
     {
+        private const bool cloudsEnabled = true;
+        
         private Texture2D ambientOcclusionMap;
         
         // SkyDome
@@ -55,6 +57,7 @@ namespace NewTake.view
         RenderTarget2D cloudsRenderTarget;
         Effect _perlinNoiseEffect;
         VertexPositionTexture[] fullScreenVertices;
+     
 
         public SingleThreadLightingWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world) :
             base(graphicsDevice, camera, world) { }
@@ -71,11 +74,14 @@ namespace NewTake.view
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.3f, 1000.0f);
 
             // GPU Generated Clouds
-            _perlinNoiseEffect = content.Load<Effect>("Effects\\PerlinNoise");
-            PresentationParameters pp = GraphicsDevice.PresentationParameters;
-            cloudsRenderTarget = new RenderTarget2D(GraphicsDevice,pp.BackBufferWidth,pp.BackBufferHeight,true,SurfaceFormat.Color,DepthFormat.None);
-            cloudStaticMap = CreateStaticMap(32);
-            fullScreenVertices = SetUpFullscreenVertices();
+            if (cloudsEnabled)
+            {
+                _perlinNoiseEffect = content.Load<Effect>("Effects\\PerlinNoise");
+                PresentationParameters pp = GraphicsDevice.PresentationParameters;
+                cloudsRenderTarget = new RenderTarget2D(GraphicsDevice, pp.BackBufferWidth, pp.BackBufferHeight, true, SurfaceFormat.Color, DepthFormat.None);
+                cloudStaticMap = CreateStaticMap(32);
+                fullScreenVertices = SetUpFullscreenVertices();
+            }
         }
 
         public override void DoBuild(Vector3i vector)
@@ -95,19 +101,26 @@ namespace NewTake.view
             chunk.built = true;
         }
 
-        public override void DoGenerate(Vector3i vector)
+        public override void DoGenerate(Vector3i index)
         {
-            // Create a new chunk
-            Chunk chunk = new Chunk(world,vector);
-            // Assign a renderer
+
+           Chunk chunk = world.viewableChunks.load(index);
+            if (chunk == null)
+            {
+                // Create a new chunk
+                chunk = new Chunk(world, index);
+                // Generate the chunk with the current generator
+                world.Generator.Generate(chunk);
+            }
+                // Assign a renderer
             ChunkRenderer cRenderer = new SingleThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
             this.ChunkRenderers.Add(chunk.Index,cRenderer);
-            // Generate the chunk with the current generator
-            world.Generator.Generate(chunk);
+           
+            
             // Calculate lighting
             cRenderer.DoLighting();
             // Store the chunk in the view
-            world.viewableChunks[vector.X, vector.Z] = chunk;
+            world.viewableChunks[index.X, index.Z] = chunk;
 
             chunk.generated = true;
         }
@@ -188,10 +201,12 @@ namespace NewTake.view
             //currently a copy paste of base class but currently only :)
 
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
-
-            // Generate the clouds
-            float time = (float)gameTime.TotalGameTime.TotalMilliseconds / 100.0f;
-            GeneratePerlinNoise(time);
+            if (cloudsEnabled)
+            {
+                // Generate the clouds
+                float time = (float)gameTime.TotalGameTime.TotalMilliseconds / 100.0f;
+                GeneratePerlinNoise(time);
+            }
 
             GraphicsDevice.Clear(Color.White);
             GraphicsDevice.RasterizerState = !this._wireframed ? this._normalRaster : this._wireframedRaster;

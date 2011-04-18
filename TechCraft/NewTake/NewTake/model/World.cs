@@ -42,8 +42,9 @@ namespace NewTake.model
 
         #region inits
 
-        public Dictionary2<Chunk> viewableChunks;
-        //too experimental for now public ChunkManager viewableChunks;
+        //public Dictionary2<Chunk> viewableChunks;
+        //too experimental for now 
+        public ChunkManager viewableChunks;
 
         public const byte VIEW_CHUNKS_X = 4;
         public const byte VIEW_CHUNKS_Y = 1; 
@@ -73,7 +74,8 @@ namespace NewTake.model
 
         public World()
         {
-            viewableChunks = new Dictionary2<Chunk>();// new ChunkManager(new MockChunkPersitence(this));
+            //viewableChunks = new Dictionary2<Chunk>();//
+            viewableChunks = new ChunkManager(new ChunkPersitence(this));
         }
 
         public void visitChunks(Action<Vector3i> visitor)
