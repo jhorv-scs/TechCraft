@@ -200,7 +200,7 @@ namespace NewTake.view
                     // Only update chunks which have a valid vertex buffer
                     if (chunkRenderer.chunk.built)
                     {
-                        chunkRenderer.update(gameTime);
+                        chunkRenderer.Update(gameTime);
                     }
                 }
             }
