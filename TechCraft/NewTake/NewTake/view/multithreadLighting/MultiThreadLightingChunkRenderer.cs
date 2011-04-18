@@ -87,9 +87,9 @@ namespace NewTake.view
 
                         if (chunk.Blocks[offset + y].Type == BlockType.Tree)
                         {
-                            chunk.Blocks[offset + y].R = 0;
-                            chunk.Blocks[offset + y].G = 16;
-                            chunk.Blocks[offset + y].B = 16;
+                            chunk.Blocks[offset + y].R = 16;
+                            chunk.Blocks[offset + y].G = 8;
+                            chunk.Blocks[offset + y].B = 0;
                         }
                         else
                         {
