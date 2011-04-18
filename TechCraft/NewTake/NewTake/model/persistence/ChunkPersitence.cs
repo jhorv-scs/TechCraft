@@ -46,6 +46,7 @@ namespace NewTake.model
                 Chunk chunk = Load(position, reader);
                 reader.Close();
                 fs.Close();
+                chunk.generated = true;
                 return chunk;
             }
             else
