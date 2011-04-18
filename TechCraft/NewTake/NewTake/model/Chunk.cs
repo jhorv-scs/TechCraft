@@ -24,6 +24,7 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
+#region using
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,12 +32,15 @@ using System.Text;
 
 using Microsoft.Xna.Framework;
 using NewTake.view;
+#endregion
 
 namespace NewTake.model
 {
 
     public class Chunk
     {
+
+        #region inits
         public const byte CHUNK_XMAX = 16;
         public const byte CHUNK_YMAX = 128;
         public const byte CHUNK_ZMAX = 16;
@@ -89,6 +93,7 @@ namespace NewTake.model
         //highestNoneBlock starts at 0 so it will be adjusted. if you start at highest it will never be adjusted ! 
 
         public Vector3b lowestNoneBlock = new Vector3b(0, CHUNK_YMAX, 0);
+        #endregion
 
         public Chunk(World world,Vector3i index)
         {
@@ -106,6 +111,7 @@ namespace NewTake.model
             _boundingBox = new BoundingBox(new Vector3(Position.X, Position.Y, Position.Z), new Vector3(Position.X + CHUNK_XMAX, Position.Y + CHUNK_YMAX, Position.Z + CHUNK_ZMAX));
         }
 
+        #region setBlock
         public void setBlock(byte x, byte y, byte z, Block b)
         {
             if (b.Type == BlockType.None)
@@ -126,6 +132,7 @@ namespace NewTake.model
             //comment this line : you should have nothing on screen, else you ve been setting blocks directly in array !
             Blocks[x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX + y] = b;
         }
+        #endregion
 
         public BoundingBox BoundingBox
         {
@@ -137,6 +144,7 @@ namespace NewTake.model
             return (x < 0 || x >= CHUNK_XMAX || y < 0 || y >= CHUNK_YMAX || z < 0 || z >= CHUNK_ZMAX);
         }
 
+        #region BlockAt
         public Block BlockAt(Vector3i chunkRelativePositon)
         {
             if (chunkRelativePositon.Y < 0 || chunkRelativePositon.Y > Chunk.CHUNK_YMAX - 1)
@@ -165,6 +173,7 @@ namespace NewTake.model
                 return Blocks[chunkRelativePositon.X * Chunk.FlattenOffset + chunkRelativePositon.Z * Chunk.CHUNK_YMAX + chunkRelativePositon.Y];
             }
         }
+        #endregion
 
     }
 }

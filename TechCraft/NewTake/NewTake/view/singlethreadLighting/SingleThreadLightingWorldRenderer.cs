@@ -24,6 +24,7 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
+#region using
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +38,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 using NewTake.model;
+#endregion
 
 namespace NewTake.view
 {
@@ -45,7 +47,8 @@ namespace NewTake.view
         private const bool cloudsEnabled = true;
         
         private Texture2D ambientOcclusionMap;
-        
+
+        #region SkyDome and Clouds
         // SkyDome
         Model skyDome;
         Matrix projectionMatrix;
@@ -57,16 +60,17 @@ namespace NewTake.view
         RenderTarget2D cloudsRenderTarget;
         Effect _perlinNoiseEffect;
         VertexPositionTexture[] fullScreenVertices;
-     
+        #endregion
 
         public SingleThreadLightingWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world) :
             base(graphicsDevice, camera, world) { }
 
-        public override void loadContent(ContentManager content)
+        public override void LoadContent(ContentManager content)
         {
             _textureAtlas = content.Load<Texture2D>("Textures\\blocks");
             _solidBlockEffect = content.Load<Effect>("Effects\\LightingAOBlockEffect");
 
+            #region SkyDome and Clouds
             // SkyDome
             skyDome = content.Load<Model>("Models\\dome");
             skyDome.Meshes[0].MeshParts[0].Effect = content.Load<Effect>("Effects\\SkyDome");
@@ -82,6 +86,8 @@ namespace NewTake.view
                 cloudStaticMap = CreateStaticMap(32);
                 fullScreenVertices = SetUpFullscreenVertices();
             }
+            #endregion
+
         }
 
         public override void DoBuild(Vector3i vector)
@@ -115,7 +121,6 @@ namespace NewTake.view
                 // Assign a renderer
             ChunkRenderer cRenderer = new SingleThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
             this.ChunkRenderers.Add(chunk.Index,cRenderer);
-           
             
             // Calculate lighting
             cRenderer.DoLighting();
@@ -125,6 +130,7 @@ namespace NewTake.view
             chunk.generated = true;
         }
 
+        #region DrawSkyDome
         private void DrawSkyDome(Matrix currentViewMatrix)
         {
 
@@ -149,7 +155,9 @@ namespace NewTake.view
                 mesh.Draw();
             }
         }
+        #endregion
 
+        #region Generate Clouds
         private Texture2D CreateStaticMap(int resolution)
         {
             Random rand = new Random();
@@ -194,6 +202,7 @@ namespace NewTake.view
             GraphicsDevice.SetRenderTarget(null);
             cloudMap = cloudsRenderTarget;
         }
+        #endregion
 
         #region Draw
         public override void Draw(GameTime gameTime)
@@ -234,7 +243,7 @@ namespace NewTake.view
                 {
                     if (chunkRenderer.isInView(viewFrustum) && chunkRenderer.chunk.generated && !chunkRenderer.chunk.dirty)
                     {
-                        chunkRenderer.draw(gameTime);
+                        chunkRenderer.Draw(gameTime);
                     }
                 }
             }

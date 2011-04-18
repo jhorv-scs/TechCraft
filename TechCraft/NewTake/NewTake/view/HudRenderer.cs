@@ -24,6 +24,7 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
+#region using
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,11 +37,14 @@ using NewTake.view.blocks;
 using NewTake.model;
 using NewTake;
 using NewTake.controllers;
+#endregion
 
 namespace NewTake.view
 {
     public class HudRenderer
     {
+
+        #region inits
 
         #region minimap
         // Minimap
@@ -58,6 +62,12 @@ namespace NewTake.view
 
         public bool showMinimap = false;
 
+        // Crosshair
+        private Texture2D _crosshairTexture;
+        private SpriteBatch _spriteBatch;
+
+        #endregion
+
         public HudRenderer(GraphicsDevice device, World world, FirstPersonCamera camera)
         {
             this.GraphicsDevice = device;
@@ -65,10 +75,7 @@ namespace NewTake.view
             this.world = world;
         }
 
-        // Crosshair
-        private Texture2D _crosshairTexture;
-        private SpriteBatch _spriteBatch;
-
+        #region Initialize
         public void Initialize()
         {
             // Used for crosshair sprite/texture at the moment
@@ -84,8 +91,9 @@ namespace NewTake.view
             #endregion
 
         }
+        #endregion
 
-        public void loadContent(ContentManager Content)
+        public void LoadContent(ContentManager Content)
         {
             // Crosshair
             _crosshairTexture = Content.Load<Texture2D>("Textures\\crosshair");
@@ -145,6 +153,7 @@ namespace NewTake.view
         }
         #endregion
 
+        #region Draw
         public void Draw(Microsoft.Xna.Framework.GameTime gameTime)
         {
             // Draw the crosshair
@@ -173,5 +182,7 @@ namespace NewTake.view
             #endregion
 
         }
+        #endregion
+
     }
 }

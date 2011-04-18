@@ -24,6 +24,7 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
+#region using
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,7 @@ using NewTake.view;
 using NewTake.controllers;
 using NewTake.view.blocks;
 using NewTake.profiling;
+#endregion
 
 namespace NewTake
 {
@@ -134,10 +136,9 @@ namespace NewTake
         /// </summary>
         protected override void LoadContent()
         {
-
-            renderer.loadContent(Content);
+            renderer.LoadContent(Content);
             player1Renderer.LoadContent(Content);
-            hud.loadContent(Content);
+            hud.LoadContent(Content);
         }
         #endregion
 
@@ -236,7 +237,7 @@ namespace NewTake
             {
                 if (!releaseMouse)
                 {
-                    player1Renderer.update(gameTime);
+                    player1Renderer.Update(gameTime);
                 }
 
                 renderer.Update(gameTime);

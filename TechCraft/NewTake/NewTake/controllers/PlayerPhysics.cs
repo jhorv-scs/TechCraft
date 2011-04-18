@@ -23,6 +23,8 @@
 //  (D) If you distribute any portion of the software in source code form, you may do so only under this license by including a complete copy of this license with your distribution. If you distribute any portion of the software in compiled or object code form, you may only do so under a license that complies with this license.
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
+
+#region using
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,18 +33,21 @@ using Microsoft.Xna.Framework;
 using NewTake.model;
 using Microsoft.Xna.Framework.Input;
 using NewTake.view;
+#endregion
 
 namespace NewTake.controllers
 {
    public class PlayerPhysics
-    {
+   {
+
+       #region inits
        private readonly Player player;
        private readonly FirstPersonCamera camera;
 
-     
        const float PLAYERJUMPVELOCITY = 6f;
        const float PLAYERGRAVITY = -15f;
        const float PLAYERMOVESPEED = 3.5f;
+       #endregion
 
        public PlayerPhysics(PlayerRenderer playerRenderer)
        {
@@ -52,18 +57,15 @@ namespace NewTake.controllers
 
        public void move(GameTime gameTime)
        {
-
-         
-          
            UpdatePosition(gameTime);
 
            float headbobOffset = (float)Math.Sin(player.headBob) * 0.06f;
            camera.Position =  player.position + new Vector3(0, 0.15f + headbobOffset, 0);
-
        }
-                
-        private void UpdatePosition(GameTime gameTime)
-        {
+
+       #region UpdatePosition
+       private void UpdatePosition(GameTime gameTime)
+       {
             player.velocity.Y += PLAYERGRAVITY * (float)gameTime.ElapsedGameTime.TotalSeconds;
             Vector3 footPosition = player.position + new Vector3(0f, -1.5f, 0f);
             Vector3 headPosition = player.position + new Vector3(0f, 0.1f, 0f);
@@ -194,10 +196,12 @@ namespace NewTake.controllers
             if (TryToMoveTo(rotatedMoveVector, gameTime)) { }
             else if (!TryToMoveTo(new Vector3(0, 0, rotatedMoveVector.Z), gameTime)) { }
             else if (!TryToMoveTo(new Vector3(rotatedMoveVector.X, 0, 0), gameTime)) { }
-        }
+       }
+       #endregion
 
-        private bool TryToMoveTo(Vector3 moveVector, GameTime gameTime)
-        {
+       #region TryToMoveTo
+       private bool TryToMoveTo(Vector3 moveVector, GameTime gameTime)
+       {
             // Build a "test vector" that is a little longer than the move vector.
             float moveLength = moveVector.Length();
             Vector3 testVector = moveVector;
@@ -243,5 +247,7 @@ namespace NewTake.controllers
 
             return false;
         }
-    }
+        #endregion
+
+   }
 }

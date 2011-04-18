@@ -112,7 +112,7 @@ namespace NewTake.view.blocks
             return UVList;
         }
 
-
+        #region GetCrackMapping
         public static Vector2[] GetCrackMapping(int texture, BlockFaceDirection faceDir)
         {
             int textureIndex = texture;
@@ -183,7 +183,9 @@ namespace NewTake.view.blocks
             }
             return UVList;
         }
+        #endregion
 
+        #region GetUVMapping
         public static Vector2[] GetUVMapping(int texture, BlockFaceDirection faceDir)
         {
             int textureIndex = texture;
@@ -254,6 +256,8 @@ namespace NewTake.view.blocks
             }
             return UVList;
         }
+        #endregion
+
     }
 
 }

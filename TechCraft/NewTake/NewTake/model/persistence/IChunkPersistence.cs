@@ -29,40 +29,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using NewTake.view;
-using NewTake.controllers;
-using NewTake.model.tools;
-using NewTake.model.types;
+using System.Diagnostics;
+using System.IO;
 #endregion
 
 namespace NewTake.model
 {
-    public class Player
+    public interface IChunkPersistence
     {
 
-        #region inits
-        public readonly World world;
+        void save(Chunk chunk);
 
-        public Vector3 position;
-        public Vector3 velocity;        
-        public double headBob;
-
-        public PositionedBlock? currentSelection;
-        public PositionedBlock? currentSelectedAdjacent; // = where a block would be added with the add tool
-
-        public Tool LeftTool;
-        public Tool RightTool;
-        //keep it stupid simple for now, left hand/mousebutton & right hand/mousebutton
-        #endregion
-
-        public Player(World world)
-        {
-            this.world = world;
-            LeftTool = new BlockRemover(this);
-            //LeftTool = new PowerDrill(this);
-            RightTool = new BlockAdder(this);
-        }
+        Chunk load(Vector3i index);
 
     }
 }

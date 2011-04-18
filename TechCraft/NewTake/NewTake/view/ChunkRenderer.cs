@@ -24,6 +24,7 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
+#region using
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,7 @@ using Microsoft.Xna.Framework;
 using NewTake.view.blocks;
 using NewTake.model;
 using NewTake;
+#endregion
 
 namespace NewTake.view
 {
@@ -69,8 +71,6 @@ namespace NewTake.view
         {
             return chunk.BoundingBox.Intersects(viewFrustum);
         }
-
-        
 
         #region BuildVertexList
         public virtual void BuildVertexList()
@@ -109,9 +109,9 @@ namespace NewTake.view
         {
         }
 
-        #region update
+        #region Update
         //TODO currently only used by single thread impl 
-        public virtual void update(GameTime gameTime)
+        public virtual void Update(GameTime gameTime)
         {
             if (chunk.dirty)
             {
@@ -123,8 +123,8 @@ namespace NewTake.view
         }
         #endregion
 
-        #region draw
-        public virtual void draw(GameTime gameTime)
+        #region Draw
+        public virtual void Draw(GameTime gameTime)
         {
 
             if (!chunk.generated) return;

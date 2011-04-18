@@ -24,11 +24,11 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
+#region using
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-//using System.Threading;
 using System.Diagnostics;
 
 using Microsoft.Xna.Framework.Graphics;
@@ -37,6 +37,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 using NewTake.model;
+#endregion
 
 namespace NewTake.view
 {
@@ -97,8 +98,13 @@ namespace NewTake.view
             this.camera = camera;
 
             this.previousChunkIndex = new Vector3i();
-        
-         }
+        }
+
+        public virtual void LoadContent(ContentManager content)
+        {
+            _textureAtlas = content.Load<Texture2D>("Textures\\blocks)");
+            _solidBlockEffect = content.Load<Effect>("Effects\\SolidBlockEffect");
+        }
 
         public virtual void DoBuild(Vector3i vector)
         {
@@ -109,52 +115,6 @@ namespace NewTake.view
         {
             throw new Exception("Must override Generate");
         }
-
-        public virtual void loadContent(ContentManager content)
-        {
-            _textureAtlas = content.Load<Texture2D>("Textures\\blocks)");
-            _solidBlockEffect = content.Load<Effect>("Effects\\SolidBlockEffect");
-        }
-
-        #region RemoveChunks
-        public void RemoveChunks()
-        {
-            uint x = (uint)camera.Position.X;
-            uint z = (uint)camera.Position.Z;
-
-            uint cx = x / Chunk.CHUNK_XMAX;
-            uint cz = z / Chunk.CHUNK_ZMAX;
-
-            uint lx = x % Chunk.CHUNK_XMAX;
-            uint lz = z % Chunk.CHUNK_ZMAX;
-
-            Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;
-
-            for (uint j = cx - (World.VIEW_DISTANCE_FAR_X); j < cx + (World.VIEW_DISTANCE_FAR_X); j++)
-            {
-                for (uint l = cz - (World.VIEW_DISTANCE_FAR_Z); l < cz + (World.VIEW_DISTANCE_FAR_Z); l++)
-                {
-                    int distancecx = (int)(cx - j);
-                    int distancecz = (int)(cz - l);
-
-                    if (distancecx < 0) distancecx = 0 - distancecx;
-                    if (distancecz < 0) distancecz = 0 - distancecz;
-
-                    if ((distancecx > World.VIEW_DISTANCE_NEAR_X) || (distancecz > World.VIEW_DISTANCE_NEAR_Z))
-                    {
-                        if ((world.viewableChunks[j, l] != null))
-                        {
-                            Chunk chunk = world.viewableChunks[j, l];
-                            chunk.visible = false;
-                            world.viewableChunks.Remove(j, l);
-                            ChunkRenderers.Remove(chunk.Index);
-                            //Debug.WriteLine(string.Format("Removed Chunk {0}-{1}-{2}", (int)chunk.Position.X, (int)chunk.Position.Y, (int)chunk.Position.Z));
-                        }
-                    }
-                }
-            }
-        }
-        #endregion
 
         #region Update
         public virtual void Update(GameTime gameTime)
