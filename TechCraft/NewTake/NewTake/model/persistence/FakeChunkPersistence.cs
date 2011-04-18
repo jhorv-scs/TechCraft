@@ -47,7 +47,7 @@ namespace NewTake.model
 
         public void save(Chunk chunk)
         {
-            Debug.WriteLine("would be saving " + GetFilename(chunk.Position));
+            //Debug.WriteLine("would be saving " + GetFilename(chunk.Position));
 
         }
 
@@ -56,7 +56,7 @@ namespace NewTake.model
             Vector3i position = new Vector3i(index.X * Chunk.CHUNK_XMAX, index.Y * Chunk.CHUNK_YMAX, index.Z * Chunk.CHUNK_ZMAX);
 
             string filename = GetFilename(position);
-            Debug.WriteLine("Would be loading " + filename);
+            //Debug.WriteLine("Would be loading " + filename);
             return null;
         }
 

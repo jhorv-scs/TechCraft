@@ -3,6 +3,8 @@ float4x4 xView;
 float4x4 xReflectionView;
 float4x4 xProjection;
 float4x4 xWorld;
+float4 SunColor = float4(1,1,1,1);
+float4 HorizonColor = float4(1,1,1,1);
  
 //------- Texture Samplers --------
 Texture xTexture;
@@ -39,8 +41,9 @@ sampler TextureSampler = sampler_state { texture = <xTexture> ; magfilter = LINE
  {
      SDPixelToFrame Output = (SDPixelToFrame)0;        
  
-     float4 topColor = float4(0.5f, 0.5f, 1.0f, 1);    
-     float4 bottomColor = 1;    
+     //float4 topColor = float4(0.5f, 0.5f, 1.0f, 1);    
+	 float4 topColor = SunColor;
+     float4 bottomColor = HorizonColor;    
      
      float4 baseColor = lerp(bottomColor, topColor, saturate((PSIn.ObjectPosition.y)/0.9f));
      float4 cloudValue = tex2D(TextureSampler, PSIn.TextureCoords).r;

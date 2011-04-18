@@ -46,7 +46,7 @@ namespace NewTake.view
     {
         private const bool cloudsEnabled = true;
         
-        private Texture2D ambientOcclusionMap;
+        //private Texture2D ambientOcclusionMap;
 
         #region SkyDome and Clouds
         // SkyDome

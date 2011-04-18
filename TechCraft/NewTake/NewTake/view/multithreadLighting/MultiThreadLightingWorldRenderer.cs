@@ -31,7 +31,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Diagnostics;
-using System.Collections.Concurrent;
+//using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
@@ -48,11 +49,15 @@ namespace NewTake.view
         #region inits
 
         private const bool cloudsEnabled = true;
-        
-        private Texture2D ambientOcclusionMap;
 
-        private readonly BlockingCollection<Chunk> _generationQueue = new BlockingCollection<Chunk>(); // uses concurrent queues by default.
-        private readonly BlockingCollection<Chunk> _buildingQueue = new BlockingCollection<Chunk>();
+        private Task buildTask;
+        private Task generateTask;
+        private Task removeTask;
+
+        //private Texture2D ambientOcclusionMap;
+
+        //private readonly BlockingCollection<Vector3i> _generationQueue = new BlockingCollection<Vector3i>(); // uses concurrent queues by default.
+        //private readonly BlockingCollection<Vector3i> _buildingQueue = new BlockingCollection<Vector3i>();
 
         #endregion
 
@@ -98,32 +103,18 @@ namespace NewTake.view
 
         }
 
-        //public virtual void Worker()
-        //{
-        //    Chunk chunk;
-        //    BlockingCollection<Chunk>.TakeFromAny(new[] { _generationQueue, _buildingQueue }, out chunk);
-        //    if (!chunk.Generated)
-        //    {
-        //        //TODO : index
-        //        DoGenerate(index);
-        //    }
-        //    else if (chunk.Dirty)
-        //    {
-        //        //TODO : index
-        //        DoBuild(index);
-        //    }
-        //}
-
         #region DoBuild
         public override void DoBuild(Vector3i vector)
         {
             Chunk chunk = world.viewableChunks[vector.X, vector.Z];
 
             this.ChunkRenderers[chunk.Index].DoLighting();
+
             //chunk.Renderer.DoLighting();
             
             // Build a vertex buffer for this chunks
             //chunk.Renderer.BuildVertexList();
+
             this.ChunkRenderers[chunk.Index].BuildVertexList();
             
             // Add the renderer to the list so that it is drawn
@@ -137,7 +128,7 @@ namespace NewTake.view
         public override void DoGenerate(Vector3i index)
         {
 
-           Chunk chunk = world.viewableChunks.load(index);
+            Chunk chunk = world.viewableChunks.load(index);
             if (chunk == null)
             {
                 // Create a new chunk
@@ -179,6 +170,8 @@ namespace NewTake.view
                     currentEffect.Parameters["xView"].SetValue(currentViewMatrix);
                     currentEffect.Parameters["xProjection"].SetValue(projectionMatrix);
                     currentEffect.Parameters["xTexture"].SetValue(cloudMap);
+                    currentEffect.Parameters["SunColor"].SetValue(Color.Blue.ToVector4());
+                    currentEffect.Parameters["HorizonColor"].SetValue(Color.White.ToVector4());
                 }
                 mesh.Draw();
             }
@@ -218,7 +211,7 @@ namespace NewTake.view
 
             _perlinNoiseEffect.CurrentTechnique = _perlinNoiseEffect.Techniques["PerlinNoise"];
             _perlinNoiseEffect.Parameters["xTexture"].SetValue(cloudStaticMap);
-            _perlinNoiseEffect.Parameters["xOvercast"].SetValue(1.1f);
+            _perlinNoiseEffect.Parameters["xOvercast"].SetValue(0.8f);
             _perlinNoiseEffect.Parameters["xTime"].SetValue(time / 1000.0f);
 
             foreach (EffectPass pass in _perlinNoiseEffect.CurrentTechnique.Passes)
@@ -231,6 +224,25 @@ namespace NewTake.view
             cloudMap = cloudsRenderTarget;
         }
         #endregion
+
+        //private void Worker()
+        //{
+        //    Vector3i newIndex;
+        //    BlockingCollection<Vector3i>.TakeFromAny(new[] { _generationQueue, _buildingQueue }, out newIndex);
+
+        //    if (world.viewableChunks[newIndex.X, newIndex.Z] == null)
+        //    {
+        //        //Debug.WriteLine("Worker Generate {0},{1}", newIndex.X, newIndex.Z);
+        //        DoGenerate(newIndex);
+        //    }
+        //    else
+        //    {
+        //        Chunk chunk = world.viewableChunks[newIndex.X, newIndex.Z];
+        //        if (chunk.dirty)
+        //            //Debug.WriteLine("Worker Build {0},{1}", newIndex.X, newIndex.Z);
+        //            DoBuild(newIndex);
+        //    }
+        //}
 
         #region Update
         public override void Update(GameTime gameTime)
@@ -270,7 +282,11 @@ namespace NewTake.view
                                 Chunk chunk = world.viewableChunks[j, l];
                                 chunk.visible = false;
                                 world.viewableChunks.Remove(j, l);
-                                ChunkRenderers.Remove(newIndex);
+
+                                removeTask = Task.Factory.StartNew(() => ChunkRenderers.Remove(newIndex));
+                                //removeTask.Wait();
+
+                                //ChunkRenderers.Remove(newIndex);
                                 //Debug.WriteLine("Removed chunk at {0},{1},{2}", chunk.Position.X, chunk.Position.Y, chunk.Position.Z);
                             }
                             else
@@ -285,12 +301,22 @@ namespace NewTake.view
                             if (world.viewableChunks[j, l] == null) // Chunk is not created or loaded, therefore create - 
                             {
                                 Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
-                                
-                                
-                                DoGenerate(newIndex);
-                                
-                                
-                                //Debug.WriteLine("Built chunk at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
+
+                                try
+                                {
+                                    //this._generationQueue.Add(newIndex);
+                                    //Task buildTask = Task.Factory.StartNew(Worker);
+
+                                    generateTask = Task.Factory.StartNew(() => DoGenerate(newIndex));
+                                    //generateTask.Wait();
+
+                                    //DoGenerate(newIndex);
+                                    //Debug.WriteLine("Built chunk at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
+                                }
+                                catch (AggregateException ae)
+                                {
+                                    Debug.WriteLine("Exception {0}", ae);
+                                }
                             }
                         }
                         // Build Chunks
@@ -302,11 +328,21 @@ namespace NewTake.view
                                 // We have a chunk in view - it has been generated but we haven't built a vertex buffer for it
                                 Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
                                 
-                                
-                                DoBuild(newIndex);
+                                try
+                                {
+                                    //this._buildingQueue.Add(newIndex);
+                                    //Task.Factory.StartNew(Worker);
 
+                                    buildTask = Task.Factory.StartNew(() => DoBuild(newIndex));
+                                    //buildTask.Wait();
 
-                                //Debug.WriteLine("Vertices built at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
+                                    //DoBuild(newIndex);
+                                    //Debug.WriteLine("Vertices built at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
+                                }
+                                catch (AggregateException ae)
+                                {
+                                    Debug.WriteLine("Exception {0}", ae);
+                                }
                             }
                         }
                     }
@@ -357,7 +393,7 @@ namespace NewTake.view
             _solidBlockEffect.Parameters["View"].SetValue(camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(camera.Projection);
             _solidBlockEffect.Parameters["CameraPosition"].SetValue(camera.Position);
-            _solidBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
+            _solidBlockEffect.Parameters["FogColor"].SetValue(Color.Black.ToVector4());
             _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
