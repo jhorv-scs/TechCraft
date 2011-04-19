@@ -120,7 +120,7 @@ namespace NewTake.view
             }
                 // Assign a renderer
             ChunkRenderer cRenderer = new SingleThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
-            this.ChunkRenderers.Add(chunk.Index,cRenderer);
+            this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);
             
             // Calculate lighting
             cRenderer.DoLighting();

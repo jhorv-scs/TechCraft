@@ -37,6 +37,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 using NewTake.model;
+using System.Collections.Concurrent;
 #endregion
 
 namespace NewTake.view
@@ -51,7 +52,7 @@ namespace NewTake.view
 
         protected World world;
         protected readonly GraphicsDevice GraphicsDevice;
-        protected Dictionary<Vector3i, ChunkRenderer> ChunkRenderers;
+        protected ConcurrentDictionary<Vector3i, ChunkRenderer> ChunkRenderers;
         protected Effect _solidBlockEffect;
         protected Texture2D _textureAtlas;
         public readonly FirstPersonCamera camera;
@@ -72,7 +73,7 @@ namespace NewTake.view
         {
             this.world = world;
             this.GraphicsDevice = graphicsDevice;
-            ChunkRenderers = new Dictionary<Vector3i, ChunkRenderer>();
+            ChunkRenderers = new ConcurrentDictionary<Vector3i, ChunkRenderer>();
 
             #region Generate the initial chunks
             // Generate the initial chunks
@@ -153,7 +154,8 @@ namespace NewTake.view
                                 Chunk chunk = world.viewableChunks[j, l];
                                 chunk.visible = false;
                                 world.viewableChunks.Remove( j, l);
-                                ChunkRenderers.Remove(newIndex);
+                                ChunkRenderer outChunkRenderer;
+                                ChunkRenderers.TryRemove(newIndex,out outChunkRenderer);
                                 //Debug.WriteLine("Removed chunk at {0},{1},{2}", chunk.Position.X, chunk.Position.Y, chunk.Position.Z);
                             }
                             else
