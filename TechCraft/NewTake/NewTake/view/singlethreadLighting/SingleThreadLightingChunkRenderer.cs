@@ -256,7 +256,7 @@ namespace NewTake.view
                 for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
                 {
                     int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX; // we don't want this x-z value to be calculated each in in y-loop!
-                    for (byte y = 0; y < Chunk.CHUNK_YMAX; y++)
+                    for (byte y = yLow; y < yHigh; y++)
                     {
                         if (chunk.Blocks[offset + y].Type != BlockType.None)
                         {
@@ -285,8 +285,7 @@ namespace NewTake.view
         #region BuildBlockVertices
         public void BuildBlockVertices(Block block, Chunk chunk, Vector3i chunkRelativePosition)
         {
-            //optimized by using chunk.Blocks[][][] except for "out of current chunk" blocks
-
+        
             Vector3i blockPosition = chunk.Position + chunkRelativePosition;
 
             Block blockTopNW, blockTopN, blockTopNE, blockTopW, blockTopM, blockTopE, blockTopSW, blockTopS, blockTopSE;
