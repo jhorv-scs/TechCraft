@@ -95,7 +95,8 @@ namespace NewTake.view
             {
                 _perlinNoiseEffect = content.Load<Effect>("Effects\\PerlinNoise");
                 PresentationParameters pp = GraphicsDevice.PresentationParameters;
-                cloudsRenderTarget = new RenderTarget2D(GraphicsDevice, pp.BackBufferWidth, pp.BackBufferHeight, true, SurfaceFormat.Color, DepthFormat.None);
+                //the mipmap does not work on some pc ( i5 laptops at least), with mipmap false it s fine 
+                cloudsRenderTarget = new RenderTarget2D(GraphicsDevice, pp.BackBufferWidth, pp.BackBufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
                 cloudStaticMap = CreateStaticMap(32);
                 fullScreenVertices = SetUpFullscreenVertices();
             }
@@ -138,7 +139,7 @@ namespace NewTake.view
             }
                 // Assign a renderer
             ChunkRenderer cRenderer = new MultiThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
-            this.ChunkRenderers.Add(chunk.Index,cRenderer);
+            this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);
             
             // Calculate lighting
             cRenderer.DoLighting();
@@ -282,8 +283,8 @@ namespace NewTake.view
                                 Chunk chunk = world.viewableChunks[j, l];
                                 chunk.visible = false;
                                 world.viewableChunks.Remove(j, l);
-
-                                removeTask = Task.Factory.StartNew(() => ChunkRenderers.Remove(newIndex));
+                                ChunkRenderer cr;
+                                removeTask = Task.Factory.StartNew(() => ChunkRenderers.TryRemove(newIndex,out cr));
                                 //removeTask.Wait();
 
                                 //ChunkRenderers.Remove(newIndex);

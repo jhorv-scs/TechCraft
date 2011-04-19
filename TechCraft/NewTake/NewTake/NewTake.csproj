@@ -149,7 +149,6 @@
     <Compile Include="view\multithreadLighting\MultiThreadLightingChunkRenderer.cs" />
     <Compile Include="view\multithreadLighting\MultiThreadLightingWorldRenderer.cs" />
     <Compile Include="view\PlayerRenderer.cs" />
-    <Compile Include="view\IChunkRenderer.cs" />
     <Compile Include="view\FirstPersonCamera.cs" />
     <Compile Include="Tests.cs" />
     <Compile Include="model\Block.cs" />

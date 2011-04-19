@@ -57,7 +57,7 @@ namespace NewTake.view
 
         #endregion
 
-        public ChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk)
+        protected ChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk)
         {
             this.chunk = chunk;
             this.world = world;
