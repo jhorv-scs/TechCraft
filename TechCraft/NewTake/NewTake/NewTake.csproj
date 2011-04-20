@@ -46,6 +46,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <PlatformTarget>x86</PlatformTarget>
     <XnaCompressContent>false</XnaCompressContent>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
@@ -116,6 +117,7 @@
     <Compile Include="model\persistence\ChunkPersistence.cs" />
     <Compile Include="model\persistence\FakeChunkPersistence.cs" />
     <Compile Include="model\persistence\IChunkPersistence.cs" />
+    <Compile Include="model\types\Vector3SB.cs" />
     <Compile Include="model\types\Vector3b.cs" />
     <Compile Include="model\types\Dictionary2.cs" />
     <Compile Include="model\Player.cs" />
@@ -137,12 +139,13 @@
     <Compile Include="controllers\FirstPersonCameraController.cs" />
     <Compile Include="model\types\Array3.cs" />
     <Compile Include="model\terrain\DualLayerTerrainWithMediumValleysForRivers.cs" />
-    <Compile Include="view\blocks\AOVertexBlockRenderer.cs" />
     <Compile Include="view\blocks\LightingVertexBlockRenderer.cs" />
     <Compile Include="view\blocks\VertexBlockRenderer.cs" />
     <Compile Include="view\blocks\VertexPositionDualTexture.cs" />
     <Compile Include="view\blocks\VertexPositionTextureLight.cs" />
-    <Compile Include="view\BoundariesChunkRenderer.cs" />
+    <Compile Include="view\BoundariesChunkRenderer.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="view\Camera.cs" />
     <Compile Include="view\HudRenderer.cs" />
     <Compile Include="controllers\PlayerPhysics.cs" />

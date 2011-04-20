@@ -60,8 +60,6 @@ namespace NewTake.model.types
             persistence.save(chunk);
         }
 
-
-
         /*
          * The idea of loading directly whenever accessing a null chunk was cool but theres much more to do in the worldrenderer.generate method
          * 

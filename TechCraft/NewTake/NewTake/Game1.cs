@@ -82,8 +82,8 @@ namespace NewTake
             preferredBackBufferWidth = graphics.PreferredBackBufferWidth;
             
             //enter stealth mode at start
-           // graphics.PreferredBackBufferHeight = 100;
-           // graphics.PreferredBackBufferWidth = 160;
+            graphics.PreferredBackBufferHeight = 100;
+            graphics.PreferredBackBufferWidth = 160;
 
             FrameRateCounter frameRate = new FrameRateCounter(this);
             frameRate.DrawOrder = 1;
@@ -114,11 +114,9 @@ namespace NewTake
 
             //renderer = new WorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             //renderer = new SingleThreadWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
-            //renderer = new SingleThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+           // renderer = new SingleThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             renderer = new MultiThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             //TODO refactor WorldRenderer needs player position + view frustum 
-
-         
 
             base.Initialize();
         }

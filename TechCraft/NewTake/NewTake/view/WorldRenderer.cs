@@ -139,9 +139,10 @@ namespace NewTake.view
                 {
                     for (uint l = cz - (World.VIEW_DISTANCE_FAR_Z + 1); l < cz + (World.VIEW_DISTANCE_FAR_Z + 1); l++)
                     {
-                        int distancecx = (int)(cx - j);        // The distance from the camera to the chunk in the X direction
-                        int distancecz = (int)(cz - l);        // The distance from the camera to the chunk in the Z direction
-
+                        
+                            int distancecx = (int)(cx - j);        // The distance from the camera to the chunk in the X direction
+                            int distancecz = (int)(cz - l);        // The distance from the camera to the chunk in the Z direction
+                        
                         if (distancecx < 0) distancecx = 0 - distancecx;        // If the distance is negative (behind the camera) make it positive
                         if (distancecz < 0) distancecz = 0 - distancecz;        // If the distance is negative (behind the camera) make it positive
 
@@ -186,6 +187,7 @@ namespace NewTake.view
                                 //Debug.WriteLine("Vertices built at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
                             }
                         }
+                        
                     }
                 }
             }// end if
