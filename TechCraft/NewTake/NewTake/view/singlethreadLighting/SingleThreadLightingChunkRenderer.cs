@@ -84,9 +84,19 @@ namespace NewTake.view
                         {
                             chunk.Blocks[offset + y].Sun = 0;
                         }
-                        chunk.Blocks[offset + y].R = 0;
-                        chunk.Blocks[offset + y].G = 0;
-                        chunk.Blocks[offset + y].B = 0;
+
+                        if (chunk.Blocks[offset + y].Type == BlockType.Tree)
+                        {
+                            chunk.Blocks[offset + y].R = 16;
+                            chunk.Blocks[offset + y].G = 0;
+                            chunk.Blocks[offset + y].B = 0;
+                        }
+                        else
+                        {
+                            chunk.Blocks[offset + y].R = 0;
+                            chunk.Blocks[offset + y].G = 0;
+                            chunk.Blocks[offset + y].B = 0;
+                        }
                     }
                 }
             }
@@ -99,7 +109,7 @@ namespace NewTake.view
             int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y + y;
             if (chunk.Blocks[offset].Type != BlockType.None) return;
             if (chunk.Blocks[offset].Sun >= light) return;
-            chunk.Blocks[offset].Sun = light;            
+            chunk.Blocks[offset].Sun = light;
 
             if (light > 1)
             {
@@ -108,7 +118,7 @@ namespace NewTake.view
                 if (x > 0) PropogateSunLight((byte)(x - 1), y, z, light);
                 if (x < Chunk.MAX.X) PropogateSunLight((byte)(x + 1), y, z, light);
                 if (y > 0) PropogateSunLight(x, (byte)(y - 1), z, light);
-                if (y < Chunk.MAX.X) PropogateSunLight(x, (byte)(y + 1), z, light);
+                if (y < Chunk.MAX.Y) PropogateSunLight(x, (byte)(y + 1), z, light);
                 if (z > 0) PropogateSunLight(x, y, (byte)(z - 1), light);
                 if (z < Chunk.MAX.Z) PropogateSunLight(x, y, (byte)(z + 1), light);
             }
@@ -128,7 +138,7 @@ namespace NewTake.view
                 if (x > 0) PropogateLightR((byte)(x - 1), y, z, lightR);
                 if (x < Chunk.MAX.X) PropogateLightR((byte)(x + 1), y, z, lightR);
                 if (y > 0) PropogateLightR(x, (byte)(y - 1), z, lightR);
-                if (y < Chunk.MAX.X) PropogateLightR(x, (byte)(y + 1), z, lightR);
+                if (y < Chunk.MAX.Y) PropogateLightR(x, (byte)(y + 1), z, lightR);
                 if (z > 0) PropogateLightR(x, y, (byte)(z - 1), lightR);
                 if (z < Chunk.MAX.Z) PropogateLightR(x, y, (byte)(z + 1), lightR);
             }
@@ -148,7 +158,7 @@ namespace NewTake.view
                 if (x > 0) PropogateLightG((byte)(x - 1), y, z, lightG);
                 if (x < Chunk.MAX.X) PropogateLightG((byte)(x + 1), y, z, lightG);
                 if (y > 0) PropogateLightG(x, (byte)(y - 1), z, lightG);
-                if (y < Chunk.MAX.X) PropogateLightG(x, (byte)(y + 1), z, lightG);
+                if (y < Chunk.MAX.Y) PropogateLightG(x, (byte)(y + 1), z, lightG);
                 if (z > 0) PropogateLightG(x, y, (byte)(z - 1), lightG);
                 if (z < Chunk.MAX.Z) PropogateLightG(x, y, (byte)(z + 1), lightG);
             }
@@ -168,15 +178,23 @@ namespace NewTake.view
                 if (x > 0) PropogateLightB((byte)(x - 1), y, z, lightB);
                 if (x < Chunk.MAX.X) PropogateLightB((byte)(x + 1), y, z, lightB);
                 if (y > 0) PropogateLightB(x, (byte)(y - 1), z, lightB);
-                if (y < Chunk.MAX.X) PropogateLightB(x, (byte)(y + 1), z, lightB);
+                if (y < Chunk.MAX.Y) PropogateLightB(x, (byte)(y + 1), z, lightB);
                 if (z > 0) PropogateLightB(x, y, (byte)(z - 1), lightB);
                 if (z < Chunk.MAX.Z) PropogateLightB(x, y, (byte)(z + 1), lightB);
             }
         }
         #endregion
-
+        
         #region FillLighting
         private void FillLighting()
+        {
+            FillSunLighting();
+            FillLightingR();
+            FillLightingG();
+            FillLightingB();
+        }
+
+        private void FillSunLighting()
         {
             for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
@@ -185,7 +203,7 @@ namespace NewTake.view
                     int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
                     for (byte y = 0; y < Chunk.SIZE.Y; y++)
                     {
-                        if (chunk.Blocks[offset+y].Type==BlockType.None)
+                        if (chunk.Blocks[offset + y].Type == BlockType.None)
                         {
                             // Sunlight
                             if (chunk.Blocks[offset + y].Sun > 1)
@@ -198,6 +216,23 @@ namespace NewTake.view
                                 if (z > 0) PropogateSunLight(x, y, (byte)(z - 1), light);
                                 if (z < Chunk.MAX.Z) PropogateSunLight(x, y, (byte)(z + 1), light);
                             }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void FillLightingR()
+        {
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
+            {
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
+                {
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
+                    for (byte y = 0; y < Chunk.SIZE.Y; y++)
+                    {
+                        if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
+                        {
                             // Local light R
                             if (chunk.Blocks[offset + y].R > 1)
                             {
@@ -209,6 +244,23 @@ namespace NewTake.view
                                 if (z > 0) PropogateLightR(x, y, (byte)(z - 1), light);
                                 if (z < Chunk.MAX.Z) PropogateLightR(x, y, (byte)(z + 1), light);
                             }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void FillLightingG()
+        {
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
+            {
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
+                {
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
+                    for (byte y = 0; y < Chunk.SIZE.Y; y++)
+                    {
+                        if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
+                        {
                             // Local light G
                             if (chunk.Blocks[offset + y].G > 1)
                             {
@@ -220,6 +272,23 @@ namespace NewTake.view
                                 if (z > 0) PropogateLightG(x, y, (byte)(z - 1), light);
                                 if (z < Chunk.MAX.Z) PropogateLightG(x, y, (byte)(z + 1), light);
                             }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void FillLightingB()
+        {
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
+            {
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
+                {
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
+                    for (byte y = 0; y < Chunk.SIZE.Y; y++)
+                    {
+                        if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
+                        {
                             // Local light B
                             if (chunk.Blocks[offset + y].B > 1)
                             {
@@ -271,10 +340,10 @@ namespace NewTake.view
 
             //if (v.Length != 0)
             //{
-                vertexBuffer = new VertexBuffer(graphicsDevice, typeof(VertexPositionTextureLight), v.Length, BufferUsage.WriteOnly);
-                vertexBuffer.SetData(v);
-                indexBuffer = new IndexBuffer(graphicsDevice, IndexElementSize.SixteenBits, i.Length, BufferUsage.WriteOnly);
-                indexBuffer.SetData(i);
+            vertexBuffer = new VertexBuffer(graphicsDevice, typeof(VertexPositionTextureLight), v.Length, BufferUsage.WriteOnly);
+            vertexBuffer.SetData(v);
+            indexBuffer = new IndexBuffer(graphicsDevice, IndexElementSize.SixteenBits, i.Length, BufferUsage.WriteOnly);
+            indexBuffer.SetData(i);
             //}
 
             chunk.dirty = false;
@@ -283,17 +352,16 @@ namespace NewTake.view
         #endregion
 
         #region BuildBlockVertices
-        public void BuildBlockVertices(Block block, Chunk chunk,Vector3i chunkRelativePosition)
-
+        public void BuildBlockVertices(Block block, Chunk chunk, Vector3i chunkRelativePosition)
         {
-        
+
             Vector3i blockPosition = chunk.Position + chunkRelativePosition;
 
             //get signed bytes from these to be able to remove 1 without further casts
             sbyte X = (sbyte)chunkRelativePosition.X;
             sbyte Y = (sbyte)chunkRelativePosition.Y;
             sbyte Z = (sbyte)chunkRelativePosition.Z;
-       
+
 
             Block blockTopNW, blockTopN, blockTopNE, blockTopW, blockTopM, blockTopE, blockTopSW, blockTopS, blockTopSE;
             Block blockMidNW, blockMidN, blockMidNE, blockMidW, blockMidM, blockMidE, blockMidSW, blockMidS, blockMidSE;
@@ -365,7 +433,7 @@ namespace NewTake.view
                 localTR = new Color(redTR, grnTR, bluTR);
                 localBL = new Color(redBL, grnBL, bluBL);
                 localBR = new Color(redBR, grnBR, bluBR);
-                
+
                 _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.XDecreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
             if (!blockMidE.Solid)
@@ -390,6 +458,10 @@ namespace NewTake.view
                 bluBL = (1f / MAX_SUN_VALUE) * ((blockBotSE.B + blockBotE.B + blockMidSE.B + blockMidE.B) / 4);
                 bluBR = (1f / MAX_SUN_VALUE) * ((blockBotNE.B + blockBotE.B + blockMidNE.B + blockMidE.B) / 4);
 
+                localTL = new Color(redTL, grnTL, bluTL);
+                localTR = new Color(redTR, grnTR, bluTR);
+                localBL = new Color(redBL, grnBL, bluBL);
+                localBR = new Color(redBR, grnBR, bluBR);
 
                 _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.XIncreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
@@ -400,6 +472,26 @@ namespace NewTake.view
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockBotNW.Sun + blockBotN.Sun + blockBotM.Sun + blockTopW.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockBotNE.Sun + blockBotN.Sun + blockBotM.Sun + blockTopE.Sun) / 4);
 
+                redBL = (1f / MAX_SUN_VALUE) * ((blockBotSW.R + blockBotS.R + blockBotM.R + blockTopW.R) / 4);
+                redBR = (1f / MAX_SUN_VALUE) * ((blockBotSE.R + blockBotS.R + blockBotM.R + blockTopE.R) / 4);
+                redTL = (1f / MAX_SUN_VALUE) * ((blockBotNW.R + blockBotN.R + blockBotM.R + blockTopW.R) / 4);
+                redTR = (1f / MAX_SUN_VALUE) * ((blockBotNE.R + blockBotN.R + blockBotM.R + blockTopE.R) / 4);
+
+                grnBL = (1f / MAX_SUN_VALUE) * ((blockBotSW.G + blockBotS.G + blockBotM.G + blockTopW.G) / 4);
+                grnBR = (1f / MAX_SUN_VALUE) * ((blockBotSE.G + blockBotS.G + blockBotM.G + blockTopE.G) / 4);
+                grnTL = (1f / MAX_SUN_VALUE) * ((blockBotNW.G + blockBotN.G + blockBotM.G + blockTopW.G) / 4);
+                grnTR = (1f / MAX_SUN_VALUE) * ((blockBotNE.G + blockBotN.G + blockBotM.G + blockTopE.G) / 4);
+
+                bluBL = (1f / MAX_SUN_VALUE) * ((blockBotSW.B + blockBotS.B + blockBotM.B + blockTopW.B) / 4);
+                bluBR = (1f / MAX_SUN_VALUE) * ((blockBotSE.B + blockBotS.B + blockBotM.B + blockTopE.B) / 4);
+                bluTL = (1f / MAX_SUN_VALUE) * ((blockBotNW.B + blockBotN.B + blockBotM.B + blockTopW.B) / 4);
+                bluTR = (1f / MAX_SUN_VALUE) * ((blockBotNE.B + blockBotN.B + blockBotM.B + blockTopE.B) / 4);
+
+                localTL = new Color(redTL, grnTL, bluTL);
+                localTR = new Color(redTR, grnTR, bluTR);
+                localBL = new Color(redBL, grnBL, bluBL);
+                localBR = new Color(redBR, grnBR, bluBR);
+
                 _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.YDecreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
             if (!blockTopM.Solid)
@@ -408,6 +500,27 @@ namespace NewTake.view
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopNE.Sun + blockTopN.Sun + blockTopE.Sun + blockTopM.Sun) / 4);
                 sunBL = (1f / MAX_SUN_VALUE) * ((blockTopSW.Sun + blockTopS.Sun + blockTopW.Sun + blockTopM.Sun) / 4);
                 sunBR = (1f / MAX_SUN_VALUE) * ((blockTopSE.Sun + blockTopS.Sun + blockTopE.Sun + blockTopM.Sun) / 4);
+
+                redTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.R + blockTopN.R + blockTopW.R + blockTopM.R) / 4);
+                redTR = (1f / MAX_SUN_VALUE) * ((blockTopNE.R + blockTopN.R + blockTopE.R + blockTopM.R) / 4);
+                redBL = (1f / MAX_SUN_VALUE) * ((blockTopSW.R + blockTopS.R + blockTopW.R + blockTopM.R) / 4);
+                redBR = (1f / MAX_SUN_VALUE) * ((blockTopSE.R + blockTopS.R + blockTopE.R + blockTopM.R) / 4);
+
+                grnTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.G + blockTopN.G + blockTopW.G + blockTopM.G) / 4);
+                grnTR = (1f / MAX_SUN_VALUE) * ((blockTopNE.G + blockTopN.G + blockTopE.G + blockTopM.G) / 4);
+                grnBL = (1f / MAX_SUN_VALUE) * ((blockTopSW.G + blockTopS.G + blockTopW.G + blockTopM.G) / 4);
+                grnBR = (1f / MAX_SUN_VALUE) * ((blockTopSE.G + blockTopS.G + blockTopE.G + blockTopM.G) / 4);
+
+                bluTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.B + blockTopN.B + blockTopW.B + blockTopM.B) / 4);
+                bluTR = (1f / MAX_SUN_VALUE) * ((blockTopNE.B + blockTopN.B + blockTopE.B + blockTopM.B) / 4);
+                bluBL = (1f / MAX_SUN_VALUE) * ((blockTopSW.B + blockTopS.B + blockTopW.B + blockTopM.B) / 4);
+                bluBR = (1f / MAX_SUN_VALUE) * ((blockTopSE.B + blockTopS.B + blockTopE.B + blockTopM.B) / 4);
+
+                localTL = new Color(redTL, grnTL, bluTL);
+                localTR = new Color(redTR, grnTR, bluTR);
+                localBL = new Color(redBL, grnBL, bluBL);
+                localBR = new Color(redBR, grnBR, bluBR);
+
                 _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.YIncreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
             if (!blockMidS.Solid)
@@ -416,6 +529,27 @@ namespace NewTake.view
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopSE.Sun + blockTopS.Sun + blockMidSE.Sun + blockMidS.Sun) / 4);
                 sunBL = (1f / MAX_SUN_VALUE) * ((blockBotSW.Sun + blockBotS.Sun + blockMidSW.Sun + blockMidS.Sun) / 4);
                 sunBR = (1f / MAX_SUN_VALUE) * ((blockBotSE.Sun + blockBotS.Sun + blockMidSE.Sun + blockMidS.Sun) / 4);
+
+                redTL = (1f / MAX_SUN_VALUE) * ((blockTopSW.R + blockTopS.R + blockMidSW.R + blockMidS.R) / 4);
+                redTR = (1f / MAX_SUN_VALUE) * ((blockTopSE.R + blockTopS.R + blockMidSE.R + blockMidS.R) / 4);
+                redBL = (1f / MAX_SUN_VALUE) * ((blockBotSW.R + blockBotS.R + blockMidSW.R + blockMidS.R) / 4);
+                redBR = (1f / MAX_SUN_VALUE) * ((blockBotSE.R + blockBotS.R + blockMidSE.R + blockMidS.R) / 4);
+
+                grnTL = (1f / MAX_SUN_VALUE) * ((blockTopSW.G + blockTopS.G + blockMidSW.G + blockMidS.G) / 4);
+                grnTR = (1f / MAX_SUN_VALUE) * ((blockTopSE.G + blockTopS.G + blockMidSE.G + blockMidS.G) / 4);
+                grnBL = (1f / MAX_SUN_VALUE) * ((blockBotSW.G + blockBotS.G + blockMidSW.G + blockMidS.G) / 4);
+                grnBR = (1f / MAX_SUN_VALUE) * ((blockBotSE.G + blockBotS.G + blockMidSE.G + blockMidS.G) / 4);
+
+                bluTL = (1f / MAX_SUN_VALUE) * ((blockTopSW.B + blockTopS.B + blockMidSW.B + blockMidS.B) / 4);
+                bluTR = (1f / MAX_SUN_VALUE) * ((blockTopSE.B + blockTopS.B + blockMidSE.B + blockMidS.B) / 4);
+                bluBL = (1f / MAX_SUN_VALUE) * ((blockBotSW.B + blockBotS.B + blockMidSW.B + blockMidS.B) / 4);
+                bluBR = (1f / MAX_SUN_VALUE) * ((blockBotSE.B + blockBotS.B + blockMidSE.B + blockMidS.B) / 4);
+
+                localTL = new Color(redTL, grnTL, bluTL);
+                localTR = new Color(redTR, grnTR, bluTR);
+                localBL = new Color(redBL, grnBL, bluBL);
+                localBR = new Color(redBR, grnBR, bluBR);
+
                 _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.ZDecreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
             if (!blockMidN.Solid)
@@ -424,6 +558,27 @@ namespace NewTake.view
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopN.Sun + blockMidNW.Sun + blockMidN.Sun) / 4);
                 sunBL = (1f / MAX_SUN_VALUE) * ((blockBotNE.Sun + blockBotN.Sun + blockMidNE.Sun + blockMidN.Sun) / 4);
                 sunBR = (1f / MAX_SUN_VALUE) * ((blockBotNW.Sun + blockBotN.Sun + blockMidNW.Sun + blockMidN.Sun) / 4);
+
+                redTL = (1f / MAX_SUN_VALUE) * ((blockTopNE.R + blockTopN.R + blockMidNE.R + blockMidN.R) / 4);
+                redTR = (1f / MAX_SUN_VALUE) * ((blockTopNW.R + blockTopN.R + blockMidNW.R + blockMidN.R) / 4);
+                redBL = (1f / MAX_SUN_VALUE) * ((blockBotNE.R + blockBotN.R + blockMidNE.R + blockMidN.R) / 4);
+                redBR = (1f / MAX_SUN_VALUE) * ((blockBotNW.R + blockBotN.R + blockMidNW.R + blockMidN.R) / 4);
+
+                grnTL = (1f / MAX_SUN_VALUE) * ((blockTopNE.G + blockTopN.G + blockMidNE.G + blockMidN.G) / 4);
+                grnTR = (1f / MAX_SUN_VALUE) * ((blockTopNW.G + blockTopN.G + blockMidNW.G + blockMidN.G) / 4);
+                grnBL = (1f / MAX_SUN_VALUE) * ((blockBotNE.G + blockBotN.G + blockMidNE.G + blockMidN.G) / 4);
+                grnBR = (1f / MAX_SUN_VALUE) * ((blockBotNW.G + blockBotN.G + blockMidNW.G + blockMidN.G) / 4);
+
+                bluTL = (1f / MAX_SUN_VALUE) * ((blockTopNE.B + blockTopN.B + blockMidNE.B + blockMidN.B) / 4);
+                bluTR = (1f / MAX_SUN_VALUE) * ((blockTopNW.B + blockTopN.B + blockMidNW.B + blockMidN.B) / 4);
+                bluBL = (1f / MAX_SUN_VALUE) * ((blockBotNE.B + blockBotN.B + blockMidNE.B + blockMidN.B) / 4);
+                bluBR = (1f / MAX_SUN_VALUE) * ((blockBotNW.B + blockBotN.B + blockMidNW.B + blockMidN.B) / 4);
+
+                localTL = new Color(redTL, grnTL, bluTL);
+                localTR = new Color(redTR, grnTR, bluTR);
+                localBL = new Color(redBL, grnBL, bluBL);
+                localBR = new Color(redBR, grnBR, bluBR);
+
                 _blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.ZIncreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
 
