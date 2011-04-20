@@ -82,8 +82,8 @@ namespace NewTake
             preferredBackBufferWidth = graphics.PreferredBackBufferWidth;
             
             //enter stealth mode at start
-            graphics.PreferredBackBufferHeight = 100;
-            graphics.PreferredBackBufferWidth = 160;
+           // graphics.PreferredBackBufferHeight = 100;
+            //graphics.PreferredBackBufferWidth = 160;
 
             FrameRateCounter frameRate = new FrameRateCounter(this);
             frameRate.DrawOrder = 1;

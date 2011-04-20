@@ -38,9 +38,9 @@ namespace NewTake.model.terrain
         public void Generate(Chunk chunk)
         {
 
-            int sizeY = Chunk.CHUNK_YMAX;
-            int sizeX = Chunk.CHUNK_XMAX;
-            int sizeZ = Chunk.CHUNK_ZMAX;
+            int sizeY = Chunk.SIZE.Y;
+            int sizeX = Chunk.SIZE.X;
+            int sizeZ = Chunk.SIZE.Z;
 
             for (byte y = 0; y < sizeY; y++)
             {

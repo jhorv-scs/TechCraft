@@ -83,9 +83,9 @@ namespace NewTake.view.blocks
             if (chunkRelativePosition.X == 0 ||
                 chunkRelativePosition.Y == 0 ||
                 chunkRelativePosition.Z == 0 ||
-                chunkRelativePosition.X == Chunk.SIZE.X - 1 ||
-                chunkRelativePosition.Y == Chunk.SIZE.Y - 1 ||
-                chunkRelativePosition.Z == Chunk.SIZE.Z - 1)
+                chunkRelativePosition.X == Chunk.MAX.X ||
+                chunkRelativePosition.Y == Chunk.MAX.Y ||
+                chunkRelativePosition.Z == Chunk.MAX.Z)
             {
                 blockXDecreasing = world.BlockAt(blockPosition.X - 1, blockPosition.Y, blockPosition.Z);
                 blockYDecreasing = world.BlockAt(blockPosition.X, blockPosition.Y - 1, blockPosition.Z);
@@ -97,22 +97,22 @@ namespace NewTake.view.blocks
             else
             {
                 //blockXDecreasing = chunk.Blocks[chunkRelativePosition.X - 1, chunkRelativePosition.Y, chunkRelativePosition.Z];
-                blockXDecreasing = chunk.Blocks[(chunkRelativePosition.X - 1) * Chunk.FlattenOffset + chunkRelativePosition.Z * Chunk.CHUNK_YMAX + chunkRelativePosition.Y];
+                blockXDecreasing = chunk.Blocks[(chunkRelativePosition.X - 1) * Chunk.FlattenOffset + chunkRelativePosition.Z * Chunk.SIZE.Y + chunkRelativePosition.Y];
 
                 //blockXIncreasing = chunk.Blocks[chunkRelativePosition.X + 1, chunkRelativePosition.Y, chunkRelativePosition.Z];
-                blockXIncreasing = chunk.Blocks[(chunkRelativePosition.X + 1) * Chunk.FlattenOffset + chunkRelativePosition.Z * Chunk.CHUNK_YMAX + chunkRelativePosition.Y];
+                blockXIncreasing = chunk.Blocks[(chunkRelativePosition.X + 1) * Chunk.FlattenOffset + chunkRelativePosition.Z * Chunk.SIZE.Y + chunkRelativePosition.Y];
 
                 //blockYDecreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y - 1, chunkRelativePosition.Z];
-                blockYDecreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + chunkRelativePosition.Z * Chunk.CHUNK_YMAX + (chunkRelativePosition.Y - 1)];
+                blockYDecreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + chunkRelativePosition.Z * Chunk.SIZE.Y + (chunkRelativePosition.Y - 1)];
 
                 //blockYIncreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y + 1, chunkRelativePosition.Z];
-                blockYIncreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + chunkRelativePosition.Z * Chunk.CHUNK_YMAX + (chunkRelativePosition.Y + 1)];
+                blockYIncreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + chunkRelativePosition.Z * Chunk.SIZE.Y + (chunkRelativePosition.Y + 1)];
 
                 //blockZDecreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y, chunkRelativePosition.Z - 1];
-                blockZDecreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + (chunkRelativePosition.Z - 1) * Chunk.CHUNK_YMAX + chunkRelativePosition.Y];
+                blockZDecreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + (chunkRelativePosition.Z - 1) * Chunk.SIZE.Y + chunkRelativePosition.Y];
 
                 //blockZIncreasing = chunk.Blocks[chunkRelativePosition.X, chunkRelativePosition.Y, chunkRelativePosition.Z + 1];
-                blockZIncreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + (chunkRelativePosition.Z + 1) * Chunk.CHUNK_YMAX + chunkRelativePosition.Y];
+                blockZIncreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + (chunkRelativePosition.Z + 1) * Chunk.SIZE.Y + chunkRelativePosition.Y];
             }
 
             if (!blockXDecreasing.Solid) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.XDecreasing, block.Type);

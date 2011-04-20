@@ -80,7 +80,7 @@ namespace NewTake.view
         {
 
             camera.Initialize();
-            camera.Position = new Vector3(World.origin * Chunk.CHUNK_XMAX, Chunk.CHUNK_YMAX, World.origin * Chunk.CHUNK_ZMAX);
+            camera.Position = new Vector3(World.origin * Chunk.SIZE.X, Chunk.SIZE.Y, World.origin * Chunk.SIZE.Z);
             player.position = camera.Position;
             camera.LookAt(Vector3.Down);
 
@@ -170,9 +170,9 @@ namespace NewTake.view
                 if (block.Type != BlockType.None && (waterSelectable || block.Type != BlockType.Water))
                 {
                     //Debug.WriteLine(
-                    //    (Math.Abs((uint)targetPoint.X % Chunk.CHUNK_XMAX)) + "-" +
-                    //    (Math.Abs((uint)targetPoint.Y % Chunk.CHUNK_YMAX)) + "-" +
-                    //    (Math.Abs((uint)targetPoint.Z % Chunk.CHUNK_ZMAX)) + "->" +
+                    //    (Math.Abs((uint)targetPoint.X % Chunk.SIZE.X)) + "-" +
+                    //    (Math.Abs((uint)targetPoint.Y % Chunk.SIZE.Y)) + "-" +
+                    //    (Math.Abs((uint)targetPoint.Z % Chunk.SIZE.Z)) + "->" +
                     //    blockType + ", x=" + x);
 
                     player.currentSelection = new PositionedBlock(new Vector3i(targetPoint), block);

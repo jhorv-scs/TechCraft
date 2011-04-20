@@ -36,11 +36,11 @@ namespace NewTake.model.terrain
 
         public static void ClearChunkBlocks(Chunk chunk)
         {
-            for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
-                for (byte y = 0; y < Chunk.CHUNK_YMAX; y++)
+                for (byte y = 0; y < Chunk.SIZE.Y; y++)
                 {
-                    for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                    for (byte z = 0; z < Chunk.SIZE.Z; z++)
                     {
                         chunk.setBlock(x, y, z, new Block(BlockType.None));
                     }

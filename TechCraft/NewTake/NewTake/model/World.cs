@@ -105,9 +105,8 @@ namespace NewTake.model
         {
             if (InView(x, y, z))
             {
-                Chunk chunk = viewableChunks[x / Chunk.CHUNK_XMAX, z / Chunk.CHUNK_ZMAX];
-                //return chunk.Blocks[Math.Abs(x % Chunk.CHUNK_XMAX), Math.Abs(y % Chunk.CHUNK_YMAX), Math.Abs(z % Chunk.CHUNK_ZMAX)];
-                return chunk.Blocks[Math.Abs(x % Chunk.CHUNK_XMAX) * Chunk.FlattenOffset + Math.Abs(z % Chunk.CHUNK_ZMAX) * Chunk.CHUNK_YMAX + Math.Abs(y % Chunk.CHUNK_YMAX)];
+                Chunk chunk = viewableChunks[x / Chunk.SIZE.X, z / Chunk.SIZE.Z];
+                return chunk.Blocks[(x % Chunk.SIZE.X) * Chunk.FlattenOffset + (z % Chunk.SIZE.Z) * Chunk.SIZE.Y + (y % Chunk.SIZE.Y)];
             }
             else
             {
@@ -127,40 +126,39 @@ namespace NewTake.model
         {
             if (InView(x, y, z))
             {
-                Chunk chunk = viewableChunks[x / Chunk.CHUNK_XMAX, z / Chunk.CHUNK_ZMAX];
+                Chunk chunk = viewableChunks[x / Chunk.SIZE.X, z / Chunk.SIZE.Z];
 
-                byte localX = (byte)(x % Chunk.CHUNK_XMAX);
-                byte localY = (byte)(y % Chunk.CHUNK_YMAX);
-                byte localZ = (byte)(z % Chunk.CHUNK_ZMAX);
+                byte localX = (byte)(x % Chunk.SIZE.X);
+                byte localY = (byte)(y % Chunk.SIZE.Y);
+                byte localZ = (byte)(z % Chunk.SIZE.Z);
 
-                Block old = chunk.Blocks[localX * Chunk.FlattenOffset + localZ * Chunk.CHUNK_YMAX + localY];
+                Block old = chunk.Blocks[localX * Chunk.FlattenOffset + localZ * Chunk.SIZE.Y + localY];
 
                 //chunk.setBlock is also called by terrain generators for Y loops min max optimisation
                 chunk.setBlock(localX, localY, localZ, new Block(newType.Type));
-                //TODO ( maybe ? )  when digging, mark neighbours chunks as dirty to fill rendering holes                                       
-
+             
                 chunk.dirty = true;
 
-                //TODO use Chunk accessors
+                // use Chunk accessors
                 if (localX == 0)
                 {
-                    viewableChunks[(x / Chunk.CHUNK_XMAX) - 1, z / Chunk.CHUNK_ZMAX].dirty = true;
-                    //if (chunk.W != null) chunk.W.dirty = true;
+                    //viewableChunks[(x / Chunk.SIZE.X) - 1, z / Chunk.SIZE.Z].dirty = true;
+                    if (chunk.W != null) chunk.W.dirty = true;
                 }
-                if (localX == Chunk.CHUNK_XMAX - 1)
+                if (localX == Chunk.MAX.X)
                 {
-                    viewableChunks[(x / Chunk.CHUNK_XMAX) + 1, z / Chunk.CHUNK_ZMAX].dirty = true;
-                    //if (chunk.E != null) chunk.E.dirty = true;
+                    //viewableChunks[(x / Chunk.SIZE.X) + 1, z / Chunk.SIZE.Z].dirty = true;
+                    if (chunk.E != null) chunk.E.dirty = true;
                 }
                 if (localZ == 0)
                 {
-                    viewableChunks[x / Chunk.CHUNK_XMAX, (z / Chunk.CHUNK_ZMAX) - 1].dirty = true;
-                    //if (chunk.N != null) chunk.N.dirty = true;
+                    //viewableChunks[x / Chunk.SIZE.X, (z / Chunk.SIZE.Z) - 1].dirty = true;
+                    if (chunk.N != null) chunk.N.dirty = true;
                 }
-                if (localZ == Chunk.CHUNK_ZMAX - 1)
+                if (localZ == Chunk.MAX.Z)
                 {
-                    viewableChunks[x / Chunk.CHUNK_XMAX, (z / Chunk.CHUNK_ZMAX) + 1].dirty = true;
-                    //if (chunk.S != null) chunk.S.dirty = true;
+                    //viewableChunks[x / Chunk.SIZE.X, (z / Chunk.SIZE.Z) + 1].dirty = true;
+                    if (chunk.S != null) chunk.S.dirty = true;
                 }
 
                 return old;
@@ -175,17 +173,17 @@ namespace NewTake.model
         #region InView
         public bool InView(uint x, uint y, uint z)
         {
-            if (viewableChunks[x / Chunk.CHUNK_XMAX, z / Chunk.CHUNK_ZMAX] == null)
+            if (viewableChunks[x / Chunk.SIZE.X, z / Chunk.SIZE.Z] == null)
                 return false;
 
-            uint lx = x % Chunk.CHUNK_XMAX;
-            uint ly = y % Chunk.CHUNK_YMAX;
-            uint lz = z % Chunk.CHUNK_ZMAX;
+            uint lx = x % Chunk.SIZE.X;
+            uint ly = y % Chunk.SIZE.Y;
+            uint lz = z % Chunk.SIZE.Z;
 
             if (lx < 0 || ly < 0 || lz < 0
-                || lx >= Chunk.CHUNK_XMAX
-                || ly >= Chunk.CHUNK_YMAX
-                || lz >= Chunk.CHUNK_ZMAX)
+                || lx >= Chunk.SIZE.X
+                || ly >= Chunk.SIZE.Y
+                || lz >= Chunk.SIZE.Z)
             {
 
                 //  Debug.WriteLine("no block at  ({0},{1},{2}) ", x, y, z);
