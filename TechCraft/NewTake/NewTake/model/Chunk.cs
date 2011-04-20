@@ -158,34 +158,17 @@ namespace NewTake.model
             }
 
             //handle all special cases
-            //TODO rename stupid MAX that should be size / use size vector instead
-            // was tired of it used 15
+
             int x = relx, z = relz;
             Chunk nChunk = null;
 
-            if (relx < 0)
-            {
-                //xChunk = W;
-                x = 15;
-            }
+            //TODO chunk relative BlockAt could even handle more tha just -1 but -2 -3 ... -15 
 
-            if (relz < 0)
-            {
-                //zChunk = N;
-                z = 15;
-            }
+            if (relx < 0) x = Chunk.MAX.X;
+            if (relz < 0) z = Chunk.MAX.Z;
+            if (relx > 15) x = 0;
+            if (relz > 15) z = 0;
 
-            if (relx > 15)
-            {
-                //xChunk = E;
-                x = 0;
-            }
-
-            if (relz > 15)
-            {
-                //zChunk = S;
-                z = 0;
-            }
 
             if (x != relx && x == 0)
                 if (z != relz && z == 0)
@@ -209,6 +192,7 @@ namespace NewTake.model
 
             if (nChunk == null)
             {
+                //happens at current world bounds
                 return new Block(BlockType.Rock);
             }
             else
@@ -219,7 +203,7 @@ namespace NewTake.model
 
         }
         #endregion
-        
+
         #region N S E W NE NW SE SW Neighbours accessors
         //this neighbours check can not be done in constructor, there would be some holes => it has to be done at access time 
         //seems there is no mem leak so no need for weakreferences
@@ -268,7 +252,7 @@ namespace NewTake.model
 
         #endregion
 
-        //this is a unit test for neighbours
+        #region main as unit test for neighbours
         static void Main(string[] args)
         {
             World world = new World();
@@ -305,6 +289,6 @@ namespace NewTake.model
             Block necorner = c.BlockAt(16, 0, -1);
             Debug.Assert(necorner.Type == BlockType.Leaves);
         }
-
+        #endregion
     }
 }

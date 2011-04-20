@@ -179,7 +179,7 @@ namespace NewTake.view
                         else
                         {
                             Chunk chunk = world.viewableChunks[j, l];
-                            if ((!chunk.built) && (chunk.generated))//TODO why can it be null now 
+                            if ((!chunk.built) && (chunk.generated)) 
                             {
                                 // We have a chunk in view - it has been generated but we haven't built a vertex buffer for it
                                 Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera

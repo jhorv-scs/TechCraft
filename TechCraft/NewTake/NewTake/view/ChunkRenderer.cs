@@ -41,13 +41,13 @@ using NewTake;
 
 namespace NewTake.view
 {
-            
+
     public class ChunkRenderer
     {
         #region inits
 
         public List<VertexPositionTextureShade> _vertexList;
-        
+
         public VertexBuffer vertexBuffer;
 
         public Chunk chunk;
@@ -110,7 +110,6 @@ namespace NewTake.view
         }
 
         #region Update
-        //TODO currently only used by single thread impl 
         public virtual void Update(GameTime gameTime)
         {
             if (chunk.dirty)

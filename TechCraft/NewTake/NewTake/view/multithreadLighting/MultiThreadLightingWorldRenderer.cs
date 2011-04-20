@@ -117,10 +117,7 @@ namespace NewTake.view
             //chunk.Renderer.BuildVertexList();
 
             this.ChunkRenderers[chunk.Index].BuildVertexList();
-            
-            // Add the renderer to the list so that it is drawn
-            //TODO ?????????? ChunkRenderers.Add(chunk.Index, chunk.Renderer);
-
+          
             chunk.built = true;
         }
         #endregion

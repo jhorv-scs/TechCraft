@@ -51,7 +51,7 @@ namespace NewTake.view
         public readonly FirstPersonCamera camera;
         private readonly FirstPersonCameraController cameraController;
 
-        public Vector3 lookVector;//TODO lookvector should be private
+        private Vector3 lookVector;
 
         private MouseState previousMouseState;
 
