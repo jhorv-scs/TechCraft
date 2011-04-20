@@ -84,10 +84,10 @@ namespace NewTake.view
                             chunk.Blocks[offset + y].Sun = 0;
                         }
 
-                        if (chunk.Blocks[offset + y].Type == BlockType.Tree)
+                        if (chunk.Blocks[offset + y].Type == BlockType.Lava)
                         {
                             chunk.Blocks[offset + y].R = 16;
-                            chunk.Blocks[offset + y].G = 0;
+                            chunk.Blocks[offset + y].G = 10;
                             chunk.Blocks[offset + y].B = 0;
                         }
                         else
@@ -185,7 +185,8 @@ namespace NewTake.view
         #endregion
 
         #region FillLighting
-        private void FillLighting() {
+        private void FillLighting()
+        {
             FillSunLighting();
             FillLightingR();
             FillLightingG();
@@ -206,11 +207,12 @@ namespace NewTake.view
                             // Sunlight
                             if (chunk.Blocks[offset + y].Sun > 1)
                             {
-                                byte light = (byte)(chunk.Blocks[offset + y].Sun - 1);
+                                byte light = (byte)((chunk.Blocks[offset + y].Sun / 10) * 9);
+
                                 if (x > 0) PropogateSunLight((byte)(x - 1), y, z, light);
                                 if (x < Chunk.MAX.X) PropogateSunLight((byte)(x + 1), y, z, light);
                                 if (y > 0) PropogateSunLight(x, (byte)(y - 1), z, light);
-                                if (y < Chunk.MAX.X) PropogateSunLight(x, (byte)(y + 1), z, light);
+                                if (y < Chunk.MAX.Y) PropogateSunLight(x, (byte)(y + 1), z, light);
                                 if (z > 0) PropogateSunLight(x, y, (byte)(z - 1), light);
                                 if (z < Chunk.MAX.Z) PropogateSunLight(x, y, (byte)(z + 1), light);
                             }
@@ -229,16 +231,17 @@ namespace NewTake.view
                     int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
                     for (byte y = 0; y < Chunk.SIZE.Y; y++)
                     {
-                        if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
+                        if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Lava)
                         {
                             // Local light R
                             if (chunk.Blocks[offset + y].R > 1)
                             {
-                                byte light = (byte)(chunk.Blocks[offset + y].R - 1);
+                                byte light = (byte)((chunk.Blocks[offset + y].R / 10) * 9);
+
                                 if (x > 0) PropogateLightR((byte)(x - 1), y, z, light);
                                 if (x < Chunk.MAX.X) PropogateLightR((byte)(x + 1), y, z, light);
                                 if (y > 0) PropogateLightR(x, (byte)(y - 1), z, light);
-                                if (y < Chunk.MAX.X) PropogateLightR(x, (byte)(y + 1), z, light);
+                                if (y < Chunk.MAX.Y) PropogateLightR(x, (byte)(y + 1), z, light);
                                 if (z > 0) PropogateLightR(x, y, (byte)(z - 1), light);
                                 if (z < Chunk.MAX.Z) PropogateLightR(x, y, (byte)(z + 1), light);
                             }
@@ -257,16 +260,16 @@ namespace NewTake.view
                     int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
                     for (byte y = 0; y < Chunk.SIZE.Y; y++)
                     {
-                        if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
+                        if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Lava)
                         {
                             // Local light G
                             if (chunk.Blocks[offset + y].G > 1)
                             {
-                                byte light = (byte)(chunk.Blocks[offset + y].G - 1);
+                                byte light = (byte)((chunk.Blocks[offset + y].G / 10) * 9);
                                 if (x > 0) PropogateLightG((byte)(x - 1), y, z, light);
                                 if (x < Chunk.MAX.X) PropogateLightG((byte)(x + 1), y, z, light);
                                 if (y > 0) PropogateLightG(x, (byte)(y - 1), z, light);
-                                if (y < Chunk.MAX.X) PropogateLightG(x, (byte)(y + 1), z, light);
+                                if (y < Chunk.MAX.Y) PropogateLightG(x, (byte)(y + 1), z, light);
                                 if (z > 0) PropogateLightG(x, y, (byte)(z - 1), light);
                                 if (z < Chunk.MAX.Z) PropogateLightG(x, y, (byte)(z + 1), light);
                             }
@@ -285,16 +288,16 @@ namespace NewTake.view
                     int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
                     for (byte y = 0; y < Chunk.SIZE.Y; y++)
                     {
-                        if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
+                        if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Lava)
                         {
                             // Local light B
                             if (chunk.Blocks[offset + y].B > 1)
                             {
-                                byte light = (byte)(chunk.Blocks[offset + y].B - 1);
+                                byte light = (byte)((chunk.Blocks[offset + y].B / 10) * 9);
                                 if (x > 0) PropogateLightB((byte)(x - 1), y, z, light);
                                 if (x < Chunk.MAX.X) PropogateLightB((byte)(x + 1), y, z, light);
                                 if (y > 0) PropogateLightB(x, (byte)(y - 1), z, light);
-                                if (y < Chunk.MAX.X) PropogateLightB(x, (byte)(y + 1), z, light);
+                                if (y < Chunk.MAX.Y) PropogateLightB(x, (byte)(y + 1), z, light);
                                 if (z > 0) PropogateLightB(x, y, (byte)(z - 1), light);
                                 if (z < Chunk.MAX.Z) PropogateLightB(x, y, (byte)(z + 1), light);
                             }
@@ -356,10 +359,10 @@ namespace NewTake.view
             Vector3i blockPosition = chunk.Position + chunkRelativePosition;
 
             //get signed bytes from these to be able to remove 1 without further casts
-            sbyte X = (sbyte) chunkRelativePosition.X;
-            sbyte Y = (sbyte) chunkRelativePosition.Y;
-            sbyte Z = (sbyte) chunkRelativePosition.Z;
-       
+            sbyte X = (sbyte)chunkRelativePosition.X;
+            sbyte Y = (sbyte)chunkRelativePosition.Y;
+            sbyte Z = (sbyte)chunkRelativePosition.Z;
+
 
             Block blockTopNW, blockTopN, blockTopNE, blockTopW, blockTopM, blockTopE, blockTopSW, blockTopS, blockTopSE;
             Block blockMidNW, blockMidN, blockMidNE, blockMidW, blockMidM, blockMidE, blockMidSW, blockMidS, blockMidSE;

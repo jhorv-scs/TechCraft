@@ -39,7 +39,7 @@ namespace NewTake.model.tools
         {
             if (player.currentSelectedAdjacent.HasValue)
             {
-                player.world.setBlock(player.currentSelectedAdjacent.Value.position, new Block(BlockType.Tree));
+                player.world.setBlock(player.currentSelectedAdjacent.Value.position, new Block(BlockType.Lava));
             }
         }
     }
