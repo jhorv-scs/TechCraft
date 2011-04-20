@@ -58,6 +58,8 @@ namespace NewTake.view
         public readonly FirstPersonCamera camera;
         protected Vector3i previousChunkIndex;
 
+        public bool _running = true;
+
         protected readonly RasterizerState _wireframedRaster = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
         protected readonly RasterizerState _normalRaster = new RasterizerState() { CullMode = CullMode.CullCounterClockwiseFace, FillMode = FillMode.Solid };
         protected bool _wireframed = false;

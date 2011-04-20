@@ -124,7 +124,7 @@ namespace NewTake
 
         protected override void OnExiting(Object sender, EventArgs args)
         {
-            //renderer._running = false;
+            renderer._running = false;
             base.OnExiting(sender, args);
         }
 
