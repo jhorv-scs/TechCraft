@@ -252,11 +252,11 @@ namespace NewTake.view
             uint x = (uint)camera.Position.X;
             uint z = (uint)camera.Position.Z;
 
-            uint cx = x / Chunk.CHUNK_XMAX;
-            uint cz = z / Chunk.CHUNK_ZMAX;
+            uint cx = x / Chunk.SIZE.X;
+            uint cz = z / Chunk.SIZE.Z;
 
-            uint lx = x % Chunk.CHUNK_XMAX;
-            uint lz = z % Chunk.CHUNK_ZMAX;
+            uint lx = x % Chunk.SIZE.X;
+            uint lz = z % Chunk.SIZE.Z;
 
             Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;    // This is the chunk in which the camera currently resides
 

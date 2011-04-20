@@ -42,23 +42,19 @@ namespace NewTake.model
     {
 
         #region inits
-        public const byte CHUNK_XMAX = 16;
-        public const byte CHUNK_YMAX = 128;
-        public const byte CHUNK_ZMAX = 16;
 
         private Chunk _N, _S, _E, _W, _NE, _NW, _SE, _SW; //TODO infinite y would require Top , Bottom, maybe vertical diagonals
 
-        public static Vector3b SIZE = new Vector3b(CHUNK_XMAX, CHUNK_YMAX, CHUNK_ZMAX);
-
-        //public Block[, ,] Blocks;
+        public static Vector3b SIZE = new Vector3b(16, 128, 16);
+        public static Vector3b MAX = new Vector3b(15, 127, 15);
 
         /// <summary>
-        /// Contained blocks as a flattened array.
+        /// Contains blocks as a flattened array.
         /// </summary>
         public Block[] Blocks;
 
         /* 
-        For accessing array for x,z,y coordianate use the pattern: Blocks[x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX + y]
+        For accessing array for x,z,y coordianate use the pattern: Blocks[x * Chunk.FlattenOffset + z * Chunk.SIZE.Y + y]
         For allowing sequental access on blocks using iterations, the blocks are stored as [x,z,y]. So basically iterate x first, z then and y last.
         Consider the following pattern;
         for (int x = 0; x < Chunk.WidthInBlocks; x++)
@@ -74,7 +70,7 @@ namespace NewTake.model
         /// <summary>
         /// Used when accessing flatten blocks array.
         /// </summary>
-        public static int FlattenOffset = CHUNK_ZMAX * CHUNK_YMAX;
+        public static int FlattenOffset = SIZE.Z * SIZE.Y;
 
         public readonly Vector3i Position;
         public readonly Vector3i Index;
@@ -91,7 +87,7 @@ namespace NewTake.model
         public Vector3b highestSolidBlock = new Vector3b(0, 0, 0);
         //highestNoneBlock starts at 0 so it will be adjusted. if you start at highest it will never be adjusted ! 
 
-        public Vector3b lowestNoneBlock = new Vector3b(0, CHUNK_YMAX, 0);
+        public Vector3b lowestNoneBlock = new Vector3b(0, SIZE.Y, 0);
         #endregion
 
         public Chunk(World world, Vector3i index)
@@ -103,18 +99,15 @@ namespace NewTake.model
 
             Index = index;
 
-            Position = new Vector3i(index.X * CHUNK_XMAX, index.Y * CHUNK_YMAX, index.Z * CHUNK_ZMAX);
-            //Blocks = new Block[CHUNK_XMAX, CHUNK_YMAX, CHUNK_ZMAX]; //TODO test 3d sparse impl performance and memory
-            this.Blocks = new Block[CHUNK_XMAX * CHUNK_ZMAX * CHUNK_YMAX];
-            _boundingBox = new BoundingBox(new Vector3(Position.X, Position.Y, Position.Z), new Vector3(Position.X + CHUNK_XMAX, Position.Y + CHUNK_YMAX, Position.Z + CHUNK_ZMAX));
+            Position = new Vector3i(index.X * SIZE.X, index.Y * SIZE.Y, index.Z * SIZE.Z);
+            //Blocks = new Block[SIZE.X, SIZE.Y, SIZE.Z]; //TODO test 3d sparse impl performance and memory
+            this.Blocks = new Block[SIZE.X * SIZE.Z * SIZE.Y];
+            _boundingBox = new BoundingBox(new Vector3(Position.X, Position.Y, Position.Z), new Vector3(Position.X + SIZE.X, Position.Y + SIZE.Y, Position.Z + SIZE.Z));
 
             //ensure world is set directly in here to have access to N S E W as soon as possible
             world.viewableChunks[index.X, index.Z] = this;
 
         }
-
-
-
 
         #region setBlock
         public void setBlock(byte x, byte y, byte z, Block b)
@@ -128,14 +121,11 @@ namespace NewTake.model
             }
             else if (highestSolidBlock.Y < y)
             {
-                //TODO uint vs int is currently a mess and in fact here it should be bytes !
                 highestSolidBlock = new Vector3b(x, y, z);
             }
 
-            //Blocks[x, y, z] = b;
-
             //comment this line : you should have nothing on screen, else you ve been setting blocks directly in array !
-            Blocks[x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX + y] = b;
+            Blocks[x * Chunk.FlattenOffset + z * Chunk.SIZE.Y + y] = b;
         }
         #endregion
 
@@ -146,27 +136,27 @@ namespace NewTake.model
 
         public bool outOfBounds(byte x, byte y, byte z)
         {
-            return (x < 0 || x >= CHUNK_XMAX || y < 0 || y >= CHUNK_YMAX || z < 0 || z >= CHUNK_ZMAX);
+            return (x < 0 || x >= SIZE.X || y < 0 || y >= SIZE.Y || z < 0 || z >= SIZE.Z);
         }
 
         #region BlockAt
 
-        public Block BlockAt(int relx,int rely, int relz)
+        public Block BlockAt(int relx, int rely, int relz)
         {
-                    
-            if (rely < 0 || rely > Chunk.CHUNK_YMAX - 1)
+
+            if (rely < 0 || rely > Chunk.MAX.Y)
             {
                 //infinite Y : y bounds currently set as rock for never rendering those y bounds
                 return new Block(BlockType.Rock);
             }
 
             //handle the normal simple case
-            if (relx >= 0 && relz >= 0 && relx < Chunk.CHUNK_XMAX && relz < Chunk.CHUNK_ZMAX)
+            if (relx >= 0 && relz >= 0 && relx < Chunk.SIZE.X && relz < Chunk.SIZE.Z)
             {
-                Block block = Blocks[relx * Chunk.FlattenOffset + relz * Chunk.CHUNK_YMAX + rely];
-                return block;                               
+                Block block = Blocks[relx * Chunk.FlattenOffset + relz * Chunk.SIZE.Y + rely];
+                return block;
             }
-          
+
             //handle all special cases
             //TODO rename stupid MAX that should be size / use size vector instead
             // was tired of it used 15
@@ -197,14 +187,14 @@ namespace NewTake.model
                 z = 0;
             }
 
-            if (x!=relx && x == 0)
-                if (z!=relz && z == 0)
+            if (x != relx && x == 0)
+                if (z != relz && z == 0)
                     nChunk = SE;
                 else if (z != relz && z == 15)
                     nChunk = NE;
                 else
                     nChunk = E;
-            else if (x != relx &&  x == 15)
+            else if (x != relx && x == 15)
                 if (z != relz && z == 0)
                     nChunk = SW;
                 else if (z != relz && z == 15)
@@ -223,25 +213,22 @@ namespace NewTake.model
             }
             else
             {
-                Block block =  nChunk.Blocks[x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX + rely];
+                Block block = nChunk.Blocks[x * Chunk.FlattenOffset + z * Chunk.SIZE.Y + rely];
                 return block;
             }
 
         }
         #endregion
-
+        
+        #region N S E W NE NW SE SW Neighbours accessors
         //this neighbours check can not be done in constructor, there would be some holes => it has to be done at access time 
-        //TODO check for mem leak / may need weakreferences
+        //seems there is no mem leak so no need for weakreferences
         public Chunk N
         {
             get
             {
-                if (_N == null)
-                    _N = world.viewableChunks[Index.X, Index.Z - 1];
-                if (_N != null)
-                {
-                    _N._S = this;//Debug.WriteLine("_N");
-                }
+                if (_N == null) _N = world.viewableChunks[Index.X, Index.Z - 1];
+                if (_N != null) _N._S = this;
                 return _N;
             }
         }
@@ -249,21 +236,37 @@ namespace NewTake.model
         {
             get
             {
-                if (_S == null)
-                    _S = world.viewableChunks[Index.X, Index.Z + 1];
-                if (_S != null)
-                {
-                    _S._N = this; // Debug.WriteLine("_S"); 
-                }
+                if (_S == null) _S = world.viewableChunks[Index.X, Index.Z + 1];
+                if (_S != null) _S._N = this;
                 return _S;
             }
         }
-        public Chunk E { get { return _E != null ? _E : _E = world.viewableChunks[Index.X + 1, Index.Z]; } }
-        public Chunk W { get { return _W != null ? _W : _W = world.viewableChunks[Index.X - 1, Index.Z]; } }
+        public Chunk E
+        {
+            get
+            {
+                if (_E == null) _E = world.viewableChunks[Index.X + 1, Index.Z];
+                if (_E != null) _E._W = this;
+                return _E;
+            }
+        }
+
+        public Chunk W
+        {
+            get
+            {
+                if (_W == null) _W = world.viewableChunks[Index.X - 1, Index.Z];
+                if (_W != null) _W._E = this;
+                return _E;
+            }
+        }
+
         public Chunk NW { get { return _NW != null ? _NW : _NW = world.viewableChunks[Index.X - 1, Index.Z - 1]; } }
         public Chunk NE { get { return _NE != null ? _NE : _NE = world.viewableChunks[Index.X + 1, Index.Z - 1]; } }
         public Chunk SW { get { return _SW != null ? _SW : _SW = world.viewableChunks[Index.X - 1, Index.Z + 1]; } }
         public Chunk SE { get { return _SE != null ? _SE : _SE = world.viewableChunks[Index.X + 1, Index.Z + 1]; } }
+
+        #endregion
 
         //this is a unit test for neighbours
         static void Main(string[] args)
@@ -272,10 +275,10 @@ namespace NewTake.model
 
             uint n = 4, s = 6, w = 4, e = 6;
 
-            Chunk cw = new Chunk(world, new Vector3i(w, 5, 5));            
-            Chunk c = new Chunk(world, new Vector3i(5,5,5));            
+            Chunk cw = new Chunk(world, new Vector3i(w, 5, 5));
+            Chunk c = new Chunk(world, new Vector3i(5, 5, 5));
             Chunk ce = new Chunk(world, new Vector3i(e, 5, 5));
-            
+
             Chunk cn = new Chunk(world, new Vector3i(5, 5, n));
             Chunk cs = new Chunk(world, new Vector3i(5, 5, s));
             Chunk cne = new Chunk(world, new Vector3i(e, 5, n));
@@ -284,7 +287,7 @@ namespace NewTake.model
             Chunk csw = new Chunk(world, new Vector3i(w, 5, s));
 
 
-            c.setBlock(0,0,0,new Block(BlockType.Dirt));
+            c.setBlock(0, 0, 0, new Block(BlockType.Dirt));
             cw.setBlock(15, 0, 0, new Block(BlockType.Grass));
 
             Block w15 = c.BlockAt(-1, 0, 0);
@@ -298,7 +301,7 @@ namespace NewTake.model
             Block swcorner = c.BlockAt(-1, 0, 16);
             Debug.Assert(swcorner.Type == BlockType.Lava);
 
-            cne.setBlock(0, 0,15, new Block(BlockType.Leaves));
+            cne.setBlock(0, 0, 15, new Block(BlockType.Leaves));
             Block necorner = c.BlockAt(16, 0, -1);
             Debug.Assert(necorner.Type == BlockType.Leaves);
         }

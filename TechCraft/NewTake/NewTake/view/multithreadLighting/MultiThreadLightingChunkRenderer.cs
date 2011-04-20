@@ -68,13 +68,13 @@ namespace NewTake.view
         #region ClearLighting
         private void ClearLighting()
         {
-            for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
-                for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
                 {
-                    int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX; // we don't want this x-z value to be calculated each in in y-loop!
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
                     bool inShade = false;
-                    for (byte y = Chunk.CHUNK_YMAX - 1; y > 0; y--)
+                    for (byte y = Chunk.MAX.Y; y > 0; y--)
                     {
                         if (chunk.Blocks[offset + y].Type != BlockType.None) inShade = true;
                         if (!inShade)
@@ -107,7 +107,7 @@ namespace NewTake.view
         #region PropogateLight
         private void PropogateSunLight(byte x, byte y, byte z, byte light)
         {
-            int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX + y;
+            int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y + y;
             if (chunk.Blocks[offset].Type != BlockType.None) return;
             if (chunk.Blocks[offset].Sun >= light) return;
             chunk.Blocks[offset].Sun = light;
@@ -117,17 +117,17 @@ namespace NewTake.view
                 light = (byte)(light - 1);
 
                 if (x > 0) PropogateSunLight((byte)(x - 1), y, z, light);
-                if (x < Chunk.CHUNK_XMAX - 1) PropogateSunLight((byte)(x + 1), y, z, light);
+                if (x < Chunk.MAX.X) PropogateSunLight((byte)(x + 1), y, z, light);
                 if (y > 0) PropogateSunLight(x, (byte)(y - 1), z, light);
-                if (y < Chunk.CHUNK_YMAX - 1) PropogateSunLight(x, (byte)(y + 1), z, light);
+                if (y < Chunk.MAX.Y) PropogateSunLight(x, (byte)(y + 1), z, light);
                 if (z > 0) PropogateSunLight(x, y, (byte)(z - 1), light);
-                if (z < Chunk.CHUNK_ZMAX - 1) PropogateSunLight(x, y, (byte)(z + 1), light);
+                if (z < Chunk.MAX.Z) PropogateSunLight(x, y, (byte)(z + 1), light);
             }
         }
 
         private void PropogateLightR(byte x, byte y, byte z, byte lightR)
         {
-            int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX + y;
+            int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y + y;
             if (chunk.Blocks[offset].Type != BlockType.None) return;
             if (chunk.Blocks[offset].R >= lightR) return;
             chunk.Blocks[offset].R = lightR;
@@ -137,17 +137,17 @@ namespace NewTake.view
                 lightR = (byte)(lightR - 1);
 
                 if (x > 0) PropogateLightR((byte)(x - 1), y, z, lightR);
-                if (x < Chunk.CHUNK_XMAX - 1) PropogateLightR((byte)(x + 1), y, z, lightR);
+                if (x < Chunk.MAX.X) PropogateLightR((byte)(x + 1), y, z, lightR);
                 if (y > 0) PropogateLightR(x, (byte)(y - 1), z, lightR);
-                if (y < Chunk.CHUNK_YMAX - 1) PropogateLightR(x, (byte)(y + 1), z, lightR);
+                if (y < Chunk.MAX.Y) PropogateLightR(x, (byte)(y + 1), z, lightR);
                 if (z > 0) PropogateLightR(x, y, (byte)(z - 1), lightR);
-                if (z < Chunk.CHUNK_ZMAX - 1) PropogateLightR(x, y, (byte)(z + 1), lightR);
+                if (z < Chunk.MAX.Z) PropogateLightR(x, y, (byte)(z + 1), lightR);
             }
         }
 
         private void PropogateLightG(byte x, byte y, byte z, byte lightG)
         {
-            int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX + y;
+            int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y + y;
             if (chunk.Blocks[offset].Type != BlockType.None) return;
             if (chunk.Blocks[offset].G >= lightG) return;
             chunk.Blocks[offset].G = lightG;
@@ -157,17 +157,17 @@ namespace NewTake.view
                 lightG = (byte)(lightG - 1);
 
                 if (x > 0) PropogateLightG((byte)(x - 1), y, z, lightG);
-                if (x < Chunk.CHUNK_XMAX - 1) PropogateLightG((byte)(x + 1), y, z, lightG);
+                if (x < Chunk.MAX.X) PropogateLightG((byte)(x + 1), y, z, lightG);
                 if (y > 0) PropogateLightG(x, (byte)(y - 1), z, lightG);
-                if (y < Chunk.CHUNK_YMAX - 1) PropogateLightG(x, (byte)(y + 1), z, lightG);
+                if (y < Chunk.MAX.Y) PropogateLightG(x, (byte)(y + 1), z, lightG);
                 if (z > 0) PropogateLightG(x, y, (byte)(z - 1), lightG);
-                if (z < Chunk.CHUNK_ZMAX - 1) PropogateLightG(x, y, (byte)(z + 1), lightG);
+                if (z < Chunk.MAX.Z) PropogateLightG(x, y, (byte)(z + 1), lightG);
             }
         }
 
         private void PropogateLightB(byte x, byte y, byte z, byte lightB)
         {
-            int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX + y;
+            int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y + y;
             if (chunk.Blocks[offset].Type != BlockType.None) return;
             if (chunk.Blocks[offset].B >= lightB) return;
             chunk.Blocks[offset].B = lightB;
@@ -177,11 +177,11 @@ namespace NewTake.view
                 lightB = (byte)(lightB - 1);
 
                 if (x > 0) PropogateLightB((byte)(x - 1), y, z, lightB);
-                if (x < Chunk.CHUNK_XMAX - 1) PropogateLightB((byte)(x + 1), y, z, lightB);
+                if (x < Chunk.MAX.X) PropogateLightB((byte)(x + 1), y, z, lightB);
                 if (y > 0) PropogateLightB(x, (byte)(y - 1), z, lightB);
-                if (y < Chunk.CHUNK_YMAX - 1) PropogateLightB(x, (byte)(y + 1), z, lightB);
+                if (y < Chunk.MAX.Y) PropogateLightB(x, (byte)(y + 1), z, lightB);
                 if (z > 0) PropogateLightB(x, y, (byte)(z - 1), lightB);
-                if (z < Chunk.CHUNK_ZMAX - 1) PropogateLightB(x, y, (byte)(z + 1), lightB);
+                if (z < Chunk.MAX.Z) PropogateLightB(x, y, (byte)(z + 1), lightB);
             }
         }
         #endregion
@@ -196,12 +196,12 @@ namespace NewTake.view
 
         private void FillSunLighting()
         {
-            for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
-                for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
                 {
-                    int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX; // we don't want this x-z value to be calculated each in in y-loop!
-                    for (byte y = 0; y < Chunk.CHUNK_YMAX; y++)
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
+                    for (byte y = 0; y < Chunk.SIZE.Y; y++)
                     {
                         if (chunk.Blocks[offset + y].Type == BlockType.None)
                         {
@@ -210,11 +210,11 @@ namespace NewTake.view
                             {
                                 byte light = (byte)(chunk.Blocks[offset + y].Sun - 1);
                                 if (x > 0) PropogateSunLight((byte)(x - 1), y, z, light);
-                                if (x < Chunk.CHUNK_XMAX - 1) PropogateSunLight((byte)(x + 1), y, z, light);
+                                if (x < Chunk.MAX.X) PropogateSunLight((byte)(x + 1), y, z, light);
                                 if (y > 0) PropogateSunLight(x, (byte)(y - 1), z, light);
-                                if (y < Chunk.CHUNK_XMAX - 1) PropogateSunLight(x, (byte)(y + 1), z, light);
+                                if (y < Chunk.MAX.X) PropogateSunLight(x, (byte)(y + 1), z, light);
                                 if (z > 0) PropogateSunLight(x, y, (byte)(z - 1), light);
-                                if (z < Chunk.CHUNK_ZMAX - 1) PropogateSunLight(x, y, (byte)(z + 1), light);
+                                if (z < Chunk.MAX.Z) PropogateSunLight(x, y, (byte)(z + 1), light);
                             }
                         }
                     }
@@ -224,12 +224,12 @@ namespace NewTake.view
 
         private void FillLightingR()
         {
-            for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
-                for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
                 {
-                    int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX; // we don't want this x-z value to be calculated each in in y-loop!
-                    for (byte y = 0; y < Chunk.CHUNK_YMAX; y++)
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
+                    for (byte y = 0; y < Chunk.SIZE.Y; y++)
                     {
                         if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
                         {
@@ -238,11 +238,11 @@ namespace NewTake.view
                             {
                                 byte light = (byte)(chunk.Blocks[offset + y].R - 1);
                                 if (x > 0) PropogateLightR((byte)(x - 1), y, z, light);
-                                if (x < Chunk.CHUNK_XMAX - 1) PropogateLightR((byte)(x + 1), y, z, light);
+                                if (x < Chunk.MAX.X) PropogateLightR((byte)(x + 1), y, z, light);
                                 if (y > 0) PropogateLightR(x, (byte)(y - 1), z, light);
-                                if (y < Chunk.CHUNK_XMAX - 1) PropogateLightR(x, (byte)(y + 1), z, light);
+                                if (y < Chunk.MAX.X) PropogateLightR(x, (byte)(y + 1), z, light);
                                 if (z > 0) PropogateLightR(x, y, (byte)(z - 1), light);
-                                if (z < Chunk.CHUNK_ZMAX - 1) PropogateLightR(x, y, (byte)(z + 1), light);
+                                if (z < Chunk.MAX.Z) PropogateLightR(x, y, (byte)(z + 1), light);
                             }
                         }
                     }
@@ -252,12 +252,12 @@ namespace NewTake.view
 
         private void FillLightingG()
         {
-            for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
-                for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
                 {
-                    int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX; // we don't want this x-z value to be calculated each in in y-loop!
-                    for (byte y = 0; y < Chunk.CHUNK_YMAX; y++)
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
+                    for (byte y = 0; y < Chunk.SIZE.Y; y++)
                     {
                         if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
                         {
@@ -266,11 +266,11 @@ namespace NewTake.view
                             {
                                 byte light = (byte)(chunk.Blocks[offset + y].G - 1);
                                 if (x > 0) PropogateLightG((byte)(x - 1), y, z, light);
-                                if (x < Chunk.CHUNK_XMAX - 1) PropogateLightG((byte)(x + 1), y, z, light);
+                                if (x < Chunk.MAX.X) PropogateLightG((byte)(x + 1), y, z, light);
                                 if (y > 0) PropogateLightG(x, (byte)(y - 1), z, light);
-                                if (y < Chunk.CHUNK_XMAX - 1) PropogateLightG(x, (byte)(y + 1), z, light);
+                                if (y < Chunk.MAX.X) PropogateLightG(x, (byte)(y + 1), z, light);
                                 if (z > 0) PropogateLightG(x, y, (byte)(z - 1), light);
-                                if (z < Chunk.CHUNK_ZMAX - 1) PropogateLightG(x, y, (byte)(z + 1), light);
+                                if (z < Chunk.MAX.Z) PropogateLightG(x, y, (byte)(z + 1), light);
                             }
                         }
                     }
@@ -280,12 +280,12 @@ namespace NewTake.view
 
         private void FillLightingB()
         {
-            for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
-                for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
                 {
-                    int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX; // we don't want this x-z value to be calculated each in in y-loop!
-                    for (byte y = 0; y < Chunk.CHUNK_YMAX; y++)
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
+                    for (byte y = 0; y < Chunk.SIZE.Y; y++)
                     {
                         if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
                         {
@@ -294,11 +294,11 @@ namespace NewTake.view
                             {
                                 byte light = (byte)(chunk.Blocks[offset + y].B - 1);
                                 if (x > 0) PropogateLightB((byte)(x - 1), y, z, light);
-                                if (x < Chunk.CHUNK_XMAX - 1) PropogateLightB((byte)(x + 1), y, z, light);
+                                if (x < Chunk.MAX.X) PropogateLightB((byte)(x + 1), y, z, light);
                                 if (y > 0) PropogateLightB(x, (byte)(y - 1), z, light);
-                                if (y < Chunk.CHUNK_XMAX - 1) PropogateLightB(x, (byte)(y + 1), z, light);
+                                if (y < Chunk.MAX.X) PropogateLightB(x, (byte)(y + 1), z, light);
                                 if (z > 0) PropogateLightB(x, y, (byte)(z - 1), light);
-                                if (z < Chunk.CHUNK_ZMAX - 1) PropogateLightB(x, y, (byte)(z + 1), light);
+                                if (z < Chunk.MAX.Z) PropogateLightB(x, y, (byte)(z + 1), light);
                             }
                         }
                     }
@@ -317,14 +317,14 @@ namespace NewTake.view
             //and digging is handled correctly too 
             //TODO generalize highest/lowest None to non-solid
             byte yLow = (byte)(chunk.lowestNoneBlock.Y == 0 ? 0 : chunk.lowestNoneBlock.Y - 1);
-            byte yHigh = (byte)(chunk.highestSolidBlock.Y == Chunk.CHUNK_YMAX - 1 ? Chunk.CHUNK_YMAX - 1 : chunk.highestSolidBlock.Y + 1);
+            byte yHigh = (byte)(chunk.highestSolidBlock.Y == Chunk.MAX.Y ? Chunk.MAX.Y : chunk.highestSolidBlock.Y + 1);
 
 
-            for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
-                for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
                 {
-                    int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX; // we don't want this x-z value to be calculated each in in y-loop!
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
                     for (byte y = yLow; y < yHigh; y++)
                     {
                         if (chunk.Blocks[offset + y].Type != BlockType.None)

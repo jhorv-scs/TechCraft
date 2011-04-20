@@ -51,7 +51,7 @@ namespace NewTake.view
         SpriteBatch _spriteBatchmap;
         Texture2D MinimapTex;
         Color MinimapBGCol = new Color(150, 150, 150, 150);
-        Color[] maptexture = new Color[Chunk.CHUNK_XMAX * Chunk.CHUNK_ZMAX];
+        Color[] maptexture = new Color[Chunk.SIZE.X * Chunk.SIZE.Z];
         Rectangle MinimapBGRect = new Rectangle(650, 20, 64, 64);
         Rectangle BlockPos = new Rectangle(0, 0, 8, 8);
         #endregion
@@ -105,22 +105,22 @@ namespace NewTake.view
             uint x = (uint)_camera.Position.X;
             uint z = (uint)_camera.Position.Z;
 
-            uint cx = x / Chunk.CHUNK_XMAX;
-            uint cz = z / Chunk.CHUNK_ZMAX;
+            uint cx = x / Chunk.SIZE.X;
+            uint cz = z / Chunk.SIZE.Z;
 
             Chunk chunk = world.viewableChunks[cx, cz];
 
-            for (int xx = 0; xx < Chunk.CHUNK_XMAX; xx++)
+            for (int xx = 0; xx < Chunk.SIZE.X; xx++)
             {
-                for (int zz = 0; zz < Chunk.CHUNK_ZMAX; zz++)
+                for (int zz = 0; zz < Chunk.SIZE.Z; zz++)
                 {
-                    int offset = xx * Chunk.FlattenOffset + zz * Chunk.CHUNK_YMAX;
-                    for (int y = Chunk.CHUNK_YMAX - 1; y > 0; y--)
+                    int offset = xx * Chunk.FlattenOffset + zz * Chunk.SIZE.Y;
+                    for (int y = Chunk.MAX.Y; y > 0; y--)
                     {
                         BlockType blockcheck = chunk.Blocks[offset + y].Type;
                         if (blockcheck != BlockType.None)
                         {
-                            int index = xx * (Chunk.CHUNK_XMAX) + zz;
+                            int index = xx * (Chunk.SIZE.X) + zz;
                             switch (blockcheck)
                             {
                                 case BlockType.Grass:
@@ -174,7 +174,7 @@ namespace NewTake.view
                     {
                         BlockPos.X = i * 8 + 650;
                         BlockPos.Y = j * 8 + 20;
-                        _spriteBatchmap.Draw(MinimapTex, BlockPos, this.maptexture[i * Chunk.CHUNK_XMAX + j]);
+                        _spriteBatchmap.Draw(MinimapTex, BlockPos, this.maptexture[i * Chunk.SIZE.X + j]);
                     }
                 }
                 _spriteBatchmap.End();

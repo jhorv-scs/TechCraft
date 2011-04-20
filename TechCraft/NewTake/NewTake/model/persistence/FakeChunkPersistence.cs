@@ -53,7 +53,7 @@ namespace NewTake.model
 
         public Chunk load(Vector3i index)
         {
-            Vector3i position = new Vector3i(index.X * Chunk.CHUNK_XMAX, index.Y * Chunk.CHUNK_YMAX, index.Z * Chunk.CHUNK_ZMAX);
+            Vector3i position = new Vector3i(index.X * Chunk.SIZE.X, index.Y * Chunk.SIZE.Y, index.Z * Chunk.SIZE.Z);
 
             string filename = GetFilename(position);
             //Debug.WriteLine("Would be loading " + filename);

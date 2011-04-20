@@ -53,7 +53,7 @@ namespace NewTake.model.terrain
 
             bool sunlit = true;
 
-            for (int y = Chunk.CHUNK_YMAX - 1; y >= 0; y--)
+            for (int y = Chunk.MAX.Y; y >= 0; y--)
             {
                 
                 // Everything above ground height...is air.
@@ -138,11 +138,11 @@ namespace NewTake.model.terrain
             
             bool sunlit = true;
 
-            for (byte x = 0; x < Chunk.CHUNK_XMAX; x++)
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
-                for (byte z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
                 {
-                    int offset = x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX;
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y;
                     for (byte y = WATERLEVEL + 9; y >= MINIMUMGROUNDHEIGHT; y--)
                     {
                         //if (chunk.Blocks[x, y, z].Type == BlockType.None)
@@ -188,15 +188,15 @@ namespace NewTake.model.terrain
             float octave3 = PerlinSimplexNoise.noise((blockX + 100) * 0.01f, blockY * 0.01f) * 0.25f;
             float octaveSum = octave1 + octave2 + octave3;
 
-            return (int)(octaveSum * (Chunk.CHUNK_YMAX / 2f)) + (int)(lowerGroundHeight);
+            return (int)(octaveSum * (Chunk.SIZE.Y / 2f)) + (int)(lowerGroundHeight);
         }
         #endregion
 
         #region GetLowerGroundHeight
         private static float GetLowerGroundHeight(Chunk chunk, uint blockX, uint blockY)
         {
-            int minimumGroundheight = Chunk.CHUNK_YMAX / 4;
-            int minimumGroundDepth = (int)(Chunk.CHUNK_YMAX * 0.5f);
+            int minimumGroundheight = Chunk.SIZE.Y / 4;
+            int minimumGroundDepth = (int)(Chunk.SIZE.Y * 0.5f);
 
             float octave1 = PerlinSimplexNoise.noise(blockX * 0.0001f, blockY * 0.0001f) * 0.5f;
             float octave2 = PerlinSimplexNoise.noise(blockX * 0.0005f, blockY * 0.0005f) * 0.35f;

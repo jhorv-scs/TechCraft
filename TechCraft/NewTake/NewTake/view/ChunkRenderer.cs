@@ -77,12 +77,12 @@ namespace NewTake.view
         {
             //Debug.WriteLine("building vertexlist ...");
             _vertexList.Clear();
-            for (uint x = 0; x < Chunk.CHUNK_XMAX; x++)
+            for (uint x = 0; x < Chunk.SIZE.X; x++)
             {
-                for (uint z = 0; z < Chunk.CHUNK_ZMAX; z++)
+                for (uint z = 0; z < Chunk.SIZE.Z; z++)
                 {
-                    uint offset = x * (uint)Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX;
-                    for (uint y = 0; y < Chunk.CHUNK_YMAX; y++)
+                    uint offset = x * (uint)Chunk.FlattenOffset + z * Chunk.SIZE.Y;
+                    for (uint y = 0; y < Chunk.SIZE.Y; y++)
                     {
                         //Block block = chunk.Blocks[x, y, z];
                         Block block = chunk.Blocks[offset + y];
