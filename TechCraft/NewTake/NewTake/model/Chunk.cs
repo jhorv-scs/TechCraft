@@ -241,7 +241,7 @@ namespace NewTake.model
             {
                 if (_W == null) _W = world.viewableChunks[Index.X - 1, Index.Z];
                 if (_W != null) _W._E = this;
-                return _E;
+                return _W;
             }
         }
 
