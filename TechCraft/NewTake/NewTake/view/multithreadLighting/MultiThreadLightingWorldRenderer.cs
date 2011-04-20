@@ -31,7 +31,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Diagnostics;
-//using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework.Graphics;
@@ -50,14 +50,7 @@ namespace NewTake.view
 
         private const bool cloudsEnabled = true;
 
-        private Task buildTask;
-        private Task generateTask;
-        private Task removeTask;
-
         //private Texture2D ambientOcclusionMap;
-
-        //private readonly BlockingCollection<Vector3i> _generationQueue = new BlockingCollection<Vector3i>(); // uses concurrent queues by default.
-        //private readonly BlockingCollection<Vector3i> _buildingQueue = new BlockingCollection<Vector3i>();
 
         #endregion
 
@@ -102,7 +95,107 @@ namespace NewTake.view
             }
             #endregion
 
+            Task.Factory.StartNew(() => chunkReGenBuildTask()); // Starts the task that checks chunks for remove/generate/build
         }
+
+        #region Chunk Remove/Generate/Build Task
+        private void chunkReGenBuildTask()
+        {
+            while (_running)
+            {
+                uint x = (uint)camera.Position.X;
+                uint z = (uint)camera.Position.Z;
+
+                uint cx = x / Chunk.SIZE.X;
+                uint cz = z / Chunk.SIZE.Z;
+
+                uint lx = x % Chunk.SIZE.X;
+                uint lz = z % Chunk.SIZE.Z;
+
+
+                Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;    // This is the chunk in which the camera currently resides
+
+                if (currentChunkIndex != previousChunkIndex)
+                {
+                    previousChunkIndex = currentChunkIndex;
+
+                    // Loop through all possible chunks around the camera in both X and Z directions
+                    for (uint j = cx - (World.VIEW_DISTANCE_FAR_X + 1); j < cx + (World.VIEW_DISTANCE_FAR_X + 1); j++)
+                    {
+                        for (uint l = cz - (World.VIEW_DISTANCE_FAR_Z + 1); l < cz + (World.VIEW_DISTANCE_FAR_Z + 1); l++)
+                        {
+                            int distancecx = (int)(cx - j);        // The distance from the camera to the chunk in the X direction
+                            int distancecz = (int)(cz - l);        // The distance from the camera to the chunk in the Z direction
+
+                            if (distancecx < 0) distancecx = 0 - distancecx;        // If the distance is negative (behind the camera) make it positive
+                            if (distancecz < 0) distancecz = 0 - distancecz;        // If the distance is negative (behind the camera) make it positive
+
+                            // Remove Chunks
+                            if ((distancecx > World.VIEW_DISTANCE_NEAR_X) || (distancecz > World.VIEW_DISTANCE_NEAR_Z))
+                            {
+                                if ((world.viewableChunks[j, l] != null)) // Chunk is created, therefore remove
+                                {
+                                    Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
+                                    Chunk chunk = world.viewableChunks[j, l];
+                                    chunk.visible = false;
+                                    world.viewableChunks.Remove(j, l);
+                                    ChunkRenderer cr;
+                                    ChunkRenderers.TryRemove(newIndex, out cr);
+                                    //Debug.WriteLine("Removed chunk at {0},{1},{2}", chunk.Position.X, chunk.Position.Y, chunk.Position.Z);
+                                }
+                                else
+                                {
+                                    //Debug.WriteLine("[Remove] chunk not found at at {0},0,{1}", j, l);
+                                }
+                            }
+                            // Generate Chunks
+                            else if ((distancecx > World.VIEW_CHUNKS_X) || (distancecz > World.VIEW_CHUNKS_Z))
+                            {
+                                // A new chunk is coming into view - we need to generate or load it
+                                if (world.viewableChunks[j, l] == null) // Chunk is not created or loaded, therefore create - 
+                                {
+                                    Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
+
+                                    try
+                                    {
+                                        DoGenerate(newIndex);
+                                        //Debug.WriteLine("Built chunk at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
+                                    }
+                                    catch (AggregateException ae)
+                                    {
+                                        Debug.WriteLine("Exception {0}", ae);
+                                    }
+                                }
+                            }
+                            //Build Chunks
+                            else
+                            {
+                                Chunk chunk = world.viewableChunks[j, l];
+                                //if ((!chunk.built) && (chunk.generated))//TODO why can it be null now 
+                                if (!chunk.built)//TODO why can it be null now 
+                                {
+                                    // We have a chunk in view - it has been generated but we haven't built a vertex buffer for it
+                                    Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
+
+                                    try
+                                    {
+                                        DoBuild(newIndex);
+                                        //Debug.WriteLine("Vertices built at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
+                                    }
+                                    catch (AggregateException ae)
+                                    {
+                                        Debug.WriteLine("Exception {0}", ae);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }// end if
+
+
+            }
+        }
+        #endregion
 
         #region DoBuild
         public override void DoBuild(Vector3i vector)
@@ -224,129 +317,9 @@ namespace NewTake.view
         }
         #endregion
 
-        //private void Worker()
-        //{
-        //    Vector3i newIndex;
-        //    BlockingCollection<Vector3i>.TakeFromAny(new[] { _generationQueue, _buildingQueue }, out newIndex);
-
-        //    if (world.viewableChunks[newIndex.X, newIndex.Z] == null)
-        //    {
-        //        //Debug.WriteLine("Worker Generate {0},{1}", newIndex.X, newIndex.Z);
-        //        DoGenerate(newIndex);
-        //    }
-        //    else
-        //    {
-        //        Chunk chunk = world.viewableChunks[newIndex.X, newIndex.Z];
-        //        if (chunk.dirty)
-        //            //Debug.WriteLine("Worker Build {0},{1}", newIndex.X, newIndex.Z);
-        //            DoBuild(newIndex);
-        //    }
-        //}
-
         #region Update
         public override void Update(GameTime gameTime)
         {
-            uint x = (uint)camera.Position.X;
-            uint z = (uint)camera.Position.Z;
-
-            uint cx = x / Chunk.SIZE.X;
-            uint cz = z / Chunk.SIZE.Z;
-
-            uint lx = x % Chunk.SIZE.X;
-            uint lz = z % Chunk.SIZE.Z;
-
-            Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;    // This is the chunk in which the camera currently resides
-
-            if (currentChunkIndex != previousChunkIndex)
-            {
-                previousChunkIndex = currentChunkIndex;
-
-                // Loop through all possible chunks around the camera in both X and Z directions
-                for (uint j = cx - (World.VIEW_DISTANCE_FAR_X + 1); j < cx + (World.VIEW_DISTANCE_FAR_X + 1); j++)
-                {
-                    for (uint l = cz - (World.VIEW_DISTANCE_FAR_Z + 1); l < cz + (World.VIEW_DISTANCE_FAR_Z + 1); l++)
-                    {
-                        int distancecx = (int)(cx - j);        // The distance from the camera to the chunk in the X direction
-                        int distancecz = (int)(cz - l);        // The distance from the camera to the chunk in the Z direction
-
-                        if (distancecx < 0) distancecx = 0 - distancecx;        // If the distance is negative (behind the camera) make it positive
-                        if (distancecz < 0) distancecz = 0 - distancecz;        // If the distance is negative (behind the camera) make it positive
-
-                        // Remove Chunks
-                        if ((distancecx > World.VIEW_DISTANCE_NEAR_X) || (distancecz > World.VIEW_DISTANCE_NEAR_Z))
-                        {
-                            if ((world.viewableChunks[j, l] != null)) // Chunk is created, therefore remove
-                            {
-                                Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
-                                Chunk chunk = world.viewableChunks[j, l];
-                                chunk.visible = false;
-                                world.viewableChunks.Remove(j, l);
-                                ChunkRenderer cr;
-                                removeTask = Task.Factory.StartNew(() => ChunkRenderers.TryRemove(newIndex,out cr));
-                                //removeTask.Wait();
-
-                                //ChunkRenderers.Remove(newIndex);
-                                //Debug.WriteLine("Removed chunk at {0},{1},{2}", chunk.Position.X, chunk.Position.Y, chunk.Position.Z);
-                            }
-                            else
-                            {
-                                //Debug.WriteLine("[Remove] chunk not found at at {0},0,{1}", j, l);
-                            }
-                        }
-                        // Generate Chunks
-                        else if ((distancecx > World.VIEW_CHUNKS_X) || (distancecz > World.VIEW_CHUNKS_Z))
-                        {
-                            // A new chunk is coming into view - we need to generate or load it
-                            if (world.viewableChunks[j, l] == null) // Chunk is not created or loaded, therefore create - 
-                            {
-                                Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
-
-                                try
-                                {
-                                    //this._generationQueue.Add(newIndex);
-                                    //Task buildTask = Task.Factory.StartNew(Worker);
-
-                                    generateTask = Task.Factory.StartNew(() => DoGenerate(newIndex));
-                                    //generateTask.Wait();
-
-                                    //DoGenerate(newIndex);
-                                    //Debug.WriteLine("Built chunk at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
-                                }
-                                catch (AggregateException ae)
-                                {
-                                    Debug.WriteLine("Exception {0}", ae);
-                                }
-                            }
-                        }
-                        // Build Chunks
-                        else
-                        {
-                            Chunk chunk = world.viewableChunks[j, l];
-                            if ((!chunk.built) && (chunk.generated))//TODO why can it be null now 
-                            {
-                                // We have a chunk in view - it has been generated but we haven't built a vertex buffer for it
-                                Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
-                                
-                                try
-                                {
-                                    //this._buildingQueue.Add(newIndex);
-                                    //Task.Factory.StartNew(Worker);
-
-                                    buildTask = Task.Factory.StartNew(() => DoBuild(newIndex));
-                                    //buildTask.Wait();
-
-                                    //DoBuild(newIndex);
-                                    //Debug.WriteLine("Vertices built at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
-                                }
-                                catch (AggregateException ae)
-                                {
-                                    Debug.WriteLine("Exception {0}", ae);
-                                }
-                            }
-                        }
-                    }
-                }
-            }// end if
 
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
 
@@ -363,6 +336,7 @@ namespace NewTake.view
                     }
                 }
             }
+
         }
         #endregion
 
@@ -392,7 +366,7 @@ namespace NewTake.view
             _solidBlockEffect.Parameters["View"].SetValue(camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(camera.Projection);
             _solidBlockEffect.Parameters["CameraPosition"].SetValue(camera.Position);
-            _solidBlockEffect.Parameters["FogColor"].SetValue(Color.Black.ToVector4());
+            _solidBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
             _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);

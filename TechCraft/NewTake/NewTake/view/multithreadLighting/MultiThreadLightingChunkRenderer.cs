@@ -29,14 +29,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
 using NewTake.model;
 using NewTake.view.blocks;
-using System.Diagnostics;
 #endregion
 
 namespace NewTake.view
@@ -50,7 +49,6 @@ namespace NewTake.view
         private const byte MAX_SUN_VALUE = 16;
         public IndexBuffer indexBuffer;
         private LightingVertexBlockRenderer _blockRenderer;
-        private Task buildTask;
         #endregion
 
         public MultiThreadLightingChunkRenderer(GraphicsDevice graphicsDevice, World world, Chunk chunk)
@@ -584,14 +582,6 @@ namespace NewTake.view
 
         }
         #endregion
-
-        public override void Update(GameTime gameTime)
-        {
-            if (buildTask == null || (chunk.dirty && buildTask.IsCompleted))
-            {
-                buildTask = Task.Factory.StartNew(() => BuildVertexList());
-            }
-        }
 
         #region Draw
         public override void Draw(GameTime gameTime)
