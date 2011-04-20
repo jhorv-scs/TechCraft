@@ -48,9 +48,9 @@ namespace NewTake.model
         //too experimental for now 
         public ChunkManager viewableChunks;
 
-        public const byte VIEW_CHUNKS_X = 8;
+        public const byte VIEW_CHUNKS_X = 5;
         public const byte VIEW_CHUNKS_Y = 1;
-        public const byte VIEW_CHUNKS_Z = 8;
+        public const byte VIEW_CHUNKS_Z = 5;
         public static int SEED = 12345;
 
         public const byte VIEW_DISTANCE_NEAR_X = VIEW_CHUNKS_X * 2;

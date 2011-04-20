@@ -82,6 +82,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	color.a = texColor1.a * texColor2.a;
     //color = texColor1;
 
+
     return lerp(FogColor, color ,fog);
 }
 

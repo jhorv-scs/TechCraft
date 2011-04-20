@@ -38,21 +38,26 @@ namespace NewTake.view.blocks
 
     public enum BlockTexture
     {
-        Brick,
+        MossyCobble,
         Dirt,
-        Gold,
+        Obsidian,
         GrassSide,
         GrassTop,
-        Iron,
-        Lava,
-        Leaves,
         Gravel,
+        Lava,
+        SolidLeaves,
+        Cobble,
         Rock,
         Sand,
         Snow,
         TreeTop,
         TreeSide,
         Water,
+        Leaves,
+        Empty1,
+        RedFlower,
+        Stone,
+        Brick,
         MAXIMUM
     }
 

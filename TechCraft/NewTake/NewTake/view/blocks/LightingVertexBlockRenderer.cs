@@ -57,6 +57,40 @@ namespace NewTake.view.blocks
             index = 0;
         }
 
+        public void BuildPlantVertices(Vector3i blockPosition, Vector3i chunkRelativePosition, BlockType blockType, float sunLight, Color localLight)
+        {
+            BlockTexture texture = BlockInformation.GetTexture(blockType);
+            Vector2[] UVList;
+
+            UVList = TextureHelper.UVMappings[(int)texture * 6 + (int)BlockFaceDirection.XIncreasing];
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(0.5f, 1, 1), new Vector3(1, 0, 0), UVList[0], sunLight, localLight);
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(0.5f, 1, 0), new Vector3(1, 0, 0), UVList[1], sunLight, localLight);
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(0.5f, 0, 1), new Vector3(1, 0, 0), UVList[2], sunLight, localLight);
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(0.5f, 0, 0), new Vector3(1, 0, 0), UVList[5], sunLight, localLight);
+            AddIndex(0, 1, 2, 2, 1, 3);
+
+            UVList = TextureHelper.UVMappings[(int)texture * 6 + (int)BlockFaceDirection.XDecreasing];
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(0.5f, 1, 0), new Vector3(-1, 0, 0), UVList[0], sunLight, localLight);
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(0.5f, 1, 1), new Vector3(-1, 0, 0), UVList[1], sunLight, localLight);
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(0.5f, 0, 0), new Vector3(-1, 0, 0), UVList[5], sunLight, localLight);
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(0.5f, 0, 1), new Vector3(-1, 0, 0), UVList[2], sunLight, localLight);
+            AddIndex(0, 1, 3, 0, 3, 2);
+
+            UVList = TextureHelper.UVMappings[(int)texture * 6 + (int)BlockFaceDirection.ZIncreasing];
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(0, 1, 0.5f), new Vector3(0, 0, 1), UVList[0], sunLight, localLight);
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(1, 1, 0.5f), new Vector3(0, 0, 1), UVList[1], sunLight, localLight);
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(0, 0, 0.5f), new Vector3(0, 0, 1), UVList[5], sunLight, localLight);
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(1, 0, 0.5f), new Vector3(0, 0, 1), UVList[2], sunLight, localLight);
+            AddIndex(0, 1, 3, 0, 3, 2);
+
+            UVList = TextureHelper.UVMappings[(int)texture * 6 + (int)BlockFaceDirection.ZDecreasing];
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(1, 1, 0.5f), new Vector3(0, 0, -1), UVList[0], sunLight, localLight);
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(0, 1, 0.5f), new Vector3(0, 0, -1), UVList[1], sunLight, localLight);
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(1, 0, 0.5f), new Vector3(0, 0, -1), UVList[2], sunLight, localLight);
+            AddVertex(blockPosition, chunkRelativePosition, new Vector3(0, 0, 0.5f), new Vector3(0, 0, -1), UVList[5], sunLight, localLight);
+            AddIndex(0, 1, 2, 2, 1, 3);
+        }
+
         #region BuildFaceVertices
         public void BuildFaceVertices(Vector3i blockPosition, Vector3i chunkRelativePosition, BlockFaceDirection faceDir, BlockType blockType, float sunLightTL, float sunLightTR, float sunLightBL, float sunLightBR, Color localLightTL, Color localLightTR, Color localLightBL, Color localLightBR)
         {
