@@ -354,8 +354,14 @@ namespace NewTake.view
         #region BuildBlockVertices
         public void BuildBlockVertices(Block block, Chunk chunk, Vector3i chunkRelativePosition)
         {
-    
+
             Vector3i blockPosition = chunk.Position + chunkRelativePosition;
+
+            //get signed bytes from these to be able to remove 1 without further casts
+            sbyte X = (sbyte) chunkRelativePosition.X;
+            sbyte Y = (sbyte) chunkRelativePosition.Y;
+            sbyte Z = (sbyte) chunkRelativePosition.Z;
+       
 
             Block blockTopNW, blockTopN, blockTopNE, blockTopW, blockTopM, blockTopE, blockTopSW, blockTopS, blockTopSE;
             Block blockMidNW, blockMidN, blockMidNE, blockMidW, blockMidM, blockMidE, blockMidSW, blockMidS, blockMidSE;
@@ -363,35 +369,35 @@ namespace NewTake.view
 
             Block solidBlock = new Block(BlockType.Rock);
 
-            blockTopNW = chunk.BlockAt(new Vector3i(chunkRelativePosition.X - 1, chunkRelativePosition.Y + 1, chunkRelativePosition.Z + 1));
-            blockTopN = chunk.BlockAt(new Vector3i(chunkRelativePosition.X, chunkRelativePosition.Y + 1, chunkRelativePosition.Z + 1));
-            blockTopNE = chunk.BlockAt(new Vector3i(chunkRelativePosition.X + 1, chunkRelativePosition.Y + 1, chunkRelativePosition.Z + 1));
-            blockTopW = chunk.BlockAt(new Vector3i(chunkRelativePosition.X - 1, chunkRelativePosition.Y + 1, chunkRelativePosition.Z));
-            blockTopM = chunk.BlockAt(new Vector3i(chunkRelativePosition.X, chunkRelativePosition.Y + 1, chunkRelativePosition.Z));
-            blockTopE = chunk.BlockAt(new Vector3i(chunkRelativePosition.X + 1, chunkRelativePosition.Y + 1, chunkRelativePosition.Z));
-            blockTopSW = chunk.BlockAt(new Vector3i(chunkRelativePosition.X - 1, chunkRelativePosition.Y + 1, chunkRelativePosition.Z - 1));
-            blockTopS = chunk.BlockAt(new Vector3i(chunkRelativePosition.X, chunkRelativePosition.Y + 1, chunkRelativePosition.Z - 1));
-            blockTopSE = chunk.BlockAt(new Vector3i(chunkRelativePosition.X + 1, chunkRelativePosition.Y + 1, chunkRelativePosition.Z - 1));
+            blockTopNW = chunk.BlockAt(X - 1, Y + 1, Z + 1);
+            blockTopN = chunk.BlockAt(X, Y + 1, Z + 1);
+            blockTopNE = chunk.BlockAt(X + 1, Y + 1, Z + 1);
+            blockTopW = chunk.BlockAt(X - 1, Y + 1, Z);
+            blockTopM = chunk.BlockAt(X, Y + 1, Z);
+            blockTopE = chunk.BlockAt(X + 1, Y + 1, Z);
+            blockTopSW = chunk.BlockAt(X - 1, Y + 1, Z - 1);
+            blockTopS = chunk.BlockAt(X, Y + 1, Z - 1);
+            blockTopSE = chunk.BlockAt(X + 1, Y + 1, Z - 1);
 
-            blockMidNW = chunk.BlockAt(new Vector3i(chunkRelativePosition.X - 1, chunkRelativePosition.Y, chunkRelativePosition.Z + 1));
-            blockMidN = chunk.BlockAt(new Vector3i(chunkRelativePosition.X, chunkRelativePosition.Y, chunkRelativePosition.Z + 1));
-            blockMidNE = chunk.BlockAt(new Vector3i(chunkRelativePosition.X + 1, chunkRelativePosition.Y, chunkRelativePosition.Z + 1));
-            blockMidW = chunk.BlockAt(new Vector3i(chunkRelativePosition.X - 1, chunkRelativePosition.Y, chunkRelativePosition.Z));
-            blockMidM = chunk.BlockAt(new Vector3i(chunkRelativePosition.X, chunkRelativePosition.Y, chunkRelativePosition.Z));
-            blockMidE = chunk.BlockAt(new Vector3i(chunkRelativePosition.X + 1, chunkRelativePosition.Y, chunkRelativePosition.Z));
-            blockMidSW = chunk.BlockAt(new Vector3i(chunkRelativePosition.X - 1, chunkRelativePosition.Y, chunkRelativePosition.Z - 1));
-            blockMidS = chunk.BlockAt(new Vector3i(chunkRelativePosition.X, chunkRelativePosition.Y, chunkRelativePosition.Z - 1));
-            blockMidSE = chunk.BlockAt(new Vector3i(chunkRelativePosition.X + 1, chunkRelativePosition.Y, chunkRelativePosition.Z - 1));
+            blockMidNW = chunk.BlockAt(X - 1, Y, Z + 1);
+            blockMidN = chunk.BlockAt(X, Y, Z + 1);
+            blockMidNE = chunk.BlockAt(X + 1, Y, Z + 1);
+            blockMidW = chunk.BlockAt(X - 1, Y, Z);
+            blockMidM = chunk.BlockAt(X, Y, Z);
+            blockMidE = chunk.BlockAt(X + 1, Y, Z);
+            blockMidSW = chunk.BlockAt(X - 1, Y, Z - 1);
+            blockMidS = chunk.BlockAt(X, Y, Z - 1);
+            blockMidSE = chunk.BlockAt(X + 1, Y, Z - 1);
 
-            blockBotNW = chunk.BlockAt(new Vector3i(chunkRelativePosition.X - 1, chunkRelativePosition.Y - 1, chunkRelativePosition.Z + 1));
-            blockBotN = chunk.BlockAt(new Vector3i(chunkRelativePosition.X, chunkRelativePosition.Y - 1, chunkRelativePosition.Z + 1));
-            blockBotNE = chunk.BlockAt(new Vector3i(chunkRelativePosition.X + 1, chunkRelativePosition.Y - 1, chunkRelativePosition.Z + 1));
-            blockBotW = chunk.BlockAt(new Vector3i(chunkRelativePosition.X - 1, chunkRelativePosition.Y - 1, chunkRelativePosition.Z));
-            blockBotM = chunk.BlockAt(new Vector3i(chunkRelativePosition.X, chunkRelativePosition.Y - 1, chunkRelativePosition.Z));
-            blockBotE = chunk.BlockAt(new Vector3i(chunkRelativePosition.X + 1, chunkRelativePosition.Y - 1, chunkRelativePosition.Z));
-            blockBotSW = chunk.BlockAt(new Vector3i(chunkRelativePosition.X - 1, chunkRelativePosition.Y - 1, chunkRelativePosition.Z - 1));
-            blockBotS = chunk.BlockAt(new Vector3i(chunkRelativePosition.X, chunkRelativePosition.Y - 1, chunkRelativePosition.Z - 1));
-            blockBotSE = chunk.BlockAt(new Vector3i(chunkRelativePosition.X + 1, chunkRelativePosition.Y - 1, chunkRelativePosition.Z - 1));
+            blockBotNW = chunk.BlockAt(X - 1, Y - 1, Z + 1);
+            blockBotN = chunk.BlockAt(X, Y - 1, Z + 1);
+            blockBotNE = chunk.BlockAt(X + 1, Y - 1, Z + 1);
+            blockBotW = chunk.BlockAt(X - 1, Y - 1, Z);
+            blockBotM = chunk.BlockAt(X, Y - 1, Z);
+            blockBotE = chunk.BlockAt(X + 1, Y - 1, Z);
+            blockBotSW = chunk.BlockAt(X - 1, Y - 1, Z - 1);
+            blockBotS = chunk.BlockAt(X, Y - 1, Z - 1);
+            blockBotSE = chunk.BlockAt(X + 1, Y - 1, Z - 1);
 
             float sunTR, sunTL, sunBR, sunBL;
             float redTR, redTL, redBR, redBL;

@@ -82,7 +82,7 @@ namespace NewTake.view
             {
                 _perlinNoiseEffect = content.Load<Effect>("Effects\\PerlinNoise");
                 PresentationParameters pp = GraphicsDevice.PresentationParameters;
-                cloudsRenderTarget = new RenderTarget2D(GraphicsDevice, pp.BackBufferWidth, pp.BackBufferHeight, true, SurfaceFormat.Color, DepthFormat.None);
+                cloudsRenderTarget = new RenderTarget2D(GraphicsDevice, pp.BackBufferWidth, pp.BackBufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
                 cloudStaticMap = CreateStaticMap(32);
                 fullScreenVertices = SetUpFullscreenVertices();
             }

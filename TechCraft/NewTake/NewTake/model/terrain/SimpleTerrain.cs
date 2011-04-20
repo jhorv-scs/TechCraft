@@ -130,12 +130,14 @@ namespace NewTake.model.terrain
                 int lx = tx + r.Next(radius) - r.Next(radius);
                 int ly = ny + r.Next(radius) - r.Next(radius);
                 int lz = tz + r.Next(radius) - r.Next(radius);
-
-                if (chunk.outOfBounds((byte)lx, (byte)ly, (byte)lz) == false)
+                unchecked //TODO floliage out of bound => new chunk.blockat or needs a chunk.setat
                 {
-                    //if (chunk.Blocks[lx, ly, lz].Type == BlockType.None)
-                    if (chunk.Blocks[lx * Chunk.FlattenOffset + lz * Chunk.CHUNK_YMAX + ly].Type == BlockType.None)
-                        chunk.setBlock((byte)lx, (byte)ly, (byte)lz, new Block(BlockType.Leaves));
+                    if (chunk.outOfBounds((byte)lx, (byte)ly, (byte)lz) == false)
+                    {
+                        //if (chunk.Blocks[lx, ly, lz].Type == BlockType.None)
+                        if (chunk.Blocks[lx * Chunk.FlattenOffset + lz * Chunk.CHUNK_YMAX + ly].Type == BlockType.None)
+                            chunk.setBlock((byte)lx, (byte)ly, (byte)lz, new Block(BlockType.Leaves));
+                    }
                 }
             }
 

@@ -129,7 +129,8 @@ namespace NewTake.view
         public override void DoGenerate(Vector3i index)
         {
 
-            Chunk chunk = world.viewableChunks.load(index);
+            Chunk chunk = world.viewableChunks.load(index);            
+
             if (chunk == null)
             {
                 // Create a new chunk
@@ -144,7 +145,7 @@ namespace NewTake.view
             // Calculate lighting
             cRenderer.DoLighting();
             // Store the chunk in the view
-            world.viewableChunks[index.X, index.Z] = chunk;
+            
 
             chunk.generated = true;
         }

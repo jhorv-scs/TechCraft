@@ -49,7 +49,7 @@ namespace NewTake.model
         public ChunkManager viewableChunks;
 
         public const byte VIEW_CHUNKS_X = 4;
-        public const byte VIEW_CHUNKS_Y = 1; 
+        public const byte VIEW_CHUNKS_Y = 1;
         public const byte VIEW_CHUNKS_Z = 4;
         public static int SEED = 12345;
 
@@ -73,7 +73,7 @@ namespace NewTake.model
         //public IChunkGenerator Generator = new Grassland_Temperate();
         #endregion
 
-        public static uint origin = 1000; 
+        public static uint origin = 1000;
         //TODO UInt32 requires decoupling rendering coordinates to avoid float problems
 
         public World()
@@ -96,7 +96,9 @@ namespace NewTake.model
         #region BlockAt
         public Block BlockAt(Vector3 position)
         {
+
             return BlockAt((uint)position.X, (uint)position.Y, (uint)position.Z);
+
         }
 
         public Block BlockAt(uint x, uint y, uint z)
@@ -118,7 +120,7 @@ namespace NewTake.model
         #region setBlock
         public Block setBlock(Vector3i pos, Block b)
         {
-            return setBlock(pos.X,pos.Y,pos.Z,b);
+            return setBlock(pos.X, pos.Y, pos.Z, b);
         }
 
         public Block setBlock(uint x, uint y, uint z, Block newType)
@@ -130,34 +132,37 @@ namespace NewTake.model
                 byte localX = (byte)(x % Chunk.CHUNK_XMAX);
                 byte localY = (byte)(y % Chunk.CHUNK_YMAX);
                 byte localZ = (byte)(z % Chunk.CHUNK_ZMAX);
-                //TODO messy chunk coordinates types
-                //Block old = chunk.Blocks[localX, localY, localZ];
+
                 Block old = chunk.Blocks[localX * Chunk.FlattenOffset + localZ * Chunk.CHUNK_YMAX + localY];
-                
-               //chunk.setBlock is also called by terrain generators for Y loops min max optimisation
-               chunk.setBlock(localX, localY, localZ, new Block(newType.Type));
-               //TODO ( maybe ? )  when digging, mark neighbours chunks as dirty to fill rendering holes                                       
-               
+
+                //chunk.setBlock is also called by terrain generators for Y loops min max optimisation
+                chunk.setBlock(localX, localY, localZ, new Block(newType.Type));
+                //TODO ( maybe ? )  when digging, mark neighbours chunks as dirty to fill rendering holes                                       
+
                 chunk.dirty = true;
 
-                //TODO use Chunk.N/SW/E accessors
+                //TODO use Chunk accessors
                 if (localX == 0)
                 {
                     viewableChunks[(x / Chunk.CHUNK_XMAX) - 1, z / Chunk.CHUNK_ZMAX].dirty = true;
+                    //if (chunk.W != null) chunk.W.dirty = true;
                 }
                 if (localX == Chunk.CHUNK_XMAX - 1)
                 {
                     viewableChunks[(x / Chunk.CHUNK_XMAX) + 1, z / Chunk.CHUNK_ZMAX].dirty = true;
+                    //if (chunk.E != null) chunk.E.dirty = true;
                 }
                 if (localZ == 0)
                 {
                     viewableChunks[x / Chunk.CHUNK_XMAX, (z / Chunk.CHUNK_ZMAX) - 1].dirty = true;
+                    //if (chunk.N != null) chunk.N.dirty = true;
                 }
                 if (localZ == Chunk.CHUNK_ZMAX - 1)
                 {
                     viewableChunks[x / Chunk.CHUNK_XMAX, (z / Chunk.CHUNK_ZMAX) + 1].dirty = true;
+                    //if (chunk.S != null) chunk.S.dirty = true;
                 }
-                
+
                 return old;
             }
             else
@@ -182,8 +187,8 @@ namespace NewTake.model
                 || ly >= Chunk.CHUNK_YMAX
                 || lz >= Chunk.CHUNK_ZMAX)
             {
-                
-              //  Debug.WriteLine("no block at  ({0},{1},{2}) ", x, y, z);
+
+                //  Debug.WriteLine("no block at  ({0},{1},{2}) ", x, y, z);
                 return false;
             }
             return true;

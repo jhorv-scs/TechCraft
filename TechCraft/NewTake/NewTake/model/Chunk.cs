@@ -32,6 +32,7 @@ using System.Text;
 
 using Microsoft.Xna.Framework;
 using NewTake.view;
+using System.Diagnostics;
 #endregion
 
 namespace NewTake.model
@@ -45,7 +46,7 @@ namespace NewTake.model
         public const byte CHUNK_YMAX = 128;
         public const byte CHUNK_ZMAX = 16;
 
-        public Chunk N, S, E, W, NE, NW, SE, SW; //TODO infinite y would require Top , Bottom, maybe vertical diagonals
+        private Chunk _N, _S, _E, _W, _NE, _NW, _SE, _SW; //TODO infinite y would require Top , Bottom, maybe vertical diagonals
 
         public static Vector3b SIZE = new Vector3b(CHUNK_XMAX, CHUNK_YMAX, CHUNK_ZMAX);
 
@@ -85,8 +86,6 @@ namespace NewTake.model
 
         public readonly World world;
 
-        //public ChunkRenderer Renderer;
-
         private BoundingBox _boundingBox;
 
         public Vector3b highestSolidBlock = new Vector3b(0, 0, 0);
@@ -95,21 +94,27 @@ namespace NewTake.model
         public Vector3b lowestNoneBlock = new Vector3b(0, CHUNK_YMAX, 0);
         #endregion
 
-        public Chunk(World world,Vector3i index)
+        public Chunk(World world, Vector3i index)
         {
             this.world = world;
-            
             dirty = true;
             visible = true;
             generated = false;
-            
+
             Index = index;
 
             Position = new Vector3i(index.X * CHUNK_XMAX, index.Y * CHUNK_YMAX, index.Z * CHUNK_ZMAX);
             //Blocks = new Block[CHUNK_XMAX, CHUNK_YMAX, CHUNK_ZMAX]; //TODO test 3d sparse impl performance and memory
             this.Blocks = new Block[CHUNK_XMAX * CHUNK_ZMAX * CHUNK_YMAX];
             _boundingBox = new BoundingBox(new Vector3(Position.X, Position.Y, Position.Z), new Vector3(Position.X + CHUNK_XMAX, Position.Y + CHUNK_YMAX, Position.Z + CHUNK_ZMAX));
+
+            //ensure world is set directly in here to have access to N S E W as soon as possible
+            world.viewableChunks[index.X, index.Z] = this;
+
         }
+
+
+
 
         #region setBlock
         public void setBlock(byte x, byte y, byte z, Block b)
@@ -126,9 +131,9 @@ namespace NewTake.model
                 //TODO uint vs int is currently a mess and in fact here it should be bytes !
                 highestSolidBlock = new Vector3b(x, y, z);
             }
-             
+
             //Blocks[x, y, z] = b;
-            
+
             //comment this line : you should have nothing on screen, else you ve been setting blocks directly in array !
             Blocks[x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX + y] = b;
         }
@@ -145,35 +150,158 @@ namespace NewTake.model
         }
 
         #region BlockAt
-        public Block BlockAt(Vector3i chunkRelativePositon)
+
+        public Block BlockAt(int relx,int rely, int relz)
         {
-            if (chunkRelativePositon.Y < 0 || chunkRelativePositon.Y > Chunk.CHUNK_YMAX - 1)
+                    
+            if (rely < 0 || rely > Chunk.CHUNK_YMAX - 1)
+            {
+                //infinite Y : y bounds currently set as rock for never rendering those y bounds
+                return new Block(BlockType.Rock);
+            }
+
+            //handle the normal simple case
+            if (relx >= 0 && relz >= 0 && relx < Chunk.CHUNK_XMAX && relz < Chunk.CHUNK_ZMAX)
+            {
+                Block block = Blocks[relx * Chunk.FlattenOffset + relz * Chunk.CHUNK_YMAX + rely];
+                return block;                               
+            }
+          
+            //handle all special cases
+            //TODO rename stupid MAX that should be size / use size vector instead
+            // was tired of it used 15
+            int x = relx, z = relz;
+            Chunk nChunk = null;
+
+            if (relx < 0)
+            {
+                //xChunk = W;
+                x = 15;
+            }
+
+            if (relz < 0)
+            {
+                //zChunk = N;
+                z = 15;
+            }
+
+            if (relx > 15)
+            {
+                //xChunk = E;
+                x = 0;
+            }
+
+            if (relz > 15)
+            {
+                //zChunk = S;
+                z = 0;
+            }
+
+            if (x!=relx && x == 0)
+                if (z!=relz && z == 0)
+                    nChunk = SE;
+                else if (z != relz && z == 15)
+                    nChunk = NE;
+                else
+                    nChunk = E;
+            else if (x != relx &&  x == 15)
+                if (z != relz && z == 0)
+                    nChunk = SW;
+                else if (z != relz && z == 15)
+                    nChunk = NW;
+                else
+                    nChunk = W;
+            else
+                if (z != relz && z == 0)
+                    nChunk = S;
+                else if (z != relz && z == 15)
+                    nChunk = N;
+
+            if (nChunk == null)
             {
                 return new Block(BlockType.Rock);
             }
-            else if (chunkRelativePositon.X < 0 || chunkRelativePositon.Z < 0 ||
-                chunkRelativePositon.X > Chunk.CHUNK_XMAX - 1 || chunkRelativePositon.Z > Chunk.CHUNK_ZMAX - 1)
-            {
-                Vector3i worldPosition = new Vector3i(Position.X + chunkRelativePositon.X, Position.Y + chunkRelativePositon.Y, Position.Z + chunkRelativePositon.Z);
-                Chunk nChunk = world.viewableChunks[worldPosition.X / Chunk.CHUNK_XMAX, worldPosition.Z / Chunk.CHUNK_ZMAX];
-                if (nChunk != null)
-                {
-                    Vector3i chunkBlockPosition = new Vector3i(worldPosition.X - nChunk.Position.X, worldPosition.Y - nChunk.Position.Y, worldPosition.Z - nChunk.Position.Z);
-
-                    return nChunk.BlockAt(chunkBlockPosition);
-                }
-                else
-                {
-                    return new Block(BlockType.Rock);
-                }
-            }
             else
             {
-                //return chunk.Blocks[chunkRelativePositon.X, chunkRelativePositon.Y, chunkRelativePositon.Z];
-                return Blocks[chunkRelativePositon.X * Chunk.FlattenOffset + chunkRelativePositon.Z * Chunk.CHUNK_YMAX + chunkRelativePositon.Y];
+                Block block =  nChunk.Blocks[x * Chunk.FlattenOffset + z * Chunk.CHUNK_YMAX + rely];
+                return block;
             }
+
         }
         #endregion
+
+        //this neighbours check can not be done in constructor, there would be some holes => it has to be done at access time 
+        //TODO check for mem leak / may need weakreferences
+        public Chunk N
+        {
+            get
+            {
+                if (_N == null)
+                    _N = world.viewableChunks[Index.X, Index.Z - 1];
+                if (_N != null)
+                {
+                    _N._S = this;//Debug.WriteLine("_N");
+                }
+                return _N;
+            }
+        }
+        public Chunk S
+        {
+            get
+            {
+                if (_S == null)
+                    _S = world.viewableChunks[Index.X, Index.Z + 1];
+                if (_S != null)
+                {
+                    _S._N = this; // Debug.WriteLine("_S"); 
+                }
+                return _S;
+            }
+        }
+        public Chunk E { get { return _E != null ? _E : _E = world.viewableChunks[Index.X + 1, Index.Z]; } }
+        public Chunk W { get { return _W != null ? _W : _W = world.viewableChunks[Index.X - 1, Index.Z]; } }
+        public Chunk NW { get { return _NW != null ? _NW : _NW = world.viewableChunks[Index.X - 1, Index.Z - 1]; } }
+        public Chunk NE { get { return _NE != null ? _NE : _NE = world.viewableChunks[Index.X + 1, Index.Z - 1]; } }
+        public Chunk SW { get { return _SW != null ? _SW : _SW = world.viewableChunks[Index.X - 1, Index.Z + 1]; } }
+        public Chunk SE { get { return _SE != null ? _SE : _SE = world.viewableChunks[Index.X + 1, Index.Z + 1]; } }
+
+        //this is a unit test for neighbours
+        static void Main(string[] args)
+        {
+            World world = new World();
+
+            uint n = 4, s = 6, w = 4, e = 6;
+
+            Chunk cw = new Chunk(world, new Vector3i(w, 5, 5));            
+            Chunk c = new Chunk(world, new Vector3i(5,5,5));            
+            Chunk ce = new Chunk(world, new Vector3i(e, 5, 5));
+            
+            Chunk cn = new Chunk(world, new Vector3i(5, 5, n));
+            Chunk cs = new Chunk(world, new Vector3i(5, 5, s));
+            Chunk cne = new Chunk(world, new Vector3i(e, 5, n));
+            Chunk cnw = new Chunk(world, new Vector3i(w, 5, n));
+            Chunk cse = new Chunk(world, new Vector3i(e, 5, s));
+            Chunk csw = new Chunk(world, new Vector3i(w, 5, s));
+
+
+            c.setBlock(0,0,0,new Block(BlockType.Dirt));
+            cw.setBlock(15, 0, 0, new Block(BlockType.Grass));
+
+            Block w15 = c.BlockAt(-1, 0, 0);
+            Debug.Assert(w15.Type == BlockType.Grass);
+
+            ce.setBlock(0, 0, 0, new Block(BlockType.Tree));
+            Block e0 = c.BlockAt(16, 0, 0);
+            Debug.Assert(e0.Type == BlockType.Tree);
+
+            csw.setBlock(15, 0, 0, new Block(BlockType.Lava));
+            Block swcorner = c.BlockAt(-1, 0, 16);
+            Debug.Assert(swcorner.Type == BlockType.Lava);
+
+            cne.setBlock(0, 0,15, new Block(BlockType.Leaves));
+            Block necorner = c.BlockAt(16, 0, -1);
+            Debug.Assert(necorner.Type == BlockType.Leaves);
+        }
 
     }
 }
