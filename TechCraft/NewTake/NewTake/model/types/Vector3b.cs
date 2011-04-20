@@ -77,7 +77,7 @@ namespace NewTake
        
         public override int GetHashCode()
         {
-            //TODO check this hashcode impl - here shoul be ok, no overflow problem           
+            //TODO check this hashcode impl - here should be ok, no overflow problem           
             return (int)(X ^ Y ^ Z);
         }
 
