@@ -52,6 +52,9 @@ namespace NewTake.view
 
         //private Texture2D ambientOcclusionMap;
 
+        private readonly BlockingCollection<Vector3i> _generationQueue = new BlockingCollection<Vector3i>(); // uses concurrent queues by default.
+        private readonly BlockingCollection<Vector3i> _buildingQueue = new BlockingCollection<Vector3i>();
+
         #endregion
 
         #region SkyDome and Clouds
@@ -95,8 +98,33 @@ namespace NewTake.view
             }
             #endregion
 
-            Task.Factory.StartNew(() => chunkReGenBuildTask()); // Starts the task that checks chunks for remove/generate/build
+            Task.Factory.StartNew(() => chunkReGenBuildTask(), TaskCreationOptions.LongRunning); // Starts the task that checks chunks for remove/generate/build
+            Task.Factory.StartNew(() => WorkerTask(), TaskCreationOptions.LongRunning); // Starts the task that generates or builds chunks
         }
+
+        #region WorkerTask
+        private void WorkerTask()
+        {
+            while (_running)
+            {
+                Vector3i newIndex;
+                BlockingCollection<Vector3i>.TakeFromAny(new[] { _generationQueue, _buildingQueue }, out newIndex);
+                //Debug.WriteLine("genQ = {0}, buildQ = {1}", _generationQueue.Count, _buildingQueue.Count);
+                if (world.viewableChunks[newIndex.X, newIndex.Z] == null)
+                {
+                    //Debug.WriteLine("Worker Generate {0},{1}", newIndex.X, newIndex.Z);
+                    DoGenerate(newIndex);
+                }
+                else
+                {
+                    Chunk chunk = world.viewableChunks[newIndex.X, newIndex.Z];
+                    if ((!chunk.built) && (chunk.generated))//TODO why can it be null now 
+                    //Debug.WriteLine("Worker Build {0},{1}", newIndex.X, newIndex.Z);
+                    DoBuild(newIndex);
+                }
+            }
+        }
+        #endregion
 
         #region Chunk Remove/Generate/Build Task
         private void chunkReGenBuildTask()
@@ -140,6 +168,7 @@ namespace NewTake.view
                                     chunk.visible = false;
                                     world.viewableChunks.Remove(j, l);
                                     ChunkRenderer cr;
+                                    //Task.Factory.StartNew(() => ChunkRenderers.TryRemove(newIndex, out cr));
                                     ChunkRenderers.TryRemove(newIndex, out cr);
                                     //Debug.WriteLine("Removed chunk at {0},{1},{2}", chunk.Position.X, chunk.Position.Y, chunk.Position.Z);
                                 }
@@ -158,7 +187,8 @@ namespace NewTake.view
 
                                     try
                                     {
-                                        DoGenerate(newIndex);
+                                        this._generationQueue.Add(newIndex);    // adds the chunk index to the generation queue 
+                                        //DoGenerate(newIndex);
                                         //Debug.WriteLine("Built chunk at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
                                     }
                                     catch (AggregateException ae)
@@ -179,7 +209,8 @@ namespace NewTake.view
 
                                     try
                                     {
-                                        DoBuild(newIndex);
+                                        this._buildingQueue.Add(newIndex); // adds the chunk index to the build queue
+                                        //DoBuild(newIndex);
                                         //Debug.WriteLine("Vertices built at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
                                     }
                                     catch (AggregateException ae)
