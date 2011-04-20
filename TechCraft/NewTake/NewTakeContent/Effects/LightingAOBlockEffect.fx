@@ -68,6 +68,11 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	color.rgb  = texColor1.rgb * input.Color.rgb;
 	color.a = texColor1.a;
 
+    if(color.a == 0)
+    {
+        clip(-1);
+    }
+
     return lerp(FogColor, color ,fog);
 }
 

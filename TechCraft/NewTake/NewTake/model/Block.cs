@@ -35,16 +35,17 @@ namespace NewTake.model
     public enum BlockType : byte
     {
         None=0,
-        Dirt=1,
-        Grass=2,
-        Lava=3,
-        Leaves=4,
-        Rock=5,
-        Sand=6,
-        Tree=7,
-        Water=8,
-        Snow = 9,
-        MAXIMUM = 15
+        Dirt,
+        Grass,
+        Lava,
+        Leaves,
+        Rock,
+        Sand,
+        Tree,
+        Water,
+        Snow,
+        RedFlower,
+        MAXIMUM 
     }
 
     #region Block structure
@@ -63,7 +64,14 @@ namespace NewTake.model
 
         public bool Solid
         {
-            get { return Type != BlockType.None; } 
+            get
+            {
+                if (Type == BlockType.None || Type == BlockType.Leaves || Type == BlockType.RedFlower)
+                {
+                    return false;
+                }
+                return true;
+            } 
         }
     }
 
@@ -102,7 +110,13 @@ namespace NewTake.model
 
         public bool Solid
         {
-            get { return Type != BlockType.None; } 
+            get {
+                if (Type == BlockType.None || Type == BlockType.Leaves || Type == BlockType.RedFlower)
+                {
+                    return false;
+                }
+                return true;
+            } 
         }
     }
     #endregion

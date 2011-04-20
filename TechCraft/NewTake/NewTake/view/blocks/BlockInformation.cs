@@ -35,6 +35,12 @@ namespace NewTake.view.blocks
 {
     public class BlockInformation
     {
+
+        public static BlockTexture GetTexture(BlockType blockType)
+        {
+            return GetTexture(blockType, BlockFaceDirection.MAXIMUM, BlockType.None);
+        }
+
         public static BlockTexture GetTexture(BlockType blockType, BlockFaceDirection faceDir)
         {
             return GetTexture(blockType, faceDir, BlockType.None);
@@ -51,15 +57,15 @@ namespace NewTake.view.blocks
             return true;
         }
 
-        public static bool IsLightEmittingBlock(BlockType type)
+        public static bool IsPlantBlock(BlockType type)
         {
-            if (type == BlockType.Lava) return true;
+            if (type == BlockType.RedFlower) return true;
             return false;
         }
 
-        public static bool IsLightTransparentBlock(BlockType type)
+        public static bool IsTransparentBlock(BlockType type)
         {
-            if (type == BlockType.None || type == BlockType.Water) return true;
+            if (type == BlockType.None || type == BlockType.Water || type == BlockType.Leaves) return true;
             return false;
         }
 
@@ -67,12 +73,6 @@ namespace NewTake.view.blocks
         {
             if (type == BlockType.Water) return false;
             return true;
-        }
-
-        public static bool IsModelBlock(BlockType type)
-        {
-            //if (type == BlockType.Water || type == BlockType.Leaves) return true;
-            return false;
         }
 
         #region GetTexture
@@ -130,6 +130,8 @@ namespace NewTake.view.blocks
                     }
                 case BlockType.Water:
                     return BlockTexture.Water;
+                case BlockType.RedFlower:
+                    return BlockTexture.RedFlower;
                 default:
                     return BlockTexture.Rock;
 
