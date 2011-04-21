@@ -141,8 +141,10 @@ namespace NewTake.view
                 uint lz = z % Chunk.SIZE.Z;
 
 
-                Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;    // This is the chunk in which the camera currently resides
-
+                //Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;    // This is the chunk in which the camera currently resides
+                //this is the same vector without the nullpointer possibility when reaching coordinates < Chunk.SIZE.X or Z
+                Vector3i currentChunkIndex = new Vector3i(cx, 0, cz);
+               
                 if (currentChunkIndex != previousChunkIndex)
                 {
                     previousChunkIndex = currentChunkIndex;
