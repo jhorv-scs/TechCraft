@@ -52,7 +52,7 @@ namespace NewTake.view
 
         protected World world;
         protected readonly GraphicsDevice GraphicsDevice;
-        protected ConcurrentDictionary<Vector3i, ChunkRenderer> ChunkRenderers;
+
         protected Effect _solidBlockEffect;
         protected Texture2D _textureAtlas;
         public readonly FirstPersonCamera camera;
@@ -75,8 +75,11 @@ namespace NewTake.view
         {
             this.world = world;
             this.GraphicsDevice = graphicsDevice;
-            ChunkRenderers = new ConcurrentDictionary<Vector3i, ChunkRenderer>();
+            this.camera = camera;
+        }
 
+        public virtual void Initialize()
+        {
             #region Generate the initial chunks
             // Generate the initial chunks
             var generatingWatch = new Stopwatch();
@@ -92,12 +95,10 @@ namespace NewTake.view
             var buildWatch = new Stopwatch();
             buildWatch.Start();
             Debug.Write("Building initial chunks.. ");
-            world.visitChunks(DoBuild);
+            //world.visitChunks(DoBuild);
             buildWatch.Stop();
             Debug.WriteLine(buildWatch.Elapsed);
             #endregion
-
-            this.camera = camera;
 
             this.previousChunkIndex = new Vector3i();
         }
@@ -159,8 +160,8 @@ namespace NewTake.view
                                 Chunk chunk = world.viewableChunks[j, l];
                                 chunk.visible = false;
                                 world.viewableChunks.Remove( j, l);
-                                ChunkRenderer outChunkRenderer;
-                                ChunkRenderers.TryRemove(newIndex,out outChunkRenderer);
+                                //ChunkRenderer outChunkRenderer;
+                                //ChunkRenderers.TryRemove(newIndex,out outChunkRenderer);
                                 //Debug.WriteLine("Removed chunk at {0},{1},{2}", chunk.Position.X, chunk.Position.Y, chunk.Position.Z);
                             }
                             else
@@ -198,19 +199,19 @@ namespace NewTake.view
 
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
 
-            foreach (ChunkRenderer chunkRenderer in ChunkRenderers.Values)
-            {
-                if (chunkRenderer == null) return;
+            //foreach (ChunkRenderer chunkRenderer in ChunkRenderers.Values)
+            //{
+            //    if (chunkRenderer == null) return;
 
-                if (chunkRenderer.isInView(viewFrustum))
-                {
-                    // Only update chunks which have a valid vertex buffer
-                    if (chunkRenderer.chunk.built)
-                    {
-                        chunkRenderer.Update(gameTime);
-                    }
-                }
-            }
+            //    if (chunkRenderer.isInView(viewFrustum))
+            //    {
+            //        // Only update chunks which have a valid vertex buffer
+            //        if (chunkRenderer.chunk.built)
+            //        {
+            //            chunkRenderer.Update(gameTime);
+            //        }
+            //    }
+            //}
         }
 
         #endregion

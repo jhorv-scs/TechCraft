@@ -31,13 +31,16 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Diagnostics;
+using System.Collections.Concurrent;
 using NewTake.model;
 #endregion
 
 namespace NewTake.model.types
 {
+
     public class ChunkManager : Dictionary2<Chunk>
     {
+       
         private IChunkPersistence persistence;
    
         public ChunkManager(IChunkPersistence persistence)
@@ -51,8 +54,10 @@ namespace NewTake.model.types
 
             beforeRemove(chunk);
 
-            Remove(KeyFromCoords(x, z));
+            //Remove(KeyFromCoords(x, z));
 
+            Chunk removed;
+            TryRemove(KeyFromCoords(x, z), out removed);
         }
 
         private void beforeRemove(Chunk chunk)

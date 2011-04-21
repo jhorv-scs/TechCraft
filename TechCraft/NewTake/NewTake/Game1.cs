@@ -116,6 +116,7 @@ namespace NewTake
             //renderer = new SingleThreadWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             //renderer = new SingleThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             renderer = new MultiThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            renderer.Initialize();
             //TODO refactor WorldRenderer needs player position + view frustum 
 
             base.Initialize();

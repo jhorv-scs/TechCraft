@@ -32,7 +32,12 @@ using System.Text;
 
 using Microsoft.Xna.Framework;
 using NewTake.view;
+using NewTake.view.blocks;
 using System.Diagnostics;
+
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
+
 #endregion
 
 namespace NewTake.model
@@ -40,13 +45,23 @@ namespace NewTake.model
 
     public class Chunk
     {
+        private const byte MAX_SUN_VALUE = 16;
 
         #region inits
 
         private Chunk _N, _S, _E, _W, _NE, _NW, _SE, _SW; //TODO infinite y would require Top , Bottom, maybe vertical diagonals
 
+
         public static Vector3b SIZE = new Vector3b(16, 128, 16);
         public static Vector3b MAX = new Vector3b(15, 127, 15);
+
+        public VertexBuffer VertexBuffer;
+        public IndexBuffer IndexBuffer;
+        public List<short> indexList;
+        public List<VertexPositionTextureLight> vertexList;
+        public short VertexCount;
+
+        public ChunkState State;
 
         /// <summary>
         /// Contains blocks as a flattened array.
@@ -75,10 +90,13 @@ namespace NewTake.model
         public readonly Vector3i Position;
         public readonly Vector3i Index;
 
+
         public bool dirty;
         public bool visible;
         public bool generated;
         public bool built;
+
+        public bool broken;
 
         public readonly World world;
 
@@ -106,7 +124,15 @@ namespace NewTake.model
 
             //ensure world is set directly in here to have access to N S E W as soon as possible
             world.viewableChunks[index.X, index.Z] = this;
+            vertexList = new List<VertexPositionTextureLight>();
+            indexList = new List<short>();
+        }
 
+        public void Clear()
+        {
+            vertexList.Clear();
+            indexList.Clear();
+            VertexCount = 0;
         }
 
         #region setBlock
@@ -126,6 +152,7 @@ namespace NewTake.model
 
             //comment this line : you should have nothing on screen, else you ve been setting blocks directly in array !
             Blocks[x * Chunk.FlattenOffset + z * Chunk.SIZE.Y + y] = b;
+            dirty = true;
         }
         #endregion
 
@@ -133,6 +160,7 @@ namespace NewTake.model
         {
             get { return _boundingBox; }
         }
+
 
         public bool outOfBounds(byte x, byte y, byte z)
         {
@@ -290,5 +318,6 @@ namespace NewTake.model
             Debug.Assert(necorner.Type == BlockType.Leaves);
         }
         #endregion
+
     }
 }

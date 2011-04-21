@@ -94,12 +94,12 @@ namespace NewTake.view
         {
             Chunk chunk = world.viewableChunks[vector.X, vector.Z];
 
-            this.ChunkRenderers[chunk.Index].DoLighting();
+            //this.ChunkRenderers[chunk.Index].DoLighting();
             //chunk.Renderer.DoLighting();
             
             // Build a vertex buffer for this chunks
             //chunk.Renderer.BuildVertexList();
-            this.ChunkRenderers[chunk.Index].BuildVertexList();
+            //this.ChunkRenderers[chunk.Index].BuildVertexList();
         
             chunk.built = true;
         }
@@ -116,11 +116,11 @@ namespace NewTake.view
                 world.Generator.Generate(chunk);
             }
                 // Assign a renderer
-            ChunkRenderer cRenderer = new SingleThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
-            this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);
+            //ChunkRenderer cRenderer = new SingleThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
+            //this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);
             
             // Calculate lighting
-            cRenderer.DoLighting();
+            //cRenderer.DoLighting();
             // Store the chunk in the view
             world.viewableChunks[index.X, index.Z] = chunk;
 
@@ -232,18 +232,18 @@ namespace NewTake.view
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
 
-            foreach (EffectPass pass in _solidBlockEffect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
+            //foreach (EffectPass pass in _solidBlockEffect.CurrentTechnique.Passes)
+            //{
+            //    pass.Apply();
 
-                foreach (ChunkRenderer chunkRenderer in ChunkRenderers.Values)
-                {
-                    if (chunkRenderer.isInView(viewFrustum) && chunkRenderer.chunk.generated && !chunkRenderer.chunk.dirty)
-                    {
-                        chunkRenderer.Draw(gameTime);
-                    }
-                }
-            }
+            //    foreach (ChunkRenderer chunkRenderer in ChunkRenderers.Values)
+            //    {
+            //        if (chunkRenderer.isInView(viewFrustum) && chunkRenderer.chunk.generated && !chunkRenderer.chunk.dirty)
+            //        {
+            //            chunkRenderer.Draw(gameTime);
+            //        }
+            //    }
+            //}
         }
         #endregion
 

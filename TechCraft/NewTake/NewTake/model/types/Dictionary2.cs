@@ -28,10 +28,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections.Concurrent;
 
 namespace NewTake.model.types
 {
-    public class Dictionary2<T> : Dictionary<ulong, T>
+    public class Dictionary2<T> : ConcurrentDictionary<ulong, T>
     {
         const ulong size = UInt32.MaxValue;
 
@@ -58,7 +59,8 @@ namespace NewTake.model.types
         }
 
         public virtual void Remove(uint x, uint z) {
-            Remove(KeyFromCoords(x, z));
+            T removed;
+            TryRemove(KeyFromCoords(x, z), out removed);
         }
     }
 }
