@@ -40,6 +40,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 using NewTake.model;
+using NewTake.profiling;
+using NewTake.view.blocks;
 #endregion
 
 namespace NewTake.view
@@ -50,7 +52,10 @@ namespace NewTake.view
 
         private const bool cloudsEnabled = true;
 
-        //private Texture2D ambientOcclusionMap;
+        private BasicEffect _debugEffect;
+
+        private VertexBuildChunkProcessor _vertexBuildChunkProcessor;
+        private LightingChunkProcessor _lightingChunkProcessor;
 
         private readonly BlockingCollection<Vector3i> _generationQueue = new BlockingCollection<Vector3i>(); // uses concurrent queues by default.
         private readonly BlockingCollection<Vector3i> _buildingQueue = new BlockingCollection<Vector3i>();
@@ -72,12 +77,27 @@ namespace NewTake.view
         #endregion
 
         public MultiThreadLightingWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world) :
-            base(graphicsDevice, camera, world) { }
+            base(graphicsDevice, camera, world) {
+
+
+        }
+
+        public override void Initialize()
+        {
+            _vertexBuildChunkProcessor = new VertexBuildChunkProcessor(GraphicsDevice);
+            _lightingChunkProcessor = new LightingChunkProcessor();
+
+            base.Initialize();
+        }
 
         public override void LoadContent(ContentManager content)
         {
+
+
             _textureAtlas = content.Load<Texture2D>("Textures\\blocks");
             _solidBlockEffect = content.Load<Effect>("Effects\\LightingAOBlockEffect");
+            _debugEffect = new BasicEffect(GraphicsDevice);
+
 
             #region SkyDome and Clouds
             // SkyDome
@@ -169,10 +189,6 @@ namespace NewTake.view
                                     Chunk chunk = world.viewableChunks[j, l];
                                     chunk.visible = false;
                                     world.viewableChunks.Remove(j, l);
-                                    ChunkRenderer cr;
-                                    //Task.Factory.StartNew(() => ChunkRenderers.TryRemove(newIndex, out cr));
-                                    ChunkRenderers.TryRemove(newIndex, out cr);
-                                    //Debug.WriteLine("Removed chunk at {0},{1},{2}", chunk.Position.X, chunk.Position.Y, chunk.Position.Z);
                                 }
                                 else
                                 {
@@ -182,16 +198,15 @@ namespace NewTake.view
                             // Generate Chunks
                             else if ((distancecx > World.VIEW_CHUNKS_X) || (distancecz > World.VIEW_CHUNKS_Z))
                             {
+                               Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
+
                                 // A new chunk is coming into view - we need to generate or load it
-                                if (world.viewableChunks[j, l] == null) // Chunk is not created or loaded, therefore create - 
+                                if (world.viewableChunks[j, l] == null && !_generationQueue.Contains(newIndex)) // Chunk is not created or loaded, therefore create - 
                                 {
-                                    Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
 
                                     try
                                     {
                                         this._generationQueue.Add(newIndex);    // adds the chunk index to the generation queue 
-                                        //DoGenerate(newIndex);
-                                        //Debug.WriteLine("Built chunk at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
                                     }
                                     catch (AggregateException ae)
                                     {
@@ -203,8 +218,9 @@ namespace NewTake.view
                             else
                             {
                                 Chunk chunk = world.viewableChunks[j, l];
-                                //if ((!chunk.built) && (chunk.generated))//TODO why can it be null now 
-                                if (!chunk.built)//TODO why can it be null now 
+
+                                 //if ((!chunk.built) && (chunk.generated))//TODO why can it be null now 
+                                if (!chunk.built && chunk.generated)//TODO why can it be null now 
                                 {
                                     // We have a chunk in view - it has been generated but we haven't built a vertex buffer for it
                                     Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
@@ -212,8 +228,10 @@ namespace NewTake.view
                                     try
                                     {
                                         this._buildingQueue.Add(newIndex); // adds the chunk index to the build queue
+                                        //this._buildingQueue.Add(chunk.Index); // adds the chunk index to the build queue
                                         //DoBuild(newIndex);
                                         //Debug.WriteLine("Vertices built at {0},{1},{2}", newIndex.X, newIndex.Y, newIndex.Z);
+                                        //Debug.WriteLine("Queue build {0},{1},{2} : {3},{4}", chunk.Index.X, chunk.Index.Y, chunk.Index.Z, distancecx, distancecz);
                                     }
                                     catch (AggregateException ae)
                                     {
@@ -234,16 +252,9 @@ namespace NewTake.view
         public override void DoBuild(Vector3i vector)
         {
             Chunk chunk = world.viewableChunks[vector.X, vector.Z];
-
-            this.ChunkRenderers[chunk.Index].DoLighting();
-
-            //chunk.Renderer.DoLighting();
-            
-            // Build a vertex buffer for this chunks
-            //chunk.Renderer.BuildVertexList();
-
-            this.ChunkRenderers[chunk.Index].BuildVertexList();
-          
+            // Propogate the chunk lighting
+            _lightingChunkProcessor.ProcessChunk(chunk);
+            _vertexBuildChunkProcessor.ProcessChunk(chunk);          
             chunk.built = true;
         }
         #endregion
@@ -260,15 +271,12 @@ namespace NewTake.view
                 chunk = new Chunk(world, index);
                 // Generate the chunk with the current generator
                 world.Generator.Generate(chunk);
+                // Clear down the chunk lighting 
+                _lightingChunkProcessor.InitChunk(chunk);
             }
                 // Assign a renderer
-            ChunkRenderer cRenderer = new MultiThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
-            this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);
-            
-            // Calculate lighting
-            cRenderer.DoLighting();
-            // Store the chunk in the view
-            
+            //ChunkRenderer cRenderer = new MultiThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
+            //this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);           
 
             chunk.generated = true;
         }
@@ -353,23 +361,14 @@ namespace NewTake.view
         #region Update
         public override void Update(GameTime gameTime)
         {
-
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
-
-            foreach (ChunkRenderer chunkRenderer in ChunkRenderers.Values)
-            {
-                if (chunkRenderer == null) return;
-
-                if (chunkRenderer.isInView(viewFrustum))
-                {
-                    // Only update chunks which have a valid vertex buffer
-                    if (chunkRenderer.chunk.built)
-                    {
-                        chunkRenderer.Update(gameTime);
-                    }
-                }
-            }
-
+            //foreach(Chunk chunk in world.viewableChunks.Values)
+            //{
+            //    if (chunk.BoundingBox.Intersects(viewFrustum))
+            //    {
+                    
+            //    }
+            //}
         }
         #endregion
 
@@ -410,16 +409,47 @@ namespace NewTake.view
             {
                 pass.Apply();
 
-                foreach (ChunkRenderer chunkRenderer in ChunkRenderers.Values)
+                foreach(Chunk chunk in world.viewableChunks.Values)
                 {
-                    if (chunkRenderer.isInView(viewFrustum) && chunkRenderer.chunk.generated && !chunkRenderer.chunk.dirty)
+                    if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.generated && !chunk.dirty)
                     {
-                        chunkRenderer.Draw(gameTime);
+                        DrawChunk(chunk);
+                    }
+                }
+            }
+
+            // Diagnostic rendering
+            // TODO fn key to turn on/off
+            foreach (Chunk chunk in world.viewableChunks.Values)
+            {
+                if (chunk.BoundingBox.Intersects(viewFrustum))
+                {
+                    if (chunk.broken)
+                    {
+                        Utility.DrawBoundingBox(chunk.BoundingBox, GraphicsDevice, _debugEffect, Matrix.Identity, camera.View, camera.Projection, Color.Red);
+                    }
+                    else
+                    {
+                        if (!chunk.built)
+                        {
+                            // Draw the bounding box for the chunk so we can see them
+                            Utility.DrawBoundingBox(chunk.BoundingBox, GraphicsDevice, _debugEffect, Matrix.Identity, camera.View, camera.Projection, Color.Green);
+                        }
                     }
                 }
             }
         }
         #endregion
 
+        private void DrawChunk(Chunk chunk)
+        {
+            if (chunk.built)
+            {
+                GraphicsDevice.SetVertexBuffer(chunk.VertexBuffer);
+                GraphicsDevice.Indices = chunk.IndexBuffer;
+                //graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexBuffer.VertexCount / 3);
+                GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, chunk.VertexBuffer.VertexCount, 0, chunk.IndexBuffer.IndexCount / 3);
+            }
+        }
     }
 }
