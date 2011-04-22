@@ -78,8 +78,6 @@ namespace NewTake.view
 
         public MultiThreadLightingWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world) :
             base(graphicsDevice, camera, world) {
-
-
         }
 
         public override void Initialize()
@@ -92,12 +90,9 @@ namespace NewTake.view
 
         public override void LoadContent(ContentManager content)
         {
-
-
             _textureAtlas = content.Load<Texture2D>("Textures\\blocks");
             _solidBlockEffect = content.Load<Effect>("Effects\\LightingAOBlockEffect");
             _debugEffect = new BasicEffect(GraphicsDevice);
-
 
             #region SkyDome and Clouds
             // SkyDome
@@ -358,7 +353,6 @@ namespace NewTake.view
         }
         #endregion
 
-
         #region Draw
         public override void Draw(GameTime gameTime)
         {
@@ -429,6 +423,7 @@ namespace NewTake.view
         }
         #endregion
 
+        #region DrawChunk
         private void DrawChunk(Chunk chunk)
         {
             if (chunk.built)
@@ -439,5 +434,7 @@ namespace NewTake.view
                 GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, chunk.VertexBuffer.VertexCount, 0, chunk.IndexBuffer.IndexCount / 3);
             }
         }
+        #endregion
+
     }
 }
