@@ -94,17 +94,6 @@ namespace NewTake.view
 
         }
 
-        #region DoBuild
-        public override void DoBuild(Vector3i vector)
-        {
-            Chunk chunk = world.viewableChunks[vector.X, vector.Z];
-            // Propogate the chunk lighting
-            _lightingChunkProcessor.ProcessChunk(chunk);
-            _vertexBuildChunkProcessor.ProcessChunk(chunk);
-            chunk.built = true;
-        }
-        #endregion
-
         #region DoGenerate
         public override void DoGenerate(Vector3i index)
         {
@@ -125,6 +114,17 @@ namespace NewTake.view
             //this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);           
 
             chunk.generated = true;
+        }
+        #endregion
+
+        #region DoBuild
+        public override void DoBuild(Vector3i vector)
+        {
+            Chunk chunk = world.viewableChunks[vector.X, vector.Z];
+            // Propogate the chunk lighting
+            _lightingChunkProcessor.ProcessChunk(chunk);
+            _vertexBuildChunkProcessor.ProcessChunk(chunk);
+            chunk.built = true;
         }
         #endregion
 
