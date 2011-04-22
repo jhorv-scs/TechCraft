@@ -560,7 +560,8 @@ namespace NewTake.view.blocks
         public void ProcessChunk(Chunk chunk)
         {
             BuildVertexList(chunk);
-            chunk.built = true;
+            //chunk.built = true;
+            chunk.State = ChunkState.Ready;
         }
 
     }

@@ -181,7 +181,7 @@ namespace NewTake.view
 
                                     try
                                     {
-                                        chunk.visible = false;
+                                        //chunk.visible = false;
                                         world.viewableChunks.Remove(j, l);
                                     }
                                     catch (AggregateException ae)
@@ -257,7 +257,6 @@ namespace NewTake.view
         #region DoGenerate
         public override void DoGenerate(Vector3i index)
         {
-
             Chunk chunk = world.viewableChunks.load(index);
             try
             {
@@ -273,19 +272,18 @@ namespace NewTake.view
                         world.Generator.Generate(chunk);
                         chunk.State = ChunkState.AwaitingLighting;
                     }
-
                     if (chunk.State == ChunkState.AwaitingLighting)
                     {
                         // Clear down the chunk lighting 
                         chunk.State = ChunkState.Lighting;
                         _lightingChunkProcessor.InitChunk(chunk);
                         chunk.State = ChunkState.AwaitingBuild;
+                        //chunk.generated = true;
                     }
                 }
                 // Assign a renderer
                 // ChunkRenderer cRenderer = new MultiThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
                 // this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);           
-                chunk.generated = true;
             }
             catch (Exception e)
             {
@@ -301,7 +299,7 @@ namespace NewTake.view
             Chunk chunk = world.viewableChunks[vector.X, vector.Z];
             try
             {
-                if ((chunk != null) && (chunk.State == ChunkState.AwaitingBuild ))
+                if ((chunk != null) && (chunk.State == ChunkState.AwaitingBuild))
                 {
                     // Propogate the chunk lighting
                     chunk.State = ChunkState.Lighting;
@@ -311,7 +309,7 @@ namespace NewTake.view
                     _vertexBuildChunkProcessor.ProcessChunk(chunk);
 
                     chunk.State = ChunkState.Ready;
-                    chunk.built = true;
+                    //chunk.built = true;
                 }
             }
             catch (Exception e)
@@ -325,7 +323,6 @@ namespace NewTake.view
         #region Draw
         public override void Draw(GameTime gameTime)
         {
-       
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
             if (cloudsEnabled)
             {
@@ -360,7 +357,8 @@ namespace NewTake.view
 
                 foreach(Chunk chunk in world.viewableChunks.Values)
                 {
-                    if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.generated && !chunk.dirty)
+                    if (chunk.BoundingBox.Intersects(viewFrustum) && (chunk.State==ChunkState.Ready) && !chunk.dirty)
+                    //if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.generated && !chunk.dirty)
                     {
                         base.DrawChunk(chunk);
                     }
@@ -380,7 +378,8 @@ namespace NewTake.view
                         }
                         else
                         {
-                            if (!chunk.built)
+                            //if (!chunk.built)
+                            if (chunk.State != ChunkState.Ready)
                             {
                                 // Draw the bounding box for the chunk so we can see them
                                 Utility.DrawBoundingBox(chunk.BoundingBox, GraphicsDevice, _debugEffect, Matrix.Identity, camera.View, camera.Projection, Color.Green);

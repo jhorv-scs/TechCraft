@@ -85,11 +85,10 @@ namespace NewTake.model
         public readonly Vector3i Position;
         public readonly Vector3i Index;
 
-
         public bool dirty;
-        public bool visible;
-        public bool generated;
-        public bool built;
+        //public bool visible;
+        //public bool generated;
+        //public bool built;
 
         public bool broken;
 
@@ -109,8 +108,8 @@ namespace NewTake.model
         {
             this.world = world;
             dirty = true;
-            visible = true;
-            generated = false;
+            //visible = true;
+            //generated = false;
 
             Index = index;
 
