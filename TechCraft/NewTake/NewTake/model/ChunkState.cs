@@ -9,9 +9,10 @@ namespace NewTake.model
     {
         AwaitingGenerate,
         Generating,
+        AwaitingLighting,
+        Lighting,
         AwaitingBuild,
         Building,
-        Lighting,
         Ready
     }
 }
