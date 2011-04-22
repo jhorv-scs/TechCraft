@@ -41,6 +41,7 @@ namespace NewTake.model.terrain
         {
             base.Generate(chunk);
             GenerateWaterSandLayer(chunk);
+            chunk.State = ChunkState.AwaitingBuild;
         }
 
         #region generateTerrain

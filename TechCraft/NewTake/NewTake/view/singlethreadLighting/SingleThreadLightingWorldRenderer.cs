@@ -113,7 +113,8 @@ namespace NewTake.view
             //ChunkRenderer cRenderer = new MultiThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
             //this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);           
 
-            chunk.generated = true;
+            //chunk.generated = true;
+            chunk.State = ChunkState.AwaitingBuild;
         }
         #endregion
 
@@ -124,7 +125,8 @@ namespace NewTake.view
             // Propogate the chunk lighting
             _lightingChunkProcessor.ProcessChunk(chunk);
             _vertexBuildChunkProcessor.ProcessChunk(chunk);
-            chunk.built = true;
+            //chunk.built = true;
+            chunk.State = ChunkState.Ready;
         }
         #endregion
 
@@ -166,7 +168,8 @@ namespace NewTake.view
 
                 foreach(Chunk chunk in world.viewableChunks.Values)
                 {
-                    if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.generated && !chunk.dirty)
+                    //if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.generated && !chunk.dirty)
+                    if (chunk.BoundingBox.Intersects(viewFrustum) && (chunk.State == ChunkState.Ready) && !chunk.dirty)
                     {
                         base.DrawChunk(chunk);
                     }
@@ -186,7 +189,8 @@ namespace NewTake.view
                         }
                         else
                         {
-                            if (!chunk.built)
+                            //if (!chunk.built)
+                            if (chunk.State != ChunkState.Ready)
                             {
                                 // Draw the bounding box for the chunk so we can see them
                                 Utility.DrawBoundingBox(chunk.BoundingBox, GraphicsDevice, _debugEffect, Matrix.Identity, camera.View, camera.Projection, Color.Green);

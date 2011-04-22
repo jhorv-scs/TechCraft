@@ -51,6 +51,7 @@ namespace NewTake.model
             }
         }
 
+        #region save
         public void save(Chunk chunk)
         {
             //Debug.WriteLine("saving " + GetFilename(chunk.Position));
@@ -61,7 +62,9 @@ namespace NewTake.model
             writer.Close();
             fs.Close();
         }
+        #endregion
 
+        #region load
         public Chunk load(Vector3i index)
         {
             Vector3i position = new Vector3i(index.X * Chunk.SIZE.X, index.Y * Chunk.SIZE.Y, index.Z * Chunk.SIZE.Z);
@@ -76,7 +79,8 @@ namespace NewTake.model
                 Chunk chunk = Load(position, reader);
                 reader.Close();
                 fs.Close();
-                chunk.generated = true;
+                //chunk.generated = true;
+                chunk.State = ChunkState.AwaitingBuild;
                 return chunk;
             }
             else
@@ -85,7 +89,9 @@ namespace NewTake.model
                 return null;
             }
         }
+        #endregion
 
+        #region Private Save
         private void Save(Chunk chunk, BinaryWriter writer)
         {
 
@@ -97,7 +103,9 @@ namespace NewTake.model
             }
             writer.Write(array);
         }
+        #endregion
 
+        #region Private Load
         private Chunk Load(Vector3i worldPosition, BinaryReader reader)
         {
             //index from position
@@ -114,7 +122,7 @@ namespace NewTake.model
 
             return chunk;
         }
-
+        #endregion
 
         private string GetFilename(Vector3i position)
         {

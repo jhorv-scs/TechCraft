@@ -118,15 +118,15 @@ namespace NewTake.view
             Debug.WriteLine(generatingWatch.Elapsed);
             #endregion
 
-            #region Build the initial chunks
-            // Build the initial chunks
-            var buildWatch = new Stopwatch();
-            buildWatch.Start();
-            Debug.Write("Building initial chunks.. ");
-            //world.visitChunks(DoBuild);
-            buildWatch.Stop();
-            Debug.WriteLine(buildWatch.Elapsed);
-            #endregion
+            //#region Build the initial chunks
+            //// Build the initial chunks
+            //var buildWatch = new Stopwatch();
+            //buildWatch.Start();
+            //Debug.Write("Building initial chunks.. ");
+            ////world.visitChunks(DoBuild);
+            //buildWatch.Stop();
+            //Debug.WriteLine(buildWatch.Elapsed);
+            //#endregion
 
             this.previousChunkIndex = new Vector3i();
         }
@@ -244,8 +244,8 @@ namespace NewTake.view
                     for (uint l = cz - (World.VIEW_DISTANCE_FAR_Z + 1); l < cz + (World.VIEW_DISTANCE_FAR_Z + 1); l++)
                     {
                         
-                            int distancecx = (int)(cx - j);        // The distance from the camera to the chunk in the X direction
-                            int distancecz = (int)(cz - l);        // The distance from the camera to the chunk in the Z direction
+                        int distancecx = (int)(cx - j);        // The distance from the camera to the chunk in the X direction
+                        int distancecz = (int)(cz - l);        // The distance from the camera to the chunk in the Z direction
                         
                         if (distancecx < 0) distancecx = 0 - distancecx;        // If the distance is negative (behind the camera) make it positive
                         if (distancecz < 0) distancecz = 0 - distancecz;        // If the distance is negative (behind the camera) make it positive
@@ -257,7 +257,7 @@ namespace NewTake.view
                             {
                                 Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
                                 Chunk chunk = world.viewableChunks[j, l];
-                                chunk.visible = false;
+                                //chunk.visible = false;
                                 world.viewableChunks.Remove( j, l);
                                 //ChunkRenderer outChunkRenderer;
                                 //ChunkRenderers.TryRemove(newIndex,out outChunkRenderer);
@@ -283,7 +283,8 @@ namespace NewTake.view
                         else
                         {
                             Chunk chunk = world.viewableChunks[j, l];
-                            if ((!chunk.built) && (chunk.generated)) 
+                            //if ((!chunk.built) && (chunk.generated))
+                            if (chunk.State == ChunkState.AwaitingBuild) 
                             {
                                 // We have a chunk in view - it has been generated but we haven't built a vertex buffer for it
                                 Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
@@ -320,7 +321,8 @@ namespace NewTake.view
         #region DrawChunk
         public virtual void DrawChunk(Chunk chunk)
         {
-            if (chunk.built)
+            //if (chunk.built)
+            if (chunk.State == ChunkState.Ready)
             {
                 GraphicsDevice.SetVertexBuffer(chunk.VertexBuffer);
                 GraphicsDevice.Indices = chunk.IndexBuffer;

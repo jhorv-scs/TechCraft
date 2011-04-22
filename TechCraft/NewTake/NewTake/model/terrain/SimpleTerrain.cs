@@ -60,7 +60,8 @@ namespace NewTake.model.terrain
                     generateTerrain(chunk, x, z, worldX, worldZ);
                 }
             }
-            chunk.generated = true;
+            chunk.State = ChunkState.AwaitingBuild;
+            //chunk.generated = true;
         }
         #endregion
 
