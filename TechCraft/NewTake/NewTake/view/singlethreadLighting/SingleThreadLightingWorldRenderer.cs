@@ -48,26 +48,10 @@ namespace NewTake.view
     {
         #region inits
 
-        private const bool cloudsEnabled = true;
-
         private BasicEffect _debugEffect;
 
         private VertexBuildChunkProcessor _vertexBuildChunkProcessor;
         private LightingChunkProcessor _lightingChunkProcessor;
-
-        #region SkyDome and Clouds
-        // SkyDome
-        Model skyDome;
-        Matrix projectionMatrix;
-        Texture2D cloudMap;
-        float rotation;
-
-        // GPU generated clouds
-        Texture2D cloudStaticMap;
-        RenderTarget2D cloudsRenderTarget;
-        Effect _perlinNoiseEffect;
-        VertexPositionTexture[] fullScreenVertices;
-        #endregion
 
         #endregion
 
@@ -144,82 +128,6 @@ namespace NewTake.view
         }
         #endregion
 
-        #region DrawSkyDome
-        private void DrawSkyDome(Matrix currentViewMatrix)
-        {
-
-            Matrix[] modelTransforms = new Matrix[skyDome.Bones.Count];
-            skyDome.CopyAbsoluteBoneTransformsTo(modelTransforms);
-            //rotation += 0.0005f;
-            rotation = 0;
-
-            Matrix wMatrix = Matrix.CreateRotationY(rotation) * Matrix.CreateTranslation(0, 0, 0) * Matrix.CreateScale(100) * Matrix.CreateTranslation(camera.Position);
-            foreach (ModelMesh mesh in skyDome.Meshes)
-            {
-                foreach (Effect currentEffect in mesh.Effects)
-                {
-                    Matrix worldMatrix = modelTransforms[mesh.ParentBone.Index] * wMatrix;
-
-                    currentEffect.CurrentTechnique = currentEffect.Techniques["SkyDome"];
-                    currentEffect.Parameters["xWorld"].SetValue(worldMatrix);
-                    currentEffect.Parameters["xView"].SetValue(currentViewMatrix);
-                    currentEffect.Parameters["xProjection"].SetValue(projectionMatrix);
-                    currentEffect.Parameters["xTexture"].SetValue(cloudMap);
-                    currentEffect.Parameters["SunColor"].SetValue(Color.Blue.ToVector4());
-                    currentEffect.Parameters["HorizonColor"].SetValue(Color.White.ToVector4());
-                }
-                mesh.Draw();
-            }
-        }
-        #endregion
-
-        #region Generate Clouds
-        private Texture2D CreateStaticMap(int resolution)
-        {
-            Random rand = new Random();
-            Color[] noisyColors = new Color[resolution * resolution];
-            for (int x = 0; x < resolution; x++)
-                for (int y = 0; y < resolution; y++)
-                    noisyColors[x + y * resolution] = new Color(new Vector3((float)rand.Next(1000) / 1000.0f, 0, 0));
-
-            Texture2D noiseImage = new Texture2D(GraphicsDevice, resolution, resolution, true, SurfaceFormat.Color);
-            noiseImage.SetData(noisyColors);
-            return noiseImage;
-        }
-
-        private VertexPositionTexture[] SetUpFullscreenVertices()
-        {
-            VertexPositionTexture[] vertices = new VertexPositionTexture[4];
-
-            vertices[0] = new VertexPositionTexture(new Vector3(-1, 1, 0f), new Vector2(0, 1));
-            vertices[1] = new VertexPositionTexture(new Vector3(1, 1, 0f), new Vector2(1, 1));
-            vertices[2] = new VertexPositionTexture(new Vector3(-1, -1, 0f), new Vector2(0, 0));
-            vertices[3] = new VertexPositionTexture(new Vector3(1, -1, 0f), new Vector2(1, 0));
-
-            return vertices;
-        }
-
-        private void GeneratePerlinNoise(float time)
-        {
-            GraphicsDevice.SetRenderTarget(cloudsRenderTarget);
-            GraphicsDevice.Clear(Color.White);
-
-            _perlinNoiseEffect.CurrentTechnique = _perlinNoiseEffect.Techniques["PerlinNoise"];
-            _perlinNoiseEffect.Parameters["xTexture"].SetValue(cloudStaticMap);
-            _perlinNoiseEffect.Parameters["xOvercast"].SetValue(0.8f);
-            _perlinNoiseEffect.Parameters["xTime"].SetValue(time / 1000.0f);
-
-            foreach (EffectPass pass in _perlinNoiseEffect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleStrip, fullScreenVertices, 0, 2);
-            }
-
-            GraphicsDevice.SetRenderTarget(null);
-            cloudMap = cloudsRenderTarget;
-        }
-        #endregion
-
         #region Draw
         public override void Draw(GameTime gameTime)
         {
@@ -229,14 +137,14 @@ namespace NewTake.view
             {
                 // Generate the clouds
                 float time = (float)gameTime.TotalGameTime.TotalMilliseconds / 100.0f;
-                GeneratePerlinNoise(time);
+                base.GeneratePerlinNoise(time);
             }
 
             GraphicsDevice.Clear(Color.White);
             GraphicsDevice.RasterizerState = !this._wireframed ? this._normalRaster : this._wireframedRaster;
 
             // Draw the skyDome
-            DrawSkyDome(camera.View);
+            base.DrawSkyDome(camera.View);
 
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.BlendState = BlendState.Opaque;
@@ -287,21 +195,6 @@ namespace NewTake.view
                     }
                 }
             }
-
-            //foreach (EffectPass pass in _solidBlockEffect.CurrentTechnique.Passes)
-            //{
-            //    pass.Apply();
-
-            //    foreach (ChunkRenderer chunkRenderer in ChunkRenderers.Values)
-            //    {
-            //        if (chunkRenderer.isInView(viewFrustum) && chunkRenderer.chunk.generated && !chunkRenderer.chunk.dirty)
-            //        {
-            //            chunkRenderer.Draw(gameTime);
-            //        }
-            //    }
-            //}
-
-
         }
         #endregion
 
