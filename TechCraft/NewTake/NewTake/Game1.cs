@@ -116,8 +116,8 @@ namespace NewTake
 
             #region choose renderer
             //renderer = new WorldRenderer(GraphicsDevice, player1Renderer.camera, world);
-            renderer = new SingleThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
-            //renderer = new MultiThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            //renderer = new SingleThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            renderer = new MultiThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             #endregion
 
             renderer.Initialize();
