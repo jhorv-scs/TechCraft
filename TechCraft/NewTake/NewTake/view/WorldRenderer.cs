@@ -137,9 +137,9 @@ namespace NewTake.view
             _solidBlockEffect = content.Load<Effect>("Effects\\SolidBlockEffect");
         }
 
-        public abstract void DoBuild(Vector3i vector);
-
         public abstract void DoGenerate(Vector3i vector);
+
+        public abstract void DoBuild(Vector3i vector);
 
         #region Generate Clouds
         public virtual Texture2D CreateStaticMap(int resolution)

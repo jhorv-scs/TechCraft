@@ -49,7 +49,6 @@ namespace NewTake.model
 
         private Chunk _N, _S, _E, _W, _NE, _NW, _SE, _SW; //TODO infinite y would require Top , Bottom, maybe vertical diagonals
 
-
         public static Vector3b SIZE = new Vector3b(16, 128, 16);
         public static Vector3b MAX = new Vector3b(15, 127, 15);
 
@@ -58,8 +57,6 @@ namespace NewTake.model
         public List<short> indexList;
         public List<VertexPositionTextureLight> vertexList;
         public short VertexCount;
-
-        public ChunkState State;
 
         /// <summary>
         /// Contains blocks as a flattened array.
@@ -105,6 +102,8 @@ namespace NewTake.model
 
         public Vector3b lowestNoneBlock = new Vector3b(0, SIZE.Y, 0);
         #endregion
+
+        public ChunkState State { get; set; }
 
         public Chunk(World world, Vector3i index)
         {

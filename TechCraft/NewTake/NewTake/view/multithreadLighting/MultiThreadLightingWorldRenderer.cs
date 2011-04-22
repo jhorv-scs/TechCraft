@@ -118,9 +118,12 @@ namespace NewTake.view
                 else
                 {
                     Chunk chunk = world.viewableChunks[newIndex.X, newIndex.Z];
-                    if ((!chunk.built) && (chunk.generated))//TODO why can it be null now 
-                    //Debug.WriteLine("Worker Build {0},{1}", newIndex.X, newIndex.Z);
-                    DoBuild(newIndex);
+                    //if ((!chunk.built) && (chunk.generated))//TODO why can it be null now
+                    if (chunk.State == ChunkState.AwaitingBuild)
+                    {
+                        //Debug.WriteLine("Worker Build {0},{1} - State = {2}", newIndex.X, newIndex.Z, chunk.State);
+                        DoBuild(newIndex);
+                    }
                 }
             }
         }
@@ -140,14 +143,13 @@ namespace NewTake.view
                 uint lx = x % Chunk.SIZE.X;
                 uint lz = z % Chunk.SIZE.Z;
 
-
                 //Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;    // This is the chunk in which the camera currently resides
                 //this is the same vector without the nullpointer possibility when reaching coordinates < Chunk.SIZE.X or Z
                 Vector3i currentChunkIndex = new Vector3i(cx, 0, cz);
                
-                if (currentChunkIndex != previousChunkIndex)
+                if (currentChunkIndex != previousChunkIndex) // Check so that we don't process if the player hasn't moved to a new chunk
                 {
-                    previousChunkIndex = currentChunkIndex;
+                    previousChunkIndex = currentChunkIndex; // Player has moved to a new chunk. Therefore update the previous index with the current one
 
                     // Loop through all possible chunks around the camera in both X and Z directions
                     for (uint j = cx - (World.VIEW_DISTANCE_FAR_X + 1); j < cx + (World.VIEW_DISTANCE_FAR_X + 1); j++)
@@ -160,33 +162,42 @@ namespace NewTake.view
                             if (distancecx < 0) distancecx = 0 - distancecx;        // If the distance is negative (behind the camera) make it positive
                             if (distancecz < 0) distancecz = 0 - distancecz;        // If the distance is negative (behind the camera) make it positive
 
+                            #region Remove Chunks
                             // Remove Chunks
                             if ((distancecx > World.VIEW_DISTANCE_NEAR_X) || (distancecz > World.VIEW_DISTANCE_NEAR_Z))
                             {
                                 if ((world.viewableChunks[j, l] != null)) // Chunk is created, therefore remove
                                 {
-                                    Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
-                                    Chunk chunk = world.viewableChunks[j, l];
-                                    chunk.visible = false;
-                                    world.viewableChunks.Remove(j, l);
+                                    try
+                                    {
+                                        Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz)); // This is the chunk in the loop, offset from the camera
+                                        Chunk chunk = world.viewableChunks[j, l];
+                                        chunk.visible = false;
+                                        world.viewableChunks.Remove(j, l);
+                                    }
+                                    catch (AggregateException ae)
+                                    {
+                                        Debug.WriteLine("Exception {0}", ae);
+                                    }
                                 }
                                 else
                                 {
                                     //Debug.WriteLine("[Remove] chunk not found at at {0},0,{1}", j, l);
                                 }
                             }
+                            #endregion
+                            #region Generate Chunks
                             // Generate Chunks
                             else if ((distancecx > World.VIEW_CHUNKS_X) || (distancecz > World.VIEW_CHUNKS_Z))
                             {
-                               Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
+                                Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
 
                                 // A new chunk is coming into view - we need to generate or load it
                                 if (world.viewableChunks[j, l] == null && !_generationQueue.Contains(newIndex)) // Chunk is not created or loaded, therefore create - 
                                 {
-
                                     try
                                     {
-                                        this._generationQueue.Add(newIndex);    // adds the chunk index to the generation queue 
+                                        this._generationQueue.Add(newIndex); // adds the chunk index to the generation queue 
                                     }
                                     catch (AggregateException ae)
                                     {
@@ -194,19 +205,21 @@ namespace NewTake.view
                                     }
                                 }
                             }
+                            #endregion
+                            #region Build Chunks
                             //Build Chunks
                             else
                             {
                                 Chunk chunk = world.viewableChunks[j, l];
 
-                                 //if ((!chunk.built) && (chunk.generated))//TODO why can it be null now 
-                                if (!chunk.built && chunk.generated)//TODO why can it be null now 
+                                //if (!chunk.built && chunk.generated && (chunk.State == ChunkState.AwaitingBuild))//TODO why can it be null now 
+                                if (chunk.State == ChunkState.AwaitingBuild)//TODO why can it be null now 
                                 {
-                                    // We have a chunk in view - it has been generated but we haven't built a vertex buffer for it
-                                    Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
-
                                     try
                                     {
+                                        // We have a chunk in view - it has been generated but we haven't built a vertex buffer for it
+                                        Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz)); // This is the chunk in the loop, offset from the camera
+
                                         this._buildingQueue.Add(newIndex); // adds the chunk index to the build queue
                                         //this._buildingQueue.Add(chunk.Index); // adds the chunk index to the build queue
                                         //DoBuild(newIndex);
@@ -219,12 +232,40 @@ namespace NewTake.view
                                     }
                                 }
                             }
-                        }
-                    }
-                }// end if
+                            #endregion
 
-
+                        } // end for loop cz
+                    } // end for loop cx
+                } // end if
             }
+        }
+        #endregion
+
+        #region DoGenerate
+        public override void DoGenerate(Vector3i index)
+        {
+            Chunk chunk = world.viewableChunks.load(index);
+
+            if (chunk == null)
+            {
+                // Create a new chunk
+                chunk = new Chunk(world, index);
+
+                // Generate the chunk with the current generator
+                chunk.State = ChunkState.Generating;
+                world.Generator.Generate(chunk);
+
+                // Clear down the chunk lighting 
+                chunk.State = ChunkState.Lighting;
+                _lightingChunkProcessor.InitChunk(chunk);
+            }
+
+            // Assign a renderer
+            // ChunkRenderer cRenderer = new MultiThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
+            // this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);           
+
+            chunk.State = ChunkState.AwaitingBuild;
+            chunk.generated = true;
         }
         #endregion
 
@@ -233,32 +274,12 @@ namespace NewTake.view
         {
             Chunk chunk = world.viewableChunks[vector.X, vector.Z];
             // Propogate the chunk lighting
+            chunk.State = ChunkState.Lighting;
             _lightingChunkProcessor.ProcessChunk(chunk);
-            _vertexBuildChunkProcessor.ProcessChunk(chunk);          
+            chunk.State = ChunkState.Building;
+            _vertexBuildChunkProcessor.ProcessChunk(chunk);
+            chunk.State = ChunkState.Ready;
             chunk.built = true;
-        }
-        #endregion
-
-        #region DoGenerate
-        public override void DoGenerate(Vector3i index)
-        {
-
-            Chunk chunk = world.viewableChunks.load(index);            
-
-            if (chunk == null)
-            {
-                // Create a new chunk
-                chunk = new Chunk(world, index);
-                // Generate the chunk with the current generator
-                world.Generator.Generate(chunk);
-                // Clear down the chunk lighting 
-                _lightingChunkProcessor.InitChunk(chunk);
-            }
-                // Assign a renderer
-            //ChunkRenderer cRenderer = new MultiThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
-            //this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);           
-
-            chunk.generated = true;
         }
         #endregion
 
