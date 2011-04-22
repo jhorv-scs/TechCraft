@@ -36,6 +36,7 @@ using Microsoft.Xna.Framework.Graphics;
 using NewTake.model;
 using NewTake.view.blocks;
 using NewTake.profiling;
+using NewTake;
 #endregion
 
 namespace NewTake.view.blocks

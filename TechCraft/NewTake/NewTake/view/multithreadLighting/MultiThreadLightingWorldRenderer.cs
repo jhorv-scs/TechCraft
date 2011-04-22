@@ -112,20 +112,47 @@ namespace NewTake.view
 
                 try
                 {
+                    //Debug.WriteLine("genQ = {0}", _generationQueue.Count);
                     //Debug.WriteLine("genQ = {0}, buildQ = {1}", _generationQueue.Count, _buildingQueue.Count);
                     if (world.viewableChunks[newIndex.X, newIndex.Z] == null)
                     {
                         //Debug.WriteLine("Worker Generate {0},{1}", newIndex.X, newIndex.Z);
+                        //var DoGenerateWatch = new Stopwatch();
+                        //DoGenerateWatch.Start();
                         DoGenerate(newIndex);
+                        //DoGenerateWatch.Stop();
+                        //Debug.WriteLine(DoGenerateWatch.Elapsed);
                     }
                     else
                     {
                         Chunk chunk = world.viewableChunks[newIndex.X, newIndex.Z];
                         //if ((!chunk.built) && (chunk.generated))//TODO why can it be null now
-                        if (chunk.State == ChunkState.AwaitingBuild)
+                        //Debug.WriteLine("buildQ = {0}", _buildingQueue.Count);
+                        //Debug.WriteLine("Worker Build {0},{1} - State = {2}", newIndex.X, newIndex.Z, chunk.State);
+                        switch (chunk.State)
                         {
-                            //Debug.WriteLine("Worker Build {0},{1} - State = {2}", newIndex.X, newIndex.Z, chunk.State);
-                            DoBuild(newIndex);
+                            case ChunkState.AwaitingBuild:
+                                //var DoBuildWatch = new Stopwatch();
+                                //DoBuildWatch.Start();
+                                DoBuild(newIndex);
+                                //DoBuildWatch.Stop();
+                                //Debug.WriteLine(DoBuildWatch.Elapsed);
+                                break;
+                            case ChunkState.Generating:
+                                Debug.WriteLine("Worker Attempted Unsuccessful Build {0},{1} - Chunk was found in State Generating", newIndex.X, newIndex.Z);
+                                break;
+                            case ChunkState.Building:
+                                Debug.WriteLine("Worker Attempted Unsuccessful Build {0},{1} - Chunk was found in State Building", newIndex.X, newIndex.Z);
+                                break;
+                            case ChunkState.Lighting:
+                                Debug.WriteLine("Worker Attempted Unsuccessful Build {0},{1} - Chunk was found in State Lighting", newIndex.X, newIndex.Z);
+                                break;
+                            case ChunkState.Ready:
+                                //Debug.WriteLine("Worker Attempted Unsuccessful Build {0},{1} - Chunk was found in State Ready", newIndex.X, newIndex.Z);
+                                break;
+                            default:
+                                Debug.WriteLine("Worker Attempted Unsuccessful Build {0},{1} - Chunk is now in State = {2}", newIndex.X, newIndex.Z, chunk.State);
+                                break;
                         }
                     }
                 }
@@ -164,11 +191,11 @@ namespace NewTake.view
                     {
                         for (uint l = cz - (World.VIEW_DISTANCE_FAR_Z + 1); l < cz + (World.VIEW_DISTANCE_FAR_Z + 1); l++)
                         {
-                            int distancecx = (int)(cx - j);        // The distance from the camera to the chunk in the X direction
-                            int distancecz = (int)(cz - l);        // The distance from the camera to the chunk in the Z direction
+                            int distancecx = (int)(j - cx);        // The distance from the camera to the chunk in the X direction
+                            int distancecz = (int)(l - cz);        // The distance from the camera to the chunk in the Z direction
 
-                            if (distancecx < 0) distancecx = 0 - distancecx;        // If the distance is negative (behind the camera) make it positive
-                            if (distancecz < 0) distancecz = 0 - distancecz;        // If the distance is negative (behind the camera) make it positive
+                            if (distancecx < 0) distancecx = 0 - distancecx; // If the distance is negative (chunk position lower than origin) make it positive
+                            if (distancecz < 0) distancecz = 0 - distancecz; // If the distance is negative (chunk position lower than origin) make it positive
 
                             #region Remove Chunks
                             // Remove Chunks
@@ -176,9 +203,8 @@ namespace NewTake.view
                             {
                                 if ((world.viewableChunks[j, l] != null)) // Chunk is created, therefore remove
                                 {
-                                    Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz)); // This is the chunk in the loop, offset from the camera
+                                    //Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz)); // This is the chunk in the loop, offset from the camera
                                     Chunk chunk = world.viewableChunks[j, l];
-
                                     try
                                     {
                                         //chunk.visible = false;
@@ -200,23 +226,25 @@ namespace NewTake.view
                             else if ((distancecx > World.VIEW_CHUNKS_X) || (distancecz > World.VIEW_CHUNKS_Z))
                             {
                                 Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
-
-                                //Chunk chunk = world.viewableChunks[newIndex.X, newIndex.Z];
-                                //if (chunk != null) Debug.WriteLine("State = {0}", chunk.State);
-
-                                // A new chunk is coming into view - we need to generate or load it
-                                if (world.viewableChunks[j, l] == null && !_generationQueue.Contains(newIndex)) // Chunk is not created or loaded, therefore create - 
+                                try
                                 {
-                                    try
+                                    //Chunk chunk = world.viewableChunks[newIndex.X, newIndex.Z];
+                                    //if (chunk != null) Debug.WriteLine("State = {0}", chunk.State);
+                                    // A new chunk is coming into view - we need to generate or load it
+                                    if (world.viewableChunks[j, l] == null && !_generationQueue.Contains(newIndex)) // Chunk is not created or loaded, therefore create - 
                                     {
+                                        //Debug.WriteLine("Adding new chunk to queue, chunk = {0},{1}", newIndex.X, newIndex.Z);
                                         this._generationQueue.Add(newIndex); // adds the chunk index to the generation queue 
                                     }
-                                    catch (AggregateException ae)
+                                    else if (_generationQueue.Contains(newIndex))
                                     {
-                                        Debug.WriteLine("GenerateChunk Exception {0}", ae);
+                                        Debug.WriteLine("Chunk found on genQ, chunk = {0},{1} genQ Count = {2}", newIndex.X, newIndex.Z, _generationQueue.Count);
                                     }
                                 }
-
+                                catch (AggregateException ae)
+                                {
+                                    Debug.WriteLine("GenerateChunk Exception {0}", ae);
+                                }
                             }
                             #endregion
                             #region Build Chunks
@@ -224,7 +252,6 @@ namespace NewTake.view
                             else
                             {
                                 Chunk chunk = world.viewableChunks[j, l];
-
                                 //if (!chunk.built && chunk.generated && (chunk.State == ChunkState.AwaitingBuild))//TODO why can it be null now 
                                 if (chunk.State == ChunkState.AwaitingBuild)//TODO why can it be null now 
                                 {
