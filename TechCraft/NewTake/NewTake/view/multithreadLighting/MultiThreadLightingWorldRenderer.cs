@@ -52,8 +52,6 @@ namespace NewTake.view
 
         private BasicEffect _debugEffect;
 
-        public bool _running = true;
-
         private VertexBuildChunkProcessor _vertexBuildChunkProcessor;
         private LightingChunkProcessor _lightingChunkProcessor;
 
