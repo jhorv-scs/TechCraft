@@ -49,6 +49,7 @@ namespace NewTake.view
         private float _leftRightRotation = 0f;
         private float _upDownRotation = 0f;
         private Vector3 _cameraFinalTarget;
+        private Vector3 _lookVector;
 
         public FirstPersonCamera(Viewport viewport) : base(viewport) { }
 
@@ -90,9 +91,10 @@ namespace NewTake.view
         protected override void CalculateView()
         {
             Matrix rotationMatrix = Matrix.CreateRotationX(_upDownRotation) * Matrix.CreateRotationY(_leftRightRotation);
-            Vector3 cameraRotatedTarget = Vector3.Transform(Vector3.Forward, rotationMatrix);
+            _lookVector = Vector3.Transform(Vector3.Forward, rotationMatrix);
+
+            _cameraFinalTarget = Position + _lookVector;
            
-            _cameraFinalTarget = Position + cameraRotatedTarget;
             Vector3 cameraRotatedUpVector = Vector3.Transform(Vector3.Up, rotationMatrix);
             View = Matrix.CreateLookAt(Position, _cameraFinalTarget, cameraRotatedUpVector);
 
@@ -104,6 +106,14 @@ namespace NewTake.view
             // Doesn't take into account the rotated UP vector
             // Should calculate rotations here!
             View = Matrix.CreateLookAt(Position, target, Vector3.Up);
+        }
+
+        public Vector3 LookVector
+        {
+            get
+            {
+                return _lookVector;
+            }
         }
 
         #region Update
