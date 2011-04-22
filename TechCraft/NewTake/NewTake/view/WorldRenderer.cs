@@ -42,7 +42,7 @@ using System.Collections.Concurrent;
 
 namespace NewTake.view
 {
-    class WorldRenderer
+    public abstract class WorldRenderer
     {
         #region inits
 
@@ -63,6 +63,8 @@ namespace NewTake.view
         protected readonly RasterizerState _wireframedRaster = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
         protected readonly RasterizerState _normalRaster = new RasterizerState() { CullMode = CullMode.CullCounterClockwiseFace, FillMode = FillMode.Solid };
         protected bool _wireframed = false;
+
+        public bool diagnosticsMode = false;
 
         #endregion
 
@@ -109,15 +111,9 @@ namespace NewTake.view
             _solidBlockEffect = content.Load<Effect>("Effects\\SolidBlockEffect");
         }
 
-        public virtual void DoBuild(Vector3i vector)
-        {
-            throw new Exception("Must override Build");
-        }
+        public abstract void DoBuild(Vector3i vector);
 
-        public virtual void DoGenerate(Vector3i vector)
-        {
-            throw new Exception("Must override Generate");
-        }
+        public abstract void DoGenerate(Vector3i vector);
 
         #region Update
         public virtual void Update(GameTime gameTime)
@@ -216,13 +212,7 @@ namespace NewTake.view
 
         #endregion
 
-        #region Draw
-        public virtual void Draw(GameTime gameTime)
-        {
-            // A renderer must implement it's own draw method
-            throw new Exception("Must override draw");
-        }
-        #endregion
-
+        public abstract void Draw(GameTime gameTime);
+       
     }
 }
