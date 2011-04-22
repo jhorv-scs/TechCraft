@@ -109,21 +109,29 @@ namespace NewTake.view
             {
                 Vector3i newIndex;
                 BlockingCollection<Vector3i>.TakeFromAny(new[] { _generationQueue, _buildingQueue }, out newIndex);
-                //Debug.WriteLine("genQ = {0}, buildQ = {1}", _generationQueue.Count, _buildingQueue.Count);
-                if (world.viewableChunks[newIndex.X, newIndex.Z] == null)
+
+                try
                 {
-                    //Debug.WriteLine("Worker Generate {0},{1}", newIndex.X, newIndex.Z);
-                    DoGenerate(newIndex);
-                }
-                else
-                {
-                    Chunk chunk = world.viewableChunks[newIndex.X, newIndex.Z];
-                    //if ((!chunk.built) && (chunk.generated))//TODO why can it be null now
-                    if (chunk.State == ChunkState.AwaitingBuild)
+                    //Debug.WriteLine("genQ = {0}, buildQ = {1}", _generationQueue.Count, _buildingQueue.Count);
+                    if (world.viewableChunks[newIndex.X, newIndex.Z] == null)
                     {
-                        //Debug.WriteLine("Worker Build {0},{1} - State = {2}", newIndex.X, newIndex.Z, chunk.State);
-                        DoBuild(newIndex);
+                        //Debug.WriteLine("Worker Generate {0},{1}", newIndex.X, newIndex.Z);
+                        DoGenerate(newIndex);
                     }
+                    else
+                    {
+                        Chunk chunk = world.viewableChunks[newIndex.X, newIndex.Z];
+                        //if ((!chunk.built) && (chunk.generated))//TODO why can it be null now
+                        if (chunk.State == ChunkState.AwaitingBuild)
+                        {
+                            //Debug.WriteLine("Worker Build {0},{1} - State = {2}", newIndex.X, newIndex.Z, chunk.State);
+                            DoBuild(newIndex);
+                        }
+                    }
+                }
+                catch (AggregateException ae)
+                {
+                    Debug.WriteLine("Worker Exception {0}", ae);
                 }
             }
         }
@@ -168,16 +176,17 @@ namespace NewTake.view
                             {
                                 if ((world.viewableChunks[j, l] != null)) // Chunk is created, therefore remove
                                 {
+                                    Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz)); // This is the chunk in the loop, offset from the camera
+                                    Chunk chunk = world.viewableChunks[j, l];
+
                                     try
                                     {
-                                        Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz)); // This is the chunk in the loop, offset from the camera
-                                        Chunk chunk = world.viewableChunks[j, l];
                                         chunk.visible = false;
                                         world.viewableChunks.Remove(j, l);
                                     }
                                     catch (AggregateException ae)
                                     {
-                                        Debug.WriteLine("Exception {0}", ae);
+                                        Debug.WriteLine("RemoveChunk Exception {0}", ae);
                                     }
                                 }
                                 else
@@ -192,6 +201,9 @@ namespace NewTake.view
                             {
                                 Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
 
+                                //Chunk chunk = world.viewableChunks[newIndex.X, newIndex.Z];
+                                //if (chunk != null) Debug.WriteLine("State = {0}", chunk.State);
+
                                 // A new chunk is coming into view - we need to generate or load it
                                 if (world.viewableChunks[j, l] == null && !_generationQueue.Contains(newIndex)) // Chunk is not created or loaded, therefore create - 
                                 {
@@ -201,9 +213,10 @@ namespace NewTake.view
                                     }
                                     catch (AggregateException ae)
                                     {
-                                        Debug.WriteLine("Exception {0}", ae);
+                                        Debug.WriteLine("GenerateChunk Exception {0}", ae);
                                     }
                                 }
+
                             }
                             #endregion
                             #region Build Chunks
@@ -228,7 +241,7 @@ namespace NewTake.view
                                     }
                                     catch (AggregateException ae)
                                     {
-                                        Debug.WriteLine("Exception {0}", ae);
+                                        Debug.WriteLine("BuildChunk Exception {0}", ae);
                                     }
                                 }
                             }
@@ -244,28 +257,41 @@ namespace NewTake.view
         #region DoGenerate
         public override void DoGenerate(Vector3i index)
         {
+
             Chunk chunk = world.viewableChunks.load(index);
-
-            if (chunk == null)
+            try
             {
-                // Create a new chunk
-                chunk = new Chunk(world, index);
+                if (chunk == null)
+                {
+                    // Create a new chunk
+                    chunk = new Chunk(world, index);
 
-                // Generate the chunk with the current generator
-                chunk.State = ChunkState.Generating;
-                world.Generator.Generate(chunk);
+                    if (chunk.State == ChunkState.AwaitingGenerate)
+                    {
+                        // Generate the chunk with the current generator
+                        chunk.State = ChunkState.Generating;
+                        world.Generator.Generate(chunk);
+                        chunk.State = ChunkState.AwaitingLighting;
+                    }
 
-                // Clear down the chunk lighting 
-                chunk.State = ChunkState.Lighting;
-                _lightingChunkProcessor.InitChunk(chunk);
+                    if (chunk.State == ChunkState.AwaitingLighting)
+                    {
+                        // Clear down the chunk lighting 
+                        chunk.State = ChunkState.Lighting;
+                        _lightingChunkProcessor.InitChunk(chunk);
+                        chunk.State = ChunkState.AwaitingBuild;
+                    }
+                }
+                // Assign a renderer
+                // ChunkRenderer cRenderer = new MultiThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
+                // this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);           
+                chunk.generated = true;
             }
-
-            // Assign a renderer
-            // ChunkRenderer cRenderer = new MultiThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
-            // this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);           
-
-            chunk.State = ChunkState.AwaitingBuild;
-            chunk.generated = true;
+            catch (Exception e)
+            {
+                //Debug.WriteLine("DoGenerate Exception {0}", e);
+                Debug.WriteLine("DoGenerate Exception Chunk = {0},{1} - State = {2}", chunk.Position.X, chunk.Position.Z, chunk.State);
+            }
         }
         #endregion
 
@@ -273,13 +299,26 @@ namespace NewTake.view
         public override void DoBuild(Vector3i vector)
         {
             Chunk chunk = world.viewableChunks[vector.X, vector.Z];
-            // Propogate the chunk lighting
-            chunk.State = ChunkState.Lighting;
-            _lightingChunkProcessor.ProcessChunk(chunk);
-            chunk.State = ChunkState.Building;
-            _vertexBuildChunkProcessor.ProcessChunk(chunk);
-            chunk.State = ChunkState.Ready;
-            chunk.built = true;
+            try
+            {
+                if ((chunk != null) && (chunk.State == ChunkState.AwaitingBuild ))
+                {
+                    // Propogate the chunk lighting
+                    chunk.State = ChunkState.Lighting;
+                    _lightingChunkProcessor.ProcessChunk(chunk);
+
+                    chunk.State = ChunkState.Building;
+                    _vertexBuildChunkProcessor.ProcessChunk(chunk);
+
+                    chunk.State = ChunkState.Ready;
+                    chunk.built = true;
+                }
+            }
+            catch (Exception e)
+            {
+                //Debug.WriteLine("DoBuild Exception {0}", e);
+                Debug.WriteLine("DoBuild Exception Chunk = {0},{1} - State = {2}", chunk.Position.X, chunk.Position.Z, chunk.State);
+            }
         }
         #endregion
 
