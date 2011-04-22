@@ -214,16 +214,14 @@ namespace NewTake.view
 
             camera.Update(gameTime);
             
-            //Do not change metho order, its not very clean but works fine
+            //Do not change methods order, its not very clean but works fine
             if (! freeCam)
                 physics.move(gameTime);
 
             //do not do this each tick
             if (!previousView.Equals(camera.View))
             {
-
-                Matrix rotationMatrix = Matrix.CreateRotationX(camera.UpDownRotation) * Matrix.CreateRotationY(camera.LeftRightRotation);
-                lookVector = Vector3.Transform(Vector3.Forward, rotationMatrix);
+                lookVector = camera.LookVector;
                 lookVector.Normalize();
 
                 bool waterSelectable = false;
