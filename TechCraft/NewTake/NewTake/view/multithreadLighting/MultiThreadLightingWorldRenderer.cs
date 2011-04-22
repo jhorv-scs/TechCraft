@@ -60,8 +60,6 @@ namespace NewTake.view
         private readonly BlockingCollection<Vector3i> _generationQueue = new BlockingCollection<Vector3i>(); // uses concurrent queues by default.
         private readonly BlockingCollection<Vector3i> _buildingQueue = new BlockingCollection<Vector3i>();
 
-        #endregion
-
         #region SkyDome and Clouds
         // SkyDome
         Model skyDome;
@@ -76,10 +74,12 @@ namespace NewTake.view
         VertexPositionTexture[] fullScreenVertices;
         #endregion
 
-        public MultiThreadLightingWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world) :
-            base(graphicsDevice, camera, world) {
-        }
+        #endregion
 
+        public MultiThreadLightingWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world) :
+            base(graphicsDevice, camera, world) { }
+
+        #region Initialize
         public override void Initialize()
         {
             _vertexBuildChunkProcessor = new VertexBuildChunkProcessor(GraphicsDevice);
@@ -87,6 +87,7 @@ namespace NewTake.view
 
             base.Initialize();
         }
+        #endregion
 
         public override void LoadContent(ContentManager content)
         {
@@ -378,12 +379,12 @@ namespace NewTake.view
             _solidBlockEffect.Parameters["View"].SetValue(camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(camera.Projection);
             _solidBlockEffect.Parameters["CameraPosition"].SetValue(camera.Position);
-            _solidBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
+            _solidBlockEffect.Parameters["FogColor"].SetValue(FOGCOLOR);
             _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
 
-            _solidBlockEffect.Parameters["SunColor"].SetValue(Color.White.ToVector3());
+            _solidBlockEffect.Parameters["SunColor"].SetValue(SUNCOLOR);
 
             foreach (EffectPass pass in _solidBlockEffect.CurrentTechnique.Passes)
             {
@@ -393,7 +394,7 @@ namespace NewTake.view
                 {
                     if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.generated && !chunk.dirty)
                     {
-                        DrawChunk(chunk);
+                        base.DrawChunk(chunk);
                     }
                 }
             }
@@ -419,19 +420,6 @@ namespace NewTake.view
                         }
                     }
                 }
-            }
-        }
-        #endregion
-
-        #region DrawChunk
-        private void DrawChunk(Chunk chunk)
-        {
-            if (chunk.built)
-            {
-                GraphicsDevice.SetVertexBuffer(chunk.VertexBuffer);
-                GraphicsDevice.Indices = chunk.IndexBuffer;
-                //graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexBuffer.VertexCount / 3);
-                GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, chunk.VertexBuffer.VertexCount, 0, chunk.IndexBuffer.IndexCount / 3);
             }
         }
         #endregion

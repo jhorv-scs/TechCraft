@@ -31,13 +31,11 @@ using System.Linq;
 using System.Text;
 
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+
 using NewTake.view;
 using NewTake.view.blocks;
 using System.Diagnostics;
-
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
-
 #endregion
 
 namespace NewTake.model
