@@ -58,6 +58,9 @@ namespace NewTake.view
         public readonly FirstPersonCamera camera;
         protected Vector3i previousChunkIndex;
 
+        protected Vector3 SUNCOLOR = Color.White.ToVector3();
+        protected Vector4 FOGCOLOR = Color.White.ToVector4();
+
         public bool _running = true;
 
         protected readonly RasterizerState _wireframedRaster = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
@@ -213,6 +216,19 @@ namespace NewTake.view
         #endregion
 
         public abstract void Draw(GameTime gameTime);
-       
+
+        #region DrawChunk
+        public virtual void DrawChunk(Chunk chunk)
+        {
+            if (chunk.built)
+            {
+                GraphicsDevice.SetVertexBuffer(chunk.VertexBuffer);
+                GraphicsDevice.Indices = chunk.IndexBuffer;
+                //graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexBuffer.VertexCount / 3);
+                GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, chunk.VertexBuffer.VertexCount, 0, chunk.IndexBuffer.IndexCount / 3);
+            }
+        }
+        #endregion
+
     }
 }

@@ -38,15 +38,22 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 using NewTake.model;
+using NewTake.profiling;
+using NewTake.view.blocks;
 #endregion
 
 namespace NewTake.view
 {
     class SingleThreadLightingWorldRenderer : WorldRenderer
     {
+        #region inits
+
         private const bool cloudsEnabled = true;
-        
-        //private Texture2D ambientOcclusionMap;
+
+        private BasicEffect _debugEffect;
+
+        private VertexBuildChunkProcessor _vertexBuildChunkProcessor;
+        private LightingChunkProcessor _lightingChunkProcessor;
 
         #region SkyDome and Clouds
         // SkyDome
@@ -62,13 +69,26 @@ namespace NewTake.view
         VertexPositionTexture[] fullScreenVertices;
         #endregion
 
+        #endregion
+
         public SingleThreadLightingWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world) :
             base(graphicsDevice, camera, world) { }
+
+        #region Initialize
+        public override void Initialize()
+        {
+            _vertexBuildChunkProcessor = new VertexBuildChunkProcessor(GraphicsDevice);
+            _lightingChunkProcessor = new LightingChunkProcessor();
+
+            base.Initialize();
+        }
+        #endregion
 
         public override void LoadContent(ContentManager content)
         {
             _textureAtlas = content.Load<Texture2D>("Textures\\blocks");
             _solidBlockEffect = content.Load<Effect>("Effects\\LightingAOBlockEffect");
+            _debugEffect = new BasicEffect(GraphicsDevice);
 
             #region SkyDome and Clouds
             // SkyDome
@@ -90,42 +110,39 @@ namespace NewTake.view
 
         }
 
+        #region DoBuild
         public override void DoBuild(Vector3i vector)
         {
             Chunk chunk = world.viewableChunks[vector.X, vector.Z];
-
-            //this.ChunkRenderers[chunk.Index].DoLighting();
-            //chunk.Renderer.DoLighting();
-            
-            // Build a vertex buffer for this chunks
-            //chunk.Renderer.BuildVertexList();
-            //this.ChunkRenderers[chunk.Index].BuildVertexList();
-        
+            // Propogate the chunk lighting
+            _lightingChunkProcessor.ProcessChunk(chunk);
+            _vertexBuildChunkProcessor.ProcessChunk(chunk);
             chunk.built = true;
         }
+        #endregion
 
+        #region DoGenerate
         public override void DoGenerate(Vector3i index)
         {
 
-           Chunk chunk = world.viewableChunks.load(index);
+            Chunk chunk = world.viewableChunks.load(index);
+
             if (chunk == null)
             {
                 // Create a new chunk
                 chunk = new Chunk(world, index);
                 // Generate the chunk with the current generator
                 world.Generator.Generate(chunk);
+                // Clear down the chunk lighting 
+                _lightingChunkProcessor.InitChunk(chunk);
             }
-                // Assign a renderer
-            //ChunkRenderer cRenderer = new SingleThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
-            //this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);
-            
-            // Calculate lighting
-            //cRenderer.DoLighting();
-            // Store the chunk in the view
-            world.viewableChunks[index.X, index.Z] = chunk;
+            // Assign a renderer
+            //ChunkRenderer cRenderer = new MultiThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
+            //this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);           
 
             chunk.generated = true;
         }
+        #endregion
 
         #region DrawSkyDome
         private void DrawSkyDome(Matrix currentViewMatrix)
@@ -148,6 +165,8 @@ namespace NewTake.view
                     currentEffect.Parameters["xView"].SetValue(currentViewMatrix);
                     currentEffect.Parameters["xProjection"].SetValue(projectionMatrix);
                     currentEffect.Parameters["xTexture"].SetValue(cloudMap);
+                    currentEffect.Parameters["SunColor"].SetValue(Color.Blue.ToVector4());
+                    currentEffect.Parameters["HorizonColor"].SetValue(Color.White.ToVector4());
                 }
                 mesh.Draw();
             }
@@ -187,7 +206,7 @@ namespace NewTake.view
 
             _perlinNoiseEffect.CurrentTechnique = _perlinNoiseEffect.Techniques["PerlinNoise"];
             _perlinNoiseEffect.Parameters["xTexture"].SetValue(cloudStaticMap);
-            _perlinNoiseEffect.Parameters["xOvercast"].SetValue(1.1f);
+            _perlinNoiseEffect.Parameters["xOvercast"].SetValue(0.8f);
             _perlinNoiseEffect.Parameters["xTime"].SetValue(time / 1000.0f);
 
             foreach (EffectPass pass in _perlinNoiseEffect.CurrentTechnique.Passes)
@@ -204,7 +223,6 @@ namespace NewTake.view
         #region Draw
         public override void Draw(GameTime gameTime)
         {
-            //currently a copy paste of base class but currently only :)
 
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
             if (cloudsEnabled)
@@ -227,10 +245,48 @@ namespace NewTake.view
             _solidBlockEffect.Parameters["View"].SetValue(camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(camera.Projection);
             _solidBlockEffect.Parameters["CameraPosition"].SetValue(camera.Position);
-            _solidBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
+            _solidBlockEffect.Parameters["FogColor"].SetValue(FOGCOLOR);
             _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
+
+            _solidBlockEffect.Parameters["SunColor"].SetValue(SUNCOLOR);
+
+            foreach (EffectPass pass in _solidBlockEffect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+
+                foreach(Chunk chunk in world.viewableChunks.Values)
+                {
+                    if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.generated && !chunk.dirty)
+                    {
+                        base.DrawChunk(chunk);
+                    }
+                }
+            }
+
+            // Diagnostic rendering
+            if (diagnosticsMode)
+            {
+                foreach (Chunk chunk in world.viewableChunks.Values)
+                {
+                    if (chunk.BoundingBox.Intersects(viewFrustum))
+                    {
+                        if (chunk.broken)
+                        {
+                            Utility.DrawBoundingBox(chunk.BoundingBox, GraphicsDevice, _debugEffect, Matrix.Identity, camera.View, camera.Projection, Color.Red);
+                        }
+                        else
+                        {
+                            if (!chunk.built)
+                            {
+                                // Draw the bounding box for the chunk so we can see them
+                                Utility.DrawBoundingBox(chunk.BoundingBox, GraphicsDevice, _debugEffect, Matrix.Identity, camera.View, camera.Projection, Color.Green);
+                            }
+                        }
+                    }
+                }
+            }
 
             //foreach (EffectPass pass in _solidBlockEffect.CurrentTechnique.Passes)
             //{
@@ -244,6 +300,8 @@ namespace NewTake.view
             //        }
             //    }
             //}
+
+
         }
         #endregion
 
