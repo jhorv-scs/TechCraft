@@ -91,7 +91,11 @@ namespace NewTake
 
             Content.RootDirectory = "Content";
             graphics.SynchronizeWithVerticalRetrace = true; // press f3 to set it to false at runtime 
+
+            showDebugKeysHelp();
         }
+
+      
 
         #region Initialize
         /// <summary>
@@ -153,7 +157,21 @@ namespace NewTake
         }
         #endregion
 
-        #region ProcessDebugKeys
+        #region DebugKeys
+        
+        private void showDebugKeysHelp()
+        {
+            Console.WriteLine("Debug keys");
+            Console.WriteLine("F1 toggle freelook / player physics");
+            Console.WriteLine("F3 toggle vsynch + fixedtimestep updates ");
+            Console.WriteLine("F4 toggle 100*160 window size");
+            Console.WriteLine("F7 toggle wireframe");
+            Console.WriteLine("F8 toggle chunk diagnostics");
+            Console.WriteLine("F11 toggle fullscreen");
+            Console.WriteLine("F release / regain focus");
+            Console.WriteLine("Esc exit");
+            
+        }
         private void ProcessDebugKeys()
         {
             KeyboardState keyState = Keyboard.GetState();
@@ -180,6 +198,12 @@ namespace NewTake
             if (_oldKeyboardState.IsKeyUp(Keys.F7) && keyState.IsKeyDown(Keys.F7))
             {
                 renderer.ToggleRasterMode();
+            }
+
+            //diagnose mode
+            if (_oldKeyboardState.IsKeyUp(Keys.F8) && keyState.IsKeyDown(Keys.F8))
+            {
+                renderer.diagnosticsMode = !renderer.diagnosticsMode;
             }
 
             // Allows the game to exit

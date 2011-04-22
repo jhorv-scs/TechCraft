@@ -358,25 +358,11 @@ namespace NewTake.view
         }
         #endregion
 
-        #region Update
-        public override void Update(GameTime gameTime)
-        {
-            BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
-            //foreach(Chunk chunk in world.viewableChunks.Values)
-            //{
-            //    if (chunk.BoundingBox.Intersects(viewFrustum))
-            //    {
-                    
-            //    }
-            //}
-        }
-        #endregion
 
         #region Draw
         public override void Draw(GameTime gameTime)
         {
-            //currently a copy paste of base class but currently only :)
-
+       
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
             if (cloudsEnabled)
             {
@@ -419,21 +405,23 @@ namespace NewTake.view
             }
 
             // Diagnostic rendering
-            // TODO fn key to turn on/off
-            foreach (Chunk chunk in world.viewableChunks.Values)
+            if (diagnosticsMode)
             {
-                if (chunk.BoundingBox.Intersects(viewFrustum))
+                foreach (Chunk chunk in world.viewableChunks.Values)
                 {
-                    if (chunk.broken)
+                    if (chunk.BoundingBox.Intersects(viewFrustum))
                     {
-                        Utility.DrawBoundingBox(chunk.BoundingBox, GraphicsDevice, _debugEffect, Matrix.Identity, camera.View, camera.Projection, Color.Red);
-                    }
-                    else
-                    {
-                        if (!chunk.built)
+                        if (chunk.broken)
                         {
-                            // Draw the bounding box for the chunk so we can see them
-                            Utility.DrawBoundingBox(chunk.BoundingBox, GraphicsDevice, _debugEffect, Matrix.Identity, camera.View, camera.Projection, Color.Green);
+                            Utility.DrawBoundingBox(chunk.BoundingBox, GraphicsDevice, _debugEffect, Matrix.Identity, camera.View, camera.Projection, Color.Red);
+                        }
+                        else
+                        {
+                            if (!chunk.built)
+                            {
+                                // Draw the bounding box for the chunk so we can see them
+                                Utility.DrawBoundingBox(chunk.BoundingBox, GraphicsDevice, _debugEffect, Matrix.Identity, camera.View, camera.Projection, Color.Green);
+                            }
                         }
                     }
                 }
