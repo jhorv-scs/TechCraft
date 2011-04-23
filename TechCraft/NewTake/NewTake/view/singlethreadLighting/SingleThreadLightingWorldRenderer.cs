@@ -223,6 +223,7 @@ namespace NewTake.view
 
                 Process(fromChunk, facing, 0);
 
+
             }
         }
         #endregion
@@ -230,33 +231,38 @@ namespace NewTake.view
         #region Process
         private void Process(Chunk fromChunk, Cardinal cardinal, int recursion)
         {
-            if (recursion == World.VIEW_CHUNKS_X) return;
+            if (fromChunk==null || recursion == 2 ) return;
 
             try
             {
                 Vector3i chunkIndexAdd = new Vector3i();
                 Vector3i chunkIndexRemove = new Vector3i();
 
-                fromChunk = fromChunk.GetNeighbour(cardinal);
+                Chunk nextChunk = fromChunk.GetNeighbour(cardinal);
                 SignedVector3i sv = Cardinals.VectorFrom(cardinal);
-                chunkIndexAdd = new Vector3i((uint)(fromChunk.Index.X + sv.X), 0, (uint)(fromChunk.Index.Z + sv.Z));
+                chunkIndexAdd = new Vector3i((uint)(nextChunk.Index.X + sv.X), 0, (uint)(nextChunk.Index.Z + sv.Z));
 
                 SignedVector3i removeDelta = Cardinals.OppositeVectorFrom(cardinal) * World.VIEW_DISTANCE_NEAR_X;
-                chunkIndexRemove = new Vector3i((uint)(fromChunk.Index.X + removeDelta.X), 0, (uint)(fromChunk.Index.Z + removeDelta.Z));
+                chunkIndexRemove = new Vector3i((uint)(nextChunk.Index.X + removeDelta.X), 0, (uint)(nextChunk.Index.Z + removeDelta.Z));
 
                 // Remove opposite chunk
-                if (world.viewableChunks[chunkIndexRemove.X, chunkIndexRemove.Z] != null)
-                {
-                    //Debug.WriteLine("Process Remove {0}, {1}, {2}", fromChunk.Index, cardinal, recursion);
-                    world.viewableChunks.Remove(chunkIndexRemove.X, chunkIndexRemove.Z);
-                }
+                //Debug.WriteLine("Process Remove {0}, {1}, {2}", nextChunk.Index, cardinal, recursion);
+                world.viewableChunks.Remove(chunkIndexRemove.X, chunkIndexRemove.Z);//null safe
+            
                 // Generate & Build cardinal chunk
                 if (world.viewableChunks[chunkIndexAdd.X, chunkIndexAdd.Z] == null)
                 {
-                    //Debug.WriteLine("Process Add {0}, {1}, {2}", fromChunk.Index, cardinal, recursion);
+                    //Debug.WriteLine("Process Add {0}, {1}, {2}", nextChunk.Index, cardinal, recursion);
                     DoGenerate(chunkIndexAdd);
                     DoBuild(chunkIndexAdd);
-                    Process(fromChunk, cardinal, recursion + 1);
+                    Process(nextChunk, cardinal, recursion + 1);
+
+                   /* if (cardinal == Cardinal.N)
+                    {
+                        Process(fromChunk.E, Cardinal.N, recursion );
+                        Process(fromChunk.W, Cardinal.N, recursion );
+                    }*/
+                  
                 }
             }
             catch (Exception)
