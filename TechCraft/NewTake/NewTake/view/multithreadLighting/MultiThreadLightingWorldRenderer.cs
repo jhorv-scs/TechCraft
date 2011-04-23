@@ -179,6 +179,25 @@ namespace NewTake.view
                
                 if (currentChunkIndex != previousChunkIndex) // Check so that we don't process if the player hasn't moved to a new chunk
                 {
+                    Debug.WriteLine("previous = {0}, current = {1}:", previousChunkIndex, currentChunkIndex);
+
+                    //if (previousChunkIndex.Z > currentChunkIndex.Z)
+                    //{
+                    //    Debug.WriteLine("Z has decreased");
+                    //}
+                    //if (previousChunkIndex.Z < currentChunkIndex.Z)
+                    //{
+                    //    Debug.WriteLine("Z has increased");
+                    //}
+                    //if (previousChunkIndex.X > currentChunkIndex.X)
+                    //{
+                    //    Debug.WriteLine("X has decreased");
+                    //}
+                    //if (previousChunkIndex.X < currentChunkIndex.X)
+                    //{
+                    //    Debug.WriteLine("X has increased");
+                    //}
+
                     previousChunkIndex = currentChunkIndex; // Player has moved to a new chunk. Therefore update the previous index with the current one
 
                     // Loop through all possible chunks around the camera in both X and Z directions
@@ -189,8 +208,8 @@ namespace NewTake.view
                             int distancecx = (int)(j - cx);        // The distance from the camera to the chunk in the X direction
                             int distancecz = (int)(l - cz);        // The distance from the camera to the chunk in the Z direction
 
-                            if (distancecx < 0) distancecx = 0 - distancecx; // If the distance is negative (chunk position lower than origin) make it positive
-                            if (distancecz < 0) distancecz = 0 - distancecz; // If the distance is negative (chunk position lower than origin) make it positive
+                            if (distancecx < 0) distancecx = 0 - distancecx; // If the distance is negative make it positive
+                            if (distancecz < 0) distancecz = 0 - distancecz; // If the distance is negative make it positive
 
                             #region Remove Chunks
                             // Remove Chunks
@@ -223,6 +242,8 @@ namespace NewTake.view
                                 Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz));    // This is the chunk in the loop, offset from the camera
                                 try
                                 {
+                                    // TODO: Add code to only add chunks to queue based on current movement direction
+
                                     //Chunk chunk = world.viewableChunks[newIndex.X, newIndex.Z];
                                     //if (chunk != null) Debug.WriteLine("State = {0}", chunk.State);
                                     // A new chunk is coming into view - we need to generate or load it
@@ -230,11 +251,12 @@ namespace NewTake.view
                                     {
                                         //Debug.WriteLine("Adding new chunk to queue, chunk = {0},{1}", newIndex.X, newIndex.Z);
                                         this._generationQueue.Add(newIndex); // adds the chunk index to the generation queue 
-                                    }
+                                    }   
                                     else if (_generationQueue.Contains(newIndex))
                                     {
                                         Debug.WriteLine("Chunk found on genQ, chunk = {0},{1} genQ Count = {2}", newIndex.X, newIndex.Z, _generationQueue.Count);
                                     }
+
                                 }
                                 catch (AggregateException ae)
                                 {
@@ -254,6 +276,8 @@ namespace NewTake.view
                                     {
                                         // We have a chunk in view - it has been generated but we haven't built a vertex buffer for it
                                         Vector3i newIndex = currentChunkIndex + new Vector3i((j - cx), 0, (l - cz)); // This is the chunk in the loop, offset from the camera
+
+                                        // TODO: Add code to only add chunks to queue based on current movement direction
 
                                         this._buildingQueue.Add(newIndex); // adds the chunk index to the build queue
                                         //this._buildingQueue.Add(chunk.Index); // adds the chunk index to the build queue

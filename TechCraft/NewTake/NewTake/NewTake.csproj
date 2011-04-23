@@ -114,6 +114,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="model\Cardinal.cs" />
     <Compile Include="model\ChunkState.cs" />
     <Compile Include="model\persistence\ChunkPersistence.cs" />
     <Compile Include="model\persistence\FakeChunkPersistence.cs" />
