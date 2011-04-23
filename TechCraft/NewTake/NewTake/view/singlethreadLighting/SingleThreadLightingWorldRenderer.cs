@@ -221,37 +221,7 @@ namespace NewTake.view
 
                 Cardinal facing = camera.FacingCardinal();
 
-                #region switch facing
-                switch (facing)
-                {
-                    case Cardinal.N:
-                        Process(fromChunk, Cardinal.N, 0);
-                        break;
-                    case Cardinal.NE:
-                        Process(fromChunk, Cardinal.NE, 0);
-                        break;
-                    case Cardinal.E:
-                        Process(fromChunk, Cardinal.E, 0);
-                        break;
-                    case Cardinal.SE:
-                        Process(fromChunk, Cardinal.SE, 0);
-                        break;
-                    case Cardinal.S:
-                        Process(fromChunk, Cardinal.S, 0);
-                        break;
-                    case Cardinal.SW:
-                        Process(fromChunk, Cardinal.SW, 0);
-                        break;
-                    case Cardinal.W:
-                        Process(fromChunk, Cardinal.W, 0);
-                        break;
-                    case Cardinal.NW:
-                        Process(fromChunk, Cardinal.NW, 0);
-                        break;
-                    default:
-                        break;
-                }
-                #endregion
+                Process(fromChunk, facing, 0);
 
             }
         }
@@ -262,59 +232,15 @@ namespace NewTake.view
         {
             if (recursion == World.VIEW_CHUNKS_X) return;
 
+            Vector3i chunkIndexOut;
+
             try
             {
-                Vector3i chunkIndexOut = new Vector3i();
+                fromChunk = fromChunk.GetNeighbour(cardinal);
+                SignedVector3i sv = Cardinals.VectorFrom(cardinal);
+                chunkIndexOut = new Vector3i((uint)(fromChunk.Index.X + sv.X), 0, (uint)(fromChunk.Index.Z + sv.Z));
 
-                #region switch cardinal
-                switch (cardinal)
-                {
-                    case Cardinal.N:
-                        fromChunk = fromChunk.N;
-                        chunkIndexOut = new Vector3i(fromChunk.Index.X, 0, fromChunk.Index.Z - 1);
-                        cardinal = Cardinal.N;
-                        break;
-                    case Cardinal.NE:
-                        fromChunk = fromChunk.NE;
-                        chunkIndexOut = new Vector3i(fromChunk.Index.X + 1, 0, fromChunk.Index.Z - 1);
-                        cardinal = Cardinal.NE;
-                        break;
-                    case Cardinal.E:
-                        fromChunk = fromChunk.E;
-                        chunkIndexOut = new Vector3i(fromChunk.Index.X + 1, 0, fromChunk.Index.Z);
-                        cardinal = Cardinal.E;
-                        break;
-                    case Cardinal.SE:
-                        fromChunk = fromChunk.SE;
-                        chunkIndexOut = new Vector3i(fromChunk.Index.X + 1, 0, fromChunk.Index.Z + 1);
-                        cardinal = Cardinal.SE;
-                        break;
-                    case Cardinal.S:
-                        fromChunk = fromChunk.S;
-                        chunkIndexOut = new Vector3i(fromChunk.Index.X, 0, fromChunk.Index.Z + 1);
-                        cardinal = Cardinal.S;
-                        break;
-                    case Cardinal.SW:
-                        fromChunk = fromChunk.SW;
-                        chunkIndexOut = new Vector3i(fromChunk.Index.X - 1, 0, fromChunk.Index.Z + 1);
-                        cardinal = Cardinal.SW;
-                        break;
-                    case Cardinal.W:
-                        fromChunk = fromChunk.W;
-                        chunkIndexOut = new Vector3i(fromChunk.Index.X - 1, 0, fromChunk.Index.Z);
-                        cardinal = Cardinal.W;
-                        break;
-                    case Cardinal.NW:
-                        fromChunk = fromChunk.NW;
-                        chunkIndexOut = new Vector3i(fromChunk.Index.X - 1, 0, fromChunk.Index.Z - 1);
-                        cardinal = Cardinal.NW;
-                        break;
-                    default:
-                        break;
-                }
-                #endregion
-
-                if (world.viewableChunks[chunkIndexOut.X, chunkIndexOut.Z] == null)
+                if (world.viewableChunks[(uint)chunkIndexOut.X, (uint)chunkIndexOut.Z] == null)
                 {
                     //Debug.WriteLine("process {0}, {1}, {2}", fromChunk.Index, cardinal, recursion);
                     DoGenerate(chunkIndexOut);
