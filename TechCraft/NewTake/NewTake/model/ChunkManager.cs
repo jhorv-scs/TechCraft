@@ -52,6 +52,7 @@ namespace NewTake.model.types
         public override void Remove(uint x, uint z)
         {
             Chunk chunk = this[x, z];
+            if (chunk == null) return;
 
             beforeRemove(chunk);
 
