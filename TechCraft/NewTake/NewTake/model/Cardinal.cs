@@ -7,9 +7,9 @@ using Microsoft.Xna.Framework;
 namespace NewTake.model
 {
 
-   public enum Cardinal
+    public enum Cardinal
     {
-       N,S,E,W,NE,NW,SE,SW
+        N, S, E, W, NE, NW, SE, SW
     }
 
 }
