@@ -175,11 +175,6 @@ namespace NewTake.view
                 uint cx = x / Chunk.SIZE.X;
                 uint cz = z / Chunk.SIZE.Z;
 
-                uint lx = x % Chunk.SIZE.X;
-                uint lz = z % Chunk.SIZE.Z;
-
-                //Vector3i currentChunkIndex = world.viewableChunks[cx, cz].Index;    // This is the chunk in which the camera currently resides
-                //this is the same vector without the nullpointer possibility when reaching coordinates < Chunk.SIZE.X or Z
                 Vector3i currentChunkIndex = new Vector3i(cx, 0, cz);
                
                 if (currentChunkIndex != previousChunkIndex) // Check so that we don't process if the player hasn't moved to a new chunk
@@ -418,5 +413,9 @@ namespace NewTake.view
         }
         #endregion
 
+
+        public override void Update(GameTime gameTime) {
+            //update is handled in chunkReGenBuildTask for this class
+        }
     }
 }

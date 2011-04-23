@@ -80,9 +80,9 @@ namespace NewTake
 
             preferredBackBufferHeight = graphics.PreferredBackBufferHeight;
             preferredBackBufferWidth = graphics.PreferredBackBufferWidth;
-            
+
             //enter stealth mode at start
-           // graphics.PreferredBackBufferHeight = 100;
+            // graphics.PreferredBackBufferHeight = 100;
             //graphics.PreferredBackBufferWidth = 160;
 
             FrameRateCounter frameRate = new FrameRateCounter(this);
@@ -108,14 +108,13 @@ namespace NewTake
 
             player1 = new Player(world);
 
-            player1Renderer = new PlayerRenderer(GraphicsDevice,player1);
+            player1Renderer = new PlayerRenderer(GraphicsDevice, player1);
             player1Renderer.Initialize();
 
             hud = new HudRenderer(GraphicsDevice, world, player1Renderer.camera);
             hud.Initialize();
 
             #region choose renderer
-            //renderer = new WorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             //renderer = new SingleThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             renderer = new MultiThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             #endregion
@@ -158,7 +157,7 @@ namespace NewTake
         #endregion
 
         #region DebugKeys
-        
+
         private void showDebugKeysHelp()
         {
             Console.WriteLine("Debug keys");
@@ -170,7 +169,7 @@ namespace NewTake
             Console.WriteLine("F11 toggle fullscreen");
             Console.WriteLine("F release / regain focus");
             Console.WriteLine("Esc exit");
-            
+
         }
         private void ProcessDebugKeys()
         {
@@ -181,11 +180,11 @@ namespace NewTake
             {
                 graphics.ToggleFullScreen();
             }
-            
+
             //freelook mode
             if (_oldKeyboardState.IsKeyUp(Keys.F1) && keyState.IsKeyDown(Keys.F1))
             {
-                player1Renderer.freeCam = ! player1Renderer.freeCam;
+                player1Renderer.freeCam = !player1Renderer.freeCam;
             }
 
             //minimap mode
@@ -193,6 +192,7 @@ namespace NewTake
             {
                 hud.showMinimap = !hud.showMinimap;
             }
+
 
             //wireframe mode
             if (_oldKeyboardState.IsKeyUp(Keys.F7) && keyState.IsKeyDown(Keys.F7))
@@ -246,7 +246,7 @@ namespace NewTake
             this._oldKeyboardState = keyState;
         }
         #endregion
-       
+
         #region Update
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -281,7 +281,7 @@ namespace NewTake
             renderer.Draw(gameTime);
 
             player1Renderer.Draw(gameTime);
-       
+
             hud.Draw(gameTime);
 
             base.Draw(gameTime);
