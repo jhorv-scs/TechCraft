@@ -119,6 +119,7 @@
     <Compile Include="model\persistence\ChunkPersistence.cs" />
     <Compile Include="model\persistence\FakeChunkPersistence.cs" />
     <Compile Include="model\persistence\IChunkPersistence.cs" />
+    <Compile Include="model\types\SignedVector3i.cs" />
     <Compile Include="model\types\Vector3b.cs" />
     <Compile Include="model\types\Dictionary2.cs" />
     <Compile Include="model\Player.cs" />
@@ -138,7 +139,6 @@
     <Compile Include="profiling\FrameRateCounter.cs" />
     <Compile Include="model\types\SparseMatrix2.cs" />
     <Compile Include="controllers\FirstPersonCameraController.cs" />
-    <Compile Include="model\types\Array3.cs" />
     <Compile Include="model\terrain\DualLayerTerrainWithMediumValleysForRivers.cs" />
     <Compile Include="profiling\Utility.cs" />
     <Compile Include="view\blocks\VertexBlockRenderer.cs" />

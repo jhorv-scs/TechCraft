@@ -1,7 +1,7 @@
 ﻿#region License
 
-//  TechCraft - http//techcraft.codeplex.com
-//  This source code is offered under the Microsoft Public License (Ms-PL) which is outlined as follows
+//  TechCraft - http://techcraft.codeplex.com
+//  This source code is offered under the Microsoft Public License (Ms-PL) which is outlined as follows:
 
 //  Microsoft Public License (Ms-PL)
 //  This license governs use of the accompanying software. If you use the software, you accept this license. If you do not accept the license, do not use the software.
@@ -31,65 +31,83 @@ using System.Linq;
 using System.Text;
 
 using Microsoft.Xna.Framework;
+using NewTake.model;
 #endregion
 
-namespace NewTake.model
+namespace NewTake
 {
 
-    public enum Cardinal
+    public struct SignedVector3i
     {
-        N, S, E, W, NE, NW, SE, SW
-    }
+        public readonly int X;
+        public readonly int Y;
+        public readonly int Z;
 
-    public static class Cardinals
-    {
-
-        public static SignedVector3i N = new SignedVector3i(0, 0, -1);
-        public static SignedVector3i NE = new SignedVector3i(+1, 0, -1);
-        public static SignedVector3i E = new SignedVector3i(+1, 0, 0);
-        public static SignedVector3i SE = new SignedVector3i(+1, 0, +1);
-        public static SignedVector3i S = new SignedVector3i(0, 0, +1);
-        public static SignedVector3i SW = new SignedVector3i(-1, 0, +1);
-        public static SignedVector3i W = new SignedVector3i(-1, 0, 0);
-        public static SignedVector3i NW = new SignedVector3i(-1, 0, -1);
-
-        public static SignedVector3i VectorFrom(Cardinal c)
+        public SignedVector3i(int x, int y, int z)
         {
-            switch (c)
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+        }
+
+        public SignedVector3i(Vector3 vector3)
+        {
+            X = (int)vector3.X;
+            Y = (int)vector3.Y;
+            Z = (int)vector3.Z;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is SignedVector3i)
             {
-                case Cardinal.N: return N;
-                case Cardinal.NE: return NE;
-                case Cardinal.E: return E;
-                case Cardinal.SE: return SE;
-                case Cardinal.S: return S;
-                case Cardinal.SW: return SW;
-                case Cardinal.W: return W;
-                case Cardinal.NW: return NW;
+                SignedVector3i other = (SignedVector3i)obj;
+                return this.X == other.X && this.Y == other.Y && this.Z == other.Z;
             }
-            throw new NotImplementedException("unknown cardinal direction" + c);
+            return base.Equals(obj);
         }
 
-        public static Cardinal CardinalFrom(int x, int z)
+        public static bool operator ==(SignedVector3i a, SignedVector3i b)
         {
-            SignedVector3i v = new SignedVector3i(x, 0, z);
-            return CardinalFrom(v);
+            return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
         }
 
-        public static Cardinal CardinalFrom(SignedVector3i v)
+        public static bool operator !=(SignedVector3i a, SignedVector3i b)
         {
-
-            if (v == N) return Cardinal.N;
-            if (v == NE) return Cardinal.NE;
-            if (v == E) return Cardinal.E;
-            if (v == SE) return Cardinal.SE;
-            if (v == S) return Cardinal.S;
-            if (v == SW) return Cardinal.SW;
-            if (v == W) return Cardinal.W;
-            if (v == NW) return Cardinal.NW;
-
-            throw new NotImplementedException("vector " + v + " does not map to a cardinal direction");
+            return !(a.X == b.X && a.Y == b.Y && a.Z == b.Z);
         }
+
+        public static SignedVector3i operator +(SignedVector3i a, SignedVector3i b)
+        {
+            return new SignedVector3i(a.X + b.X ,a.Y +b.Y ,a.Z + b.Z);
+        }
+
+        public static int DistanceSquared(SignedVector3i value1, SignedVector3i value2)
+        {
+            int x = value1.X - value2.X;
+            int y = value1.Y - value2.Y;
+            int z = value1.Z - value2.Z;
+
+            return (x * x) + (y * y) + (z * z);
+        }
+
+        public override int GetHashCode()
+        {
+            //TODO check this hashcode impl           
+            return (int)(X ^ Y ^ Z);
+        }
+
+        public override string ToString()
+        {
+            return ("SignedVector3i (" + X + "," + Y + "," + Z + ")");
+        }
+
+        public Vector3 asVector3()
+        {
+            return new Vector3(X, Y, Z);
+        }
+
+        
 
     }
-
 }
