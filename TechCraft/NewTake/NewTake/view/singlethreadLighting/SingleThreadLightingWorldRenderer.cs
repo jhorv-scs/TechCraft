@@ -221,37 +221,7 @@ namespace NewTake.view
 
                 Cardinal facing = camera.FacingCardinal();
 
-                #region switch facing
-                switch (facing)
-                {
-                    case Cardinal.N:
-                        Process(fromChunk, Cardinal.N, 0);
-                        break;
-                    case Cardinal.NE:
-                        Process(fromChunk, Cardinal.NE, 0);
-                        break;
-                    case Cardinal.E:
-                        Process(fromChunk, Cardinal.E, 0);
-                        break;
-                    case Cardinal.SE:
-                        Process(fromChunk, Cardinal.SE, 0);
-                        break;
-                    case Cardinal.S:
-                        Process(fromChunk, Cardinal.S, 0);
-                        break;
-                    case Cardinal.SW:
-                        Process(fromChunk, Cardinal.SW, 0);
-                        break;
-                    case Cardinal.W:
-                        Process(fromChunk, Cardinal.W, 0);
-                        break;
-                    case Cardinal.NW:
-                        Process(fromChunk, Cardinal.NW, 0);
-                        break;
-                    default:
-                        break;
-                }
-                #endregion
+                Process(fromChunk, facing, 0);
 
             }
         }
@@ -267,61 +237,12 @@ namespace NewTake.view
                 Vector3i chunkIndexAdd = new Vector3i();
                 Vector3i chunkIndexRemove = new Vector3i();
 
-                #region switch cardinal
-                switch (cardinal)
-                {
-                    case Cardinal.N:
-                        fromChunk = fromChunk.N;
-                        chunkIndexAdd = new Vector3i(fromChunk.Index.X, 0, fromChunk.Index.Z - 1);
-                        chunkIndexRemove = new Vector3i(fromChunk.Index.X, 0, fromChunk.Index.Z + World.VIEW_DISTANCE_NEAR_X); // S
-                        cardinal = Cardinal.N;
-                        break;
-                    case Cardinal.NE:
-                        fromChunk = fromChunk.NE;
-                        chunkIndexAdd = new Vector3i(fromChunk.Index.X + 1, 0, fromChunk.Index.Z - 1);
-                        chunkIndexRemove = new Vector3i(fromChunk.Index.X - World.VIEW_DISTANCE_NEAR_X, 0, fromChunk.Index.Z + World.VIEW_DISTANCE_NEAR_X); // SW
-                        cardinal = Cardinal.NE;
-                        break;
-                    case Cardinal.E:
-                        fromChunk = fromChunk.E;
-                        chunkIndexAdd = new Vector3i(fromChunk.Index.X + 1, 0, fromChunk.Index.Z);
-                        chunkIndexRemove = new Vector3i(fromChunk.Index.X - World.VIEW_DISTANCE_NEAR_X, 0, fromChunk.Index.Z); // W
-                        cardinal = Cardinal.E;
-                        break;
-                    case Cardinal.SE:
-                        fromChunk = fromChunk.SE;
-                        chunkIndexAdd = new Vector3i(fromChunk.Index.X + 1, 0, fromChunk.Index.Z + 1);
-                        chunkIndexRemove = new Vector3i(fromChunk.Index.X - World.VIEW_DISTANCE_NEAR_X, 0, fromChunk.Index.Z - World.VIEW_DISTANCE_NEAR_X); // NW
-                        cardinal = Cardinal.SE;
-                        break;
-                    case Cardinal.S:
-                        fromChunk = fromChunk.S;
-                        chunkIndexAdd = new Vector3i(fromChunk.Index.X, 0, fromChunk.Index.Z + 1);
-                        chunkIndexRemove = new Vector3i(fromChunk.Index.X, 0, fromChunk.Index.Z - World.VIEW_DISTANCE_NEAR_X); // N
-                        cardinal = Cardinal.S;
-                        break;
-                    case Cardinal.SW:
-                        fromChunk = fromChunk.SW;
-                        chunkIndexAdd = new Vector3i(fromChunk.Index.X - 1, 0, fromChunk.Index.Z + 1);
-                        chunkIndexRemove = new Vector3i(fromChunk.Index.X + World.VIEW_DISTANCE_NEAR_X, 0, fromChunk.Index.Z - World.VIEW_DISTANCE_NEAR_X); // NE
-                        cardinal = Cardinal.SW;
-                        break;
-                    case Cardinal.W:
-                        fromChunk = fromChunk.W;
-                        chunkIndexAdd = new Vector3i(fromChunk.Index.X - 1, 0, fromChunk.Index.Z);
-                        chunkIndexRemove = new Vector3i(fromChunk.Index.X + World.VIEW_DISTANCE_NEAR_X, 0, fromChunk.Index.Z); // E
-                        cardinal = Cardinal.W;
-                        break;
-                    case Cardinal.NW:
-                        fromChunk = fromChunk.NW;
-                        chunkIndexAdd = new Vector3i(fromChunk.Index.X - 1, 0, fromChunk.Index.Z - 1);
-                        chunkIndexRemove = new Vector3i(fromChunk.Index.X + World.VIEW_DISTANCE_NEAR_X, 0, fromChunk.Index.Z + World.VIEW_DISTANCE_NEAR_X); // SE
-                        cardinal = Cardinal.NW;
-                        break;
-                    default:
-                        break;
-                }
-                #endregion
+                fromChunk = fromChunk.GetNeighbour(cardinal);
+                SignedVector3i sv = Cardinals.VectorFrom(cardinal);
+                chunkIndexAdd = new Vector3i((uint)(fromChunk.Index.X + sv.X), 0, (uint)(fromChunk.Index.Z + sv.Z));
+
+                SignedVector3i removeDelta = Cardinals.OppositeVectorFrom(cardinal) * World.VIEW_DISTANCE_NEAR_X;
+                chunkIndexRemove = new Vector3i((uint)(fromChunk.Index.X + removeDelta.X), 0, (uint)(fromChunk.Index.Z + removeDelta.Z));
 
                 // Remove opposite chunk
                 if (world.viewableChunks[chunkIndexRemove.X, chunkIndexRemove.Z] != null)

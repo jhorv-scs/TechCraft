@@ -69,6 +69,24 @@ namespace NewTake.model
             throw new NotImplementedException("unknown cardinal direction" + c);
         }
 
+        public static SignedVector3i OppositeVectorFrom(Cardinal c)
+        {
+            switch (c)
+            {
+                case Cardinal.N: return S;
+                case Cardinal.NE: return SW;
+                case Cardinal.E: return W;
+                case Cardinal.SE: return NW;
+                case Cardinal.S: return N;
+                case Cardinal.SW: return NE;
+                case Cardinal.W: return E;
+                case Cardinal.NW: return SE;
+                default:
+                    break;
+            }
+            throw new NotImplementedException("unknown cardinal direction" + c);
+        }
+
         public static Cardinal CardinalFrom(int x, int z)
         {
             SignedVector3i v = new SignedVector3i(x, 0, z);

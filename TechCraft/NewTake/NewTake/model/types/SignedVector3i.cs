@@ -82,6 +82,11 @@ namespace NewTake
             return new SignedVector3i(a.X + b.X ,a.Y +b.Y ,a.Z + b.Z);
         }
 
+        public static SignedVector3i operator *(SignedVector3i v, byte b)
+        {
+            return new SignedVector3i(v.X * b, v.Y * b, v.Z * b);
+        }
+
         public static int DistanceSquared(SignedVector3i value1, SignedVector3i value2)
         {
             int x = value1.X - value2.X;
