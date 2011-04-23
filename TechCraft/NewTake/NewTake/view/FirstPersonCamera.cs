@@ -39,6 +39,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
+using NewTake.model;
 #endregion
 
 namespace NewTake.view
@@ -124,29 +125,30 @@ namespace NewTake.view
         }
         #endregion
 
-        public String FacingCardinal()
+        public Cardinal FacingCardinal()
         {
+            //TODO optimize with modulo (see url)
             //http://gamedev.stackexchange.com/questions/7325/snapping-an-angle-to-the-closest-cardinal-direction
 
             float a = MathHelper.WrapAngle(_leftRightRotation);
             a = MathHelper.PiOver4 * (float)Math.Round(a / MathHelper.PiOver4);
 
             if (a == 0)
-                return ("N");
+                return (Cardinal.N);
             else if (a.CompareTo(MathHelper.PiOver4) == 0)
-                return ("NW");
+                return (Cardinal.NW);
             else if (a.CompareTo(-MathHelper.PiOver4) == 0)
-                return ("NE");
+                return (Cardinal.NE);
             else if (a.CompareTo(MathHelper.Pi - MathHelper.PiOver4) == 0)
-                return ("SW");
+                return (Cardinal.SW);
             else if (a.CompareTo(-(MathHelper.Pi - MathHelper.PiOver4)) == 0)
-                return ("SE");
+                return (Cardinal.SE);
             else if (a.CompareTo(MathHelper.PiOver2) == 0)
-                return ("W");
+                return (Cardinal.W);
             else if (a.CompareTo(-MathHelper.PiOver2) == 0)
-                return ("E");
+                return (Cardinal.E);
             else if (a.CompareTo(MathHelper.Pi) == 0 || a.CompareTo(-MathHelper.Pi) == 0)
-                return ("S");
+                return (Cardinal.S);
             else
                 throw new NotImplementedException(); 
         }

@@ -274,6 +274,31 @@ namespace NewTake.model
         public Chunk SW { get { return _SW != null ? _SW : _SW = world.viewableChunks[Index.X - 1, Index.Z + 1]; } }
         public Chunk SE { get { return _SE != null ? _SE : _SE = world.viewableChunks[Index.X + 1, Index.Z + 1]; } }
 
+        public Chunk GetNeighbour(Cardinal c)
+        {
+            switch (c)
+            {
+                case Cardinal.N:
+                    return N;
+                case Cardinal.S:
+                    return S;
+                case Cardinal.E:
+                    return E;
+                case Cardinal.W:
+                    return W;
+                case Cardinal.SE:
+                    return SE;
+                case Cardinal.SW:
+                    return SW;
+                case Cardinal.NE:
+                    return NE;
+                case Cardinal.NW:
+                    return NW;
+
+            }
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         #region main as unit test for neighbours
