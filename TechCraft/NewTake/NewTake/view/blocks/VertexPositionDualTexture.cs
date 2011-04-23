@@ -1,4 +1,4 @@
-﻿#region license
+﻿#region License
 
 //  TechCraft - http://techcraft.codeplex.com
 //  This source code is offered under the Microsoft Public License (Ms-PL) which is outlined as follows:
@@ -60,7 +60,6 @@ namespace NewTake.view.blocks
             _textureCoordinate2 = textureCoordinate2;
             _aoWeight = aoWeight;
         }
-
 
         public override String ToString()
         {

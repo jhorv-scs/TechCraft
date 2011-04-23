@@ -1,4 +1,4 @@
-﻿#region license
+﻿#region License
 
 //  TechCraft - http://techcraft.codeplex.com
 //  This source code is offered under the Microsoft Public License (Ms-PL) which is outlined as follows:
@@ -32,7 +32,7 @@ using System.Text;
 namespace NewTake.model.terrain.biome
 {
 
-    #region BiomeType
+    #region enum BiomeType
     public enum BiomeType : byte
     {
 
