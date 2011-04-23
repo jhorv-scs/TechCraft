@@ -1,4 +1,4 @@
-﻿#region license
+﻿#region License
 
 //  TechCraft - http://techcraft.codeplex.com
 //  This source code is offered under the Microsoft Public License (Ms-PL) which is outlined as follows:
@@ -24,16 +24,19 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
+#region Using Statements
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+#endregion
 
 namespace NewTake.model.terrain
 {
     public class MapTools
     {
 
+        #region ClearChunkBlocks
         public static void ClearChunkBlocks(Chunk chunk)
         {
             for (byte x = 0; x < Chunk.SIZE.X; x++)
@@ -47,7 +50,9 @@ namespace NewTake.model.terrain
                 }
             }
         }
+        #endregion
 
+        #region SumNoiseFunctions
         /// <summary>
         /// Get the interpolated points for the noise function
         /// </summary>
@@ -79,6 +84,7 @@ namespace NewTake.model.terrain
             }
             return summedValues;
         }
+        #endregion
 
     }
 }

@@ -1,4 +1,4 @@
-﻿#region license
+﻿#region License
 
 //  TechCraft - http://techcraft.codeplex.com
 //  This source code is offered under the Microsoft Public License (Ms-PL) which is outlined as follows:
@@ -24,7 +24,7 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
-#region using
+#region Using Statements
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,7 +46,7 @@ namespace NewTake.view
 {
     class SingleThreadLightingWorldRenderer : WorldRenderer
     {
-        #region inits
+        #region Fields
 
         private BasicEffect _debugEffect;
 
@@ -202,7 +202,135 @@ namespace NewTake.view
         }
         #endregion
 
+        #region Update
         public override void Update(GameTime gameTime)
+        {
+            uint x = (uint)camera.Position.X;
+            uint z = (uint)camera.Position.Z;
+
+            uint cx = x / Chunk.SIZE.X;
+            uint cz = z / Chunk.SIZE.Z;
+
+            Vector3i currentChunkIndex = new Vector3i(cx, 0, cz);
+
+            if (currentChunkIndex != previousChunkIndex)
+            {
+                previousChunkIndex = currentChunkIndex;
+
+                Chunk fromChunk = world.viewableChunks[currentChunkIndex.X, currentChunkIndex.Z];
+
+                Cardinal facing = camera.FacingCardinal();
+
+                #region switch facing
+                switch (facing)
+                {
+                    case Cardinal.N:
+                        Process(fromChunk, Cardinal.N, 0);
+                        break;
+                    case Cardinal.NE:
+                        Process(fromChunk, Cardinal.NE, 0);
+                        break;
+                    case Cardinal.E:
+                        Process(fromChunk, Cardinal.E, 0);
+                        break;
+                    case Cardinal.SE:
+                        Process(fromChunk, Cardinal.SE, 0);
+                        break;
+                    case Cardinal.S:
+                        Process(fromChunk, Cardinal.S, 0);
+                        break;
+                    case Cardinal.SW:
+                        Process(fromChunk, Cardinal.SW, 0);
+                        break;
+                    case Cardinal.W:
+                        Process(fromChunk, Cardinal.W, 0);
+                        break;
+                    case Cardinal.NW:
+                        Process(fromChunk, Cardinal.NW, 0);
+                        break;
+                    default:
+                        break;
+                }
+                #endregion
+
+            }
+        }
+        #endregion
+
+        #region Process
+        private void Process(Chunk fromChunk, Cardinal cardinal, int recursion)
+        {
+            if (recursion == World.VIEW_CHUNKS_X) return;
+
+            try
+            {
+                Vector3i chunkIndexOut = new Vector3i();
+
+                #region switch cardinal
+                switch (cardinal)
+                {
+                    case Cardinal.N:
+                        fromChunk = fromChunk.N;
+                        chunkIndexOut = new Vector3i(fromChunk.Index.X, 0, fromChunk.Index.Z - 1);
+                        cardinal = Cardinal.N;
+                        break;
+                    case Cardinal.NE:
+                        fromChunk = fromChunk.NE;
+                        chunkIndexOut = new Vector3i(fromChunk.Index.X + 1, 0, fromChunk.Index.Z - 1);
+                        cardinal = Cardinal.NE;
+                        break;
+                    case Cardinal.E:
+                        fromChunk = fromChunk.E;
+                        chunkIndexOut = new Vector3i(fromChunk.Index.X + 1, 0, fromChunk.Index.Z);
+                        cardinal = Cardinal.E;
+                        break;
+                    case Cardinal.SE:
+                        fromChunk = fromChunk.SE;
+                        chunkIndexOut = new Vector3i(fromChunk.Index.X + 1, 0, fromChunk.Index.Z + 1);
+                        cardinal = Cardinal.SE;
+                        break;
+                    case Cardinal.S:
+                        fromChunk = fromChunk.S;
+                        chunkIndexOut = new Vector3i(fromChunk.Index.X, 0, fromChunk.Index.Z + 1);
+                        cardinal = Cardinal.S;
+                        break;
+                    case Cardinal.SW:
+                        fromChunk = fromChunk.SW;
+                        chunkIndexOut = new Vector3i(fromChunk.Index.X - 1, 0, fromChunk.Index.Z + 1);
+                        cardinal = Cardinal.SW;
+                        break;
+                    case Cardinal.W:
+                        fromChunk = fromChunk.W;
+                        chunkIndexOut = new Vector3i(fromChunk.Index.X - 1, 0, fromChunk.Index.Z);
+                        cardinal = Cardinal.W;
+                        break;
+                    case Cardinal.NW:
+                        fromChunk = fromChunk.NW;
+                        chunkIndexOut = new Vector3i(fromChunk.Index.X - 1, 0, fromChunk.Index.Z - 1);
+                        cardinal = Cardinal.NW;
+                        break;
+                    default:
+                        break;
+                }
+                #endregion
+
+                if (world.viewableChunks[chunkIndexOut.X, chunkIndexOut.Z] == null)
+                {
+                    //Debug.WriteLine("process {0}, {1}, {2}", fromChunk.Index, cardinal, recursion);
+                    DoGenerate(chunkIndexOut);
+                    DoBuild(chunkIndexOut);
+                    Process(fromChunk, cardinal, recursion + 1);
+                }
+            }
+            catch (Exception)
+            {
+                Debug.WriteLine("Process exception");
+            }
+        }
+        #endregion
+
+        #region Update_nonCardinal
+        public void Update_nonCardinal(GameTime gameTime)
         {
 
             uint x = (uint)camera.Position.X;
@@ -275,9 +403,9 @@ namespace NewTake.view
                     }
                 }
             }// end if
-
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
         }
+        #endregion
 
     }
 }

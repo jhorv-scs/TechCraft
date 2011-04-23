@@ -1,4 +1,4 @@
-﻿#region license
+﻿#region License
 
 //  TechCraft - http://techcraft.codeplex.com
 //  This source code is offered under the Microsoft Public License (Ms-PL) which is outlined as follows:
@@ -92,7 +92,7 @@ namespace NewTake.model.terrain
             return a * (1 - f) + b * f;
         }
 
-        #region Accessors/Mutators
+        #region Accessors
         public float Amplitude { get { return amplitude; } }
         public int Frequency { get { return frequency; } }
         #endregion

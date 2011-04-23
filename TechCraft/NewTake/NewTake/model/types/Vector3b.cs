@@ -1,4 +1,4 @@
-﻿#region license
+﻿#region License
 
 //  TechCraft - http://techcraft.codeplex.com
 //  This source code is offered under the Microsoft Public License (Ms-PL) which is outlined as follows:
@@ -24,12 +24,14 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
+#region Using Statements
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 using Microsoft.Xna.Framework;
+#endregion
 
 namespace NewTake
 {
@@ -39,7 +41,6 @@ namespace NewTake
         public readonly byte X;
         public readonly byte Y;
         public readonly byte Z;
-    
 
         public Vector3b(byte x, byte y, byte z)
         {
@@ -47,7 +48,6 @@ namespace NewTake
             this.Y = y;
             this.Z = z;
         }
-
 
         public override bool Equals(object obj)
         {

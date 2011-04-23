@@ -1,4 +1,4 @@
-﻿#region license
+﻿#region License
 
 //  TechCraft - http://techcraft.codeplex.com
 //  This source code is offered under the Microsoft Public License (Ms-PL) which is outlined as follows:
@@ -24,7 +24,7 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
-#region using
+#region Using Statements
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +48,7 @@ namespace NewTake.view
 {
     class MultiThreadLightingWorldRenderer : WorldRenderer
     {
-        #region inits
+        #region Fields
 
         private BasicEffect _debugEffect;
 
@@ -179,8 +179,7 @@ namespace NewTake.view
                
                 if (currentChunkIndex != previousChunkIndex) // Check so that we don't process if the player hasn't moved to a new chunk
                 {
-                    Debug.WriteLine("previous = {0}, current = {1}:", previousChunkIndex, currentChunkIndex);
-
+                    //Debug.WriteLine("previous = {0}, current = {1}:", previousChunkIndex, currentChunkIndex);
                     //if (previousChunkIndex.Z > currentChunkIndex.Z)
                     //{
                     //    Debug.WriteLine("Z has decreased");
@@ -229,10 +228,10 @@ namespace NewTake.view
                                         Debug.WriteLine("RemoveChunk Exception {0}", ae);
                                     }
                                 }
-                                else
-                                {
-                                    //Debug.WriteLine("[Remove] chunk not found at at {0},0,{1}", j, l);
-                                }
+                                //else
+                                //{
+                                //    //Debug.WriteLine("[Remove] chunk not found at at {0},0,{1}", j, l);
+                                //}
                             }
                             #endregion
                             #region Generate Chunks
@@ -247,6 +246,11 @@ namespace NewTake.view
                                     //Chunk chunk = world.viewableChunks[newIndex.X, newIndex.Z];
                                     //if (chunk != null) Debug.WriteLine("State = {0}", chunk.State);
                                     // A new chunk is coming into view - we need to generate or load it
+                                    //if(world.viewableChunks[j, l].BoundingBox.Intersects(viewFrustum))
+                                    //{
+                                    //    Debug.WriteLine("New chunk found in view {0}", world.viewableChunks[j, l]);
+                                    //}
+
                                     if (world.viewableChunks[j, l] == null && !_generationQueue.Contains(newIndex)) // Chunk is not created or loaded, therefore create - 
                                     {
                                         //Debug.WriteLine("Adding new chunk to queue, chunk = {0},{1}", newIndex.X, newIndex.Z);
@@ -254,9 +258,8 @@ namespace NewTake.view
                                     }   
                                     else if (_generationQueue.Contains(newIndex))
                                     {
-                                        Debug.WriteLine("Chunk found on genQ, chunk = {0},{1} genQ Count = {2}", newIndex.X, newIndex.Z, _generationQueue.Count);
+                                        //Debug.WriteLine("Chunk found on genQ, chunk = {0},{1} genQ Count = {2}", newIndex.X, newIndex.Z, _generationQueue.Count);
                                     }
-
                                 }
                                 catch (AggregateException ae)
                                 {
@@ -436,7 +439,6 @@ namespace NewTake.view
             }
         }
         #endregion
-
 
         public override void Update(GameTime gameTime) {
             //update is handled in chunkReGenBuildTask for this class

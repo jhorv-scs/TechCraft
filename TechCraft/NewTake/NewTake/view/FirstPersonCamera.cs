@@ -1,4 +1,4 @@
-﻿#region license
+﻿#region License
 
 //  TechCraft - http://techcraft.codeplex.com
 //  This source code is offered under the Microsoft Public License (Ms-PL) which is outlined as follows:
@@ -24,7 +24,7 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
-#region using
+#region Using Statements
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,6 +39,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
+
 using NewTake.model;
 #endregion
 
@@ -46,11 +47,13 @@ namespace NewTake.view
 {
     public class FirstPersonCamera : Camera
     {
+        #region Fields
         private const float _rotationSpeed = 0.05f;
         private float _leftRightRotation = 0f;
         private float _upDownRotation = 0f;
         private Vector3 _cameraFinalTarget;
         private Vector3 _lookVector;
+        #endregion
 
         public FirstPersonCamera(Viewport viewport) : base(viewport) { }
 
@@ -89,6 +92,7 @@ namespace NewTake.view
             }
         }
 
+        #region CalculateView
         protected override void CalculateView()
         {
             Matrix rotationMatrix = Matrix.CreateRotationX(_upDownRotation) * Matrix.CreateRotationY(_leftRightRotation);
@@ -101,6 +105,7 @@ namespace NewTake.view
 
             base.CalculateView();
         }
+        #endregion
 
         public void LookAt(Vector3 target)
         {
@@ -125,6 +130,7 @@ namespace NewTake.view
         }
         #endregion
 
+        #region FacingCardinal
         public Cardinal FacingCardinal()
         {
             //TODO optimize with modulo (see url)
@@ -150,7 +156,9 @@ namespace NewTake.view
             else if (a.CompareTo(MathHelper.Pi) == 0 || a.CompareTo(-MathHelper.Pi) == 0)
                 return (Cardinal.S);
             else
-                throw new NotImplementedException(); 
+                throw new NotImplementedException();
         }
+        #endregion
+
     }
 }
