@@ -221,7 +221,37 @@ namespace NewTake.view
 
                 Cardinal facing = camera.FacingCardinal();
 
-                Process(fromChunk, facing, 0);
+                #region switch facing
+                switch (facing)
+                {
+                    case Cardinal.N:
+                        Process(fromChunk, Cardinal.N, 0);
+                        break;
+                    case Cardinal.NE:
+                        Process(fromChunk, Cardinal.NE, 0);
+                        break;
+                    case Cardinal.E:
+                        Process(fromChunk, Cardinal.E, 0);
+                        break;
+                    case Cardinal.SE:
+                        Process(fromChunk, Cardinal.SE, 0);
+                        break;
+                    case Cardinal.S:
+                        Process(fromChunk, Cardinal.S, 0);
+                        break;
+                    case Cardinal.SW:
+                        Process(fromChunk, Cardinal.SW, 0);
+                        break;
+                    case Cardinal.W:
+                        Process(fromChunk, Cardinal.W, 0);
+                        break;
+                    case Cardinal.NW:
+                        Process(fromChunk, Cardinal.NW, 0);
+                        break;
+                    default:
+                        break;
+                }
+                #endregion
 
             }
         }
@@ -232,19 +262,79 @@ namespace NewTake.view
         {
             if (recursion == World.VIEW_CHUNKS_X) return;
 
-            Vector3i chunkIndexOut;
-
             try
             {
-                fromChunk = fromChunk.GetNeighbour(cardinal);
-                SignedVector3i sv = Cardinals.VectorFrom(cardinal);
-                chunkIndexOut = new Vector3i((uint)(fromChunk.Index.X + sv.X), 0, (uint)(fromChunk.Index.Z + sv.Z));
+                Vector3i chunkIndexAdd = new Vector3i();
+                Vector3i chunkIndexRemove = new Vector3i();
 
-                if (world.viewableChunks[(uint)chunkIndexOut.X, (uint)chunkIndexOut.Z] == null)
+                #region switch cardinal
+                switch (cardinal)
                 {
-                    //Debug.WriteLine("process {0}, {1}, {2}", fromChunk.Index, cardinal, recursion);
-                    DoGenerate(chunkIndexOut);
-                    DoBuild(chunkIndexOut);
+                    case Cardinal.N:
+                        fromChunk = fromChunk.N;
+                        chunkIndexAdd = new Vector3i(fromChunk.Index.X, 0, fromChunk.Index.Z - 1);
+                        chunkIndexRemove = new Vector3i(fromChunk.Index.X, 0, fromChunk.Index.Z + World.VIEW_DISTANCE_NEAR_X); // S
+                        cardinal = Cardinal.N;
+                        break;
+                    case Cardinal.NE:
+                        fromChunk = fromChunk.NE;
+                        chunkIndexAdd = new Vector3i(fromChunk.Index.X + 1, 0, fromChunk.Index.Z - 1);
+                        chunkIndexRemove = new Vector3i(fromChunk.Index.X - World.VIEW_DISTANCE_NEAR_X, 0, fromChunk.Index.Z + World.VIEW_DISTANCE_NEAR_X); // SW
+                        cardinal = Cardinal.NE;
+                        break;
+                    case Cardinal.E:
+                        fromChunk = fromChunk.E;
+                        chunkIndexAdd = new Vector3i(fromChunk.Index.X + 1, 0, fromChunk.Index.Z);
+                        chunkIndexRemove = new Vector3i(fromChunk.Index.X - World.VIEW_DISTANCE_NEAR_X, 0, fromChunk.Index.Z); // W
+                        cardinal = Cardinal.E;
+                        break;
+                    case Cardinal.SE:
+                        fromChunk = fromChunk.SE;
+                        chunkIndexAdd = new Vector3i(fromChunk.Index.X + 1, 0, fromChunk.Index.Z + 1);
+                        chunkIndexRemove = new Vector3i(fromChunk.Index.X - World.VIEW_DISTANCE_NEAR_X, 0, fromChunk.Index.Z - World.VIEW_DISTANCE_NEAR_X); // NW
+                        cardinal = Cardinal.SE;
+                        break;
+                    case Cardinal.S:
+                        fromChunk = fromChunk.S;
+                        chunkIndexAdd = new Vector3i(fromChunk.Index.X, 0, fromChunk.Index.Z + 1);
+                        chunkIndexRemove = new Vector3i(fromChunk.Index.X, 0, fromChunk.Index.Z - World.VIEW_DISTANCE_NEAR_X); // N
+                        cardinal = Cardinal.S;
+                        break;
+                    case Cardinal.SW:
+                        fromChunk = fromChunk.SW;
+                        chunkIndexAdd = new Vector3i(fromChunk.Index.X - 1, 0, fromChunk.Index.Z + 1);
+                        chunkIndexRemove = new Vector3i(fromChunk.Index.X + World.VIEW_DISTANCE_NEAR_X, 0, fromChunk.Index.Z - World.VIEW_DISTANCE_NEAR_X); // NE
+                        cardinal = Cardinal.SW;
+                        break;
+                    case Cardinal.W:
+                        fromChunk = fromChunk.W;
+                        chunkIndexAdd = new Vector3i(fromChunk.Index.X - 1, 0, fromChunk.Index.Z);
+                        chunkIndexRemove = new Vector3i(fromChunk.Index.X + World.VIEW_DISTANCE_NEAR_X, 0, fromChunk.Index.Z); // E
+                        cardinal = Cardinal.W;
+                        break;
+                    case Cardinal.NW:
+                        fromChunk = fromChunk.NW;
+                        chunkIndexAdd = new Vector3i(fromChunk.Index.X - 1, 0, fromChunk.Index.Z - 1);
+                        chunkIndexRemove = new Vector3i(fromChunk.Index.X + World.VIEW_DISTANCE_NEAR_X, 0, fromChunk.Index.Z + World.VIEW_DISTANCE_NEAR_X); // SE
+                        cardinal = Cardinal.NW;
+                        break;
+                    default:
+                        break;
+                }
+                #endregion
+
+                // Remove opposite chunk
+                if (world.viewableChunks[chunkIndexRemove.X, chunkIndexRemove.Z] != null)
+                {
+                    //Debug.WriteLine("Process Remove {0}, {1}, {2}", fromChunk.Index, cardinal, recursion);
+                    world.viewableChunks.Remove(chunkIndexRemove.X, chunkIndexRemove.Z);
+                }
+                // Generate & Build cardinal chunk
+                if (world.viewableChunks[chunkIndexAdd.X, chunkIndexAdd.Z] == null)
+                {
+                    //Debug.WriteLine("Process Add {0}, {1}, {2}", fromChunk.Index, cardinal, recursion);
+                    DoGenerate(chunkIndexAdd);
+                    DoBuild(chunkIndexAdd);
                     Process(fromChunk, cardinal, recursion + 1);
                 }
             }
