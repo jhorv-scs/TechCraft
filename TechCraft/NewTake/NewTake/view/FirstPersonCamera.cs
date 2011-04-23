@@ -124,5 +124,31 @@ namespace NewTake.view
         }
         #endregion
 
+        public String FacingCardinal()
+        {
+            //http://gamedev.stackexchange.com/questions/7325/snapping-an-angle-to-the-closest-cardinal-direction
+
+            float a = MathHelper.WrapAngle(_leftRightRotation);
+            a = MathHelper.PiOver4 * (float)Math.Round(a / MathHelper.PiOver4);
+
+            if (a == 0)
+                return ("N");
+            else if (a.CompareTo(MathHelper.PiOver4) == 0)
+                return ("NW");
+            else if (a.CompareTo(-MathHelper.PiOver4) == 0)
+                return ("NE");
+            else if (a.CompareTo(MathHelper.Pi - MathHelper.PiOver4) == 0)
+                return ("SW");
+            else if (a.CompareTo(-(MathHelper.Pi - MathHelper.PiOver4)) == 0)
+                return ("SE");
+            else if (a.CompareTo(MathHelper.PiOver2) == 0)
+                return ("W");
+            else if (a.CompareTo(-MathHelper.PiOver2) == 0)
+                return ("E");
+            else if (a.CompareTo(MathHelper.Pi) == 0 || a.CompareTo(-MathHelper.Pi) == 0)
+                return ("S");
+            else
+                throw new NotImplementedException(); 
+        }
     }
 }
