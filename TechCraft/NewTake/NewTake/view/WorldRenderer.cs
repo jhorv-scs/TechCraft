@@ -137,9 +137,27 @@ namespace NewTake.view
             _solidBlockEffect = content.Load<Effect>("Effects\\SolidBlockEffect");
         }
 
-        public abstract void DoGenerate(Vector3i vector);
+        public Chunk DoGenerate(int xIndex, int zIndex) { 
+            Vector3i temp = new Vector3i((uint)xIndex,0,(uint)zIndex);
+            return  DoGenerate(temp);
+        }
 
-        public abstract void DoBuild(Vector3i vector);
+        public Chunk DoBuild(int xIndex, int zIndex) {
+            Vector3i temp = new Vector3i((uint)xIndex, 0, (uint)zIndex);
+            return DoBuild(temp);
+        }
+
+        public abstract Chunk DoGenerate(Vector3i vector);
+
+        public Chunk DoBuild(Vector3i vector) {
+            Chunk chunk = world.viewableChunks[vector.X, vector.Z];
+            return DoBuild(chunk);
+        }
+
+        public abstract Chunk DoBuild(Chunk chunk);
+        
+        
+
 
         #region Generate Clouds
         public virtual Texture2D CreateStaticMap(int resolution)
