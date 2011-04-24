@@ -214,11 +214,12 @@ namespace NewTake.view
 
                 Cardinal direction = camera.FacingCardinal();
 
-                Process(currentChunk, direction, 0);
+                
                 if (direction == Cardinal.N)
                 {
-                    Process(currentChunk.E, Cardinal.N, 0);
-                    Process(currentChunk.W, Cardinal.N, 0);
+                    Process(currentChunk, direction, 0);
+                    Process(currentChunk.E, direction, 0);
+                    Process(currentChunk.W, direction, 0);                    
                 }
             }
         }
@@ -232,27 +233,25 @@ namespace NewTake.view
             Vector3i chunkIndexAdd;
             Vector3i chunkIndexRemove;
 
-            SignedVector3i addDelta = Cardinals.VectorFrom(direction) * World.VIEW_CHUNKS_X;
+            SignedVector3i addDelta = Cardinals.VectorFrom(direction) * (World.VIEW_CHUNKS_X+1);
             chunkIndexAdd = fromChunk.Index.add(addDelta);
 
-            SignedVector3i removeDelta = Cardinals.OppositeVectorFrom(direction) * World.VIEW_CHUNKS_X;
+            SignedVector3i removeDelta = Cardinals.OppositeVectorFrom(direction) * (World.VIEW_CHUNKS_X+1);
             chunkIndexRemove = fromChunk.Index.add(removeDelta);
 
             // Remove opposite chunk
             Debug.WriteLine("Process Remove at index {0}, direction {1}, recursion {2}", chunkIndexRemove, direction, recursion);
-            //world.viewableChunks.Remove(chunkIndexRemove.X, chunkIndexRemove.Z);//null safe
+            world.viewableChunks.Remove(chunkIndexRemove.X, chunkIndexRemove.Z);//null safe
 
+           
             // Generate & Build new chunk
             if (world.viewableChunks[chunkIndexAdd.X, chunkIndexAdd.Z] == null)
             {
                 Debug.WriteLine("Process Add at index {0}, direction {1}, recursion {2}", chunkIndexAdd, direction, recursion);
-                Chunk addedChunk = DoGenerate(chunkIndexAdd);                
-                DoBuild(chunkIndexAdd);
-                Process(addedChunk, direction, recursion + 1);
-
+                Chunk addedChunk = DoGenerate(chunkIndexAdd);            
+                DoBuild(addedChunk);
+           
             }
-
-
         }
         #endregion
 
