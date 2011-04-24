@@ -301,6 +301,11 @@ namespace NewTake.model
 
         #endregion
 
+        public override string ToString()
+        {
+            return ("chunk at index " + Index);
+        }
+
         #region main as unit test for neighbours
         static void Main(string[] args)
         {

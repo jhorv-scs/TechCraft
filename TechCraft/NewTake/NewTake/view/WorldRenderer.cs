@@ -128,7 +128,7 @@ namespace NewTake.view
             Debug.WriteLine(buildWatch.Elapsed);
             #endregion
 
-            this.previousChunkIndex = new Vector3i();
+            this.previousChunkIndex = new Vector3i(World.origin , 0, World.origin);
         }
 
         public virtual void LoadContent(ContentManager content)
@@ -137,26 +137,29 @@ namespace NewTake.view
             _solidBlockEffect = content.Load<Effect>("Effects\\SolidBlockEffect");
         }
 
-        public Chunk DoGenerate(int xIndex, int zIndex) { 
-            Vector3i temp = new Vector3i((uint)xIndex,0,(uint)zIndex);
-            return  DoGenerate(temp);
+        public Chunk DoGenerate(int xIndex, int zIndex)
+        {
+            Vector3i temp = new Vector3i((uint)xIndex, 0, (uint)zIndex);
+            return DoGenerate(temp);
         }
 
-        public Chunk DoBuild(int xIndex, int zIndex) {
+        public Chunk DoBuild(int xIndex, int zIndex)
+        {
             Vector3i temp = new Vector3i((uint)xIndex, 0, (uint)zIndex);
             return DoBuild(temp);
         }
 
         public abstract Chunk DoGenerate(Vector3i vector);
 
-        public Chunk DoBuild(Vector3i vector) {
+        public Chunk DoBuild(Vector3i vector)
+        {
             Chunk chunk = world.viewableChunks[vector.X, vector.Z];
             return DoBuild(chunk);
         }
 
         public abstract Chunk DoBuild(Chunk chunk);
-        
-        
+
+
 
 
         #region Generate Clouds
@@ -237,7 +240,7 @@ namespace NewTake.view
         #endregion
 
         public abstract void Update(GameTime gameTime);
-       
+
         public abstract void Draw(GameTime gameTime);
 
         #region DrawChunk
