@@ -82,7 +82,7 @@ namespace NewTake.model
             viewableChunks = new ChunkManager(new MockChunkPersistence(this));
         }
 
-        public void visitChunks(Action<Vector3i> visitor)
+        public void visitChunks(Func<Vector3i,Chunk> visitor)
         {
             for (uint x = origin - (World.VIEW_DISTANCE_NEAR_X); x < origin + (World.VIEW_DISTANCE_NEAR_X); x++)
             {
@@ -99,6 +99,19 @@ namespace NewTake.model
 
             return BlockAt((uint)position.X, (uint)position.Y, (uint)position.Z);
 
+        }
+
+        public Chunk ChunkAt(Vector3 position)
+        {
+            uint x = (uint) position.X;
+            uint z = (uint) position.Z;
+
+            uint cx = x / Chunk.SIZE.X;
+            uint cz = z / Chunk.SIZE.Z;
+
+            Chunk at = viewableChunks[cx,cz];
+
+            return at;
         }
 
         public Block BlockAt(uint x, uint y, uint z)

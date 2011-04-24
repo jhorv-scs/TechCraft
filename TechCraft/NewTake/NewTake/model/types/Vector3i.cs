@@ -106,5 +106,10 @@ namespace NewTake
             return new Vector3(X, Y, Z);
         }
 
+
+        internal Vector3i add(SignedVector3i sv)
+        {
+            return new Vector3i(X + (uint)sv.X, Y + (uint)sv.Y, Z + (uint)sv.Z); 
+        }
     }
 }

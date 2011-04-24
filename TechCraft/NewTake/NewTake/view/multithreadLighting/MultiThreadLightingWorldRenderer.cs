@@ -304,7 +304,7 @@ namespace NewTake.view
         #endregion
 
         #region DoGenerate
-        public override void DoGenerate(Vector3i index)
+        public override Chunk DoGenerate(Vector3i index)
         {
             Chunk chunk = world.viewableChunks.load(index);
             try
@@ -338,14 +338,15 @@ namespace NewTake.view
             {
                 //Debug.WriteLine("DoGenerate Exception {0}", e);
                 Debug.WriteLine("DoGenerate Exception Chunk = {0},{1} - State = {2}", chunk.Position.X, chunk.Position.Z, chunk.State);
+                throw e;
             }
+            return chunk;
         }
         #endregion
 
         #region DoBuild
-        public override void DoBuild(Vector3i vector)
-        {
-            Chunk chunk = world.viewableChunks[vector.X, vector.Z];
+        public override Chunk DoBuild(Chunk chunk)
+        {            
             try
             {
                 if ((chunk != null) && (chunk.State == ChunkState.AwaitingBuild))
@@ -359,12 +360,15 @@ namespace NewTake.view
 
                     chunk.State = ChunkState.Ready;
                     //chunk.built = true;
+                   
                 }
+                return chunk;
             }
             catch (Exception e)
             {
                 //Debug.WriteLine("DoBuild Exception {0}", e);
                 Debug.WriteLine("DoBuild Exception Chunk = {0},{1} - State = {2}", chunk.Position.X, chunk.Position.Z, chunk.State);
+                throw e;
             }
         }
         #endregion

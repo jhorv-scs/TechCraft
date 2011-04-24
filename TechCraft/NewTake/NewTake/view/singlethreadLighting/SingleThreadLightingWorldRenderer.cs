@@ -95,7 +95,7 @@ namespace NewTake.view
         }
 
         #region DoGenerate
-        public override void DoGenerate(Vector3i index)
+        public override Chunk DoGenerate(Vector3i index)
         {
 
             Chunk chunk = world.viewableChunks.load(index);
@@ -109,24 +109,22 @@ namespace NewTake.view
                 // Clear down the chunk lighting 
                 _lightingChunkProcessor.InitChunk(chunk);
             }
-            // Assign a renderer
-            //ChunkRenderer cRenderer = new MultiThreadLightingChunkRenderer(GraphicsDevice, world, chunk);
-            //this.ChunkRenderers.TryAdd(chunk.Index,cRenderer);           
 
             //chunk.generated = true;
             chunk.State = ChunkState.AwaitingBuild;
+            return chunk;
         }
         #endregion
 
         #region DoBuild
-        public override void DoBuild(Vector3i vector)
-        {
-            Chunk chunk = world.viewableChunks[vector.X, vector.Z];
+        public override Chunk DoBuild(Chunk chunk)
+        {   
             // Propogate the chunk lighting
             _lightingChunkProcessor.ProcessChunk(chunk);
             _vertexBuildChunkProcessor.ProcessChunk(chunk);
             //chunk.built = true;
             chunk.State = ChunkState.Ready;
+            return chunk;
         }
         #endregion
 
@@ -205,70 +203,56 @@ namespace NewTake.view
         #region Update
         public override void Update(GameTime gameTime)
         {
-            uint x = (uint)camera.Position.X;
-            uint z = (uint)camera.Position.Z;
 
-            uint cx = x / Chunk.SIZE.X;
-            uint cz = z / Chunk.SIZE.Z;
+            Chunk currentChunk = world.ChunkAt(camera.Position);
 
-            Vector3i currentChunkIndex = new Vector3i(cx, 0, cz);
-
-            if (currentChunkIndex != previousChunkIndex)
+            if (currentChunk == null) return; // should not happen when this code will be finished
+             
+            if (currentChunk.Index != previousChunkIndex)
             {
-                previousChunkIndex = currentChunkIndex;
+                previousChunkIndex = currentChunk.Index;
 
-                Chunk fromChunk = world.viewableChunks[currentChunkIndex.X, currentChunkIndex.Z];
+                Cardinal direction = camera.FacingCardinal();
 
-                Cardinal facing = camera.FacingCardinal();
-
-                Process(fromChunk, facing, 0);
-
-
+                Process(currentChunk, direction, 0);
+                if (direction == Cardinal.N)
+                {
+                    Process(currentChunk.E, Cardinal.N, 0);
+                    Process(currentChunk.W, Cardinal.N, 0);
+                }
             }
         }
         #endregion
 
         #region Process
-        private void Process(Chunk fromChunk, Cardinal cardinal, int recursion)
+        private void Process(Chunk fromChunk, Cardinal direction, int recursion)
         {
-            if (fromChunk==null || recursion == 2 ) return;
+            if (fromChunk == null || recursion == 2) return;
 
-            try
+            Vector3i chunkIndexAdd;
+            Vector3i chunkIndexRemove;
+
+            SignedVector3i addDelta = Cardinals.VectorFrom(direction) * World.VIEW_CHUNKS_X;
+            chunkIndexAdd = fromChunk.Index.add(addDelta);
+
+            SignedVector3i removeDelta = Cardinals.OppositeVectorFrom(direction) * World.VIEW_CHUNKS_X;
+            chunkIndexRemove = fromChunk.Index.add(removeDelta);
+
+            // Remove opposite chunk
+            Debug.WriteLine("Process Remove at index {0}, direction {1}, recursion {2}", chunkIndexRemove, direction, recursion);
+            //world.viewableChunks.Remove(chunkIndexRemove.X, chunkIndexRemove.Z);//null safe
+
+            // Generate & Build new chunk
+            if (world.viewableChunks[chunkIndexAdd.X, chunkIndexAdd.Z] == null)
             {
-                Vector3i chunkIndexAdd = new Vector3i();
-                Vector3i chunkIndexRemove = new Vector3i();
+                Debug.WriteLine("Process Add at index {0}, direction {1}, recursion {2}", chunkIndexAdd, direction, recursion);
+                Chunk addedChunk = DoGenerate(chunkIndexAdd);                
+                DoBuild(chunkIndexAdd);
+                Process(addedChunk, direction, recursion + 1);
 
-                Chunk nextChunk = fromChunk.GetNeighbour(cardinal);
-                SignedVector3i sv = Cardinals.VectorFrom(cardinal);
-                chunkIndexAdd = new Vector3i((uint)(nextChunk.Index.X + sv.X), 0, (uint)(nextChunk.Index.Z + sv.Z));
-
-                SignedVector3i removeDelta = Cardinals.OppositeVectorFrom(cardinal) * World.VIEW_DISTANCE_NEAR_X;
-                chunkIndexRemove = new Vector3i((uint)(nextChunk.Index.X + removeDelta.X), 0, (uint)(nextChunk.Index.Z + removeDelta.Z));
-
-                // Remove opposite chunk
-                //Debug.WriteLine("Process Remove {0}, {1}, {2}", nextChunk.Index, cardinal, recursion);
-                world.viewableChunks.Remove(chunkIndexRemove.X, chunkIndexRemove.Z);//null safe
-            
-                // Generate & Build cardinal chunk
-                if (world.viewableChunks[chunkIndexAdd.X, chunkIndexAdd.Z] == null)
-                {
-                    //Debug.WriteLine("Process Add {0}, {1}, {2}", nextChunk.Index, cardinal, recursion);
-                    DoGenerate(chunkIndexAdd);
-                    DoBuild(chunkIndexAdd);
-                    Process(nextChunk, cardinal, recursion + 1);
-
-                   /* if (cardinal == Cardinal.N)
-                    {
-                        Process(fromChunk.E, Cardinal.N, recursion );
-                        Process(fromChunk.W, Cardinal.N, recursion );
-                    }*/
-                  
-                }
             }
-            catch (Exception)
-            {
-                Debug.WriteLine("Process exception");
-            }
+
+
         }
         #endregion
 
