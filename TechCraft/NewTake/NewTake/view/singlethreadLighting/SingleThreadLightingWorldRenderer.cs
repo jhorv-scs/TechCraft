@@ -97,18 +97,20 @@ namespace NewTake.view
         #region DoGenerate
         public override Chunk DoGenerate(Vector3i index)
         {
-
             Chunk chunk = world.viewableChunks.load(index);
 
             if (chunk == null)
             {
                 // Create a new chunk
                 chunk = new Chunk(world, index);
-                // Generate the chunk with the current generator
-                world.Generator.Generate(chunk);
-                // Clear down the chunk lighting 
-                _lightingChunkProcessor.InitChunk(chunk);
             }
+
+            // Generate the chunk with the current generator
+
+            world.Generator.Generate(chunk);
+            // Clear down the chunk lighting 
+            _lightingChunkProcessor.InitChunk(chunk);
+
 
             //chunk.generated = true;
             chunk.State = ChunkState.AwaitingBuild;
@@ -118,7 +120,7 @@ namespace NewTake.view
 
         #region DoBuild
         public override Chunk DoBuild(Chunk chunk)
-        {   
+        {
             // Propogate the chunk lighting
             _lightingChunkProcessor.ProcessChunk(chunk);
             _vertexBuildChunkProcessor.ProcessChunk(chunk);
@@ -207,19 +209,19 @@ namespace NewTake.view
             Chunk currentChunk = world.ChunkAt(camera.Position);
 
             if (currentChunk == null) return; // should not happen when this code will be finished
-             
+
             if (currentChunk.Index != previousChunkIndex)
             {
                 previousChunkIndex = currentChunk.Index;
 
                 Cardinal direction = camera.FacingCardinal();
 
-                
+
                 if (direction == Cardinal.N)
                 {
                     Process(currentChunk, direction, 0);
                     Process(currentChunk.E, direction, 0);
-                    Process(currentChunk.W, direction, 0);                    
+                    Process(currentChunk.W, direction, 0);
                 }
             }
         }
@@ -233,25 +235,24 @@ namespace NewTake.view
             Vector3i chunkIndexAdd;
             Vector3i chunkIndexRemove;
 
-            SignedVector3i addDelta = Cardinals.VectorFrom(direction) * (World.VIEW_CHUNKS_X+1);
+            SignedVector3i addDelta = Cardinals.VectorFrom(direction) * (World.VIEW_CHUNKS_X + 1);
             chunkIndexAdd = fromChunk.Index.add(addDelta);
 
-            SignedVector3i removeDelta = Cardinals.OppositeVectorFrom(direction) * (World.VIEW_CHUNKS_X+1);
+            SignedVector3i removeDelta = Cardinals.OppositeVectorFrom(direction) * (World.VIEW_CHUNKS_X + 1);
             chunkIndexRemove = fromChunk.Index.add(removeDelta);
 
-            // Remove opposite chunk
-            Debug.WriteLine("Process Remove at index {0}, direction {1}, recursion {2}", chunkIndexRemove, direction, recursion);
+            Chunk toRemove = world.viewableChunks[chunkIndexRemove.X, chunkIndexRemove.Z];
+
+            // Instead of removing, Re assign new chunk to opposite chunk 
+            toRemove.Assign(chunkIndexAdd);
+
+            // Generate & Build new chunk
+            Debug.WriteLine("Process Add at index {0}, direction {1}, recursion {2}", chunkIndexAdd, direction, recursion);
             world.viewableChunks.Remove(chunkIndexRemove.X, chunkIndexRemove.Z);//null safe
 
-           
-            // Generate & Build new chunk
-            if (world.viewableChunks[chunkIndexAdd.X, chunkIndexAdd.Z] == null)
-            {
-                Debug.WriteLine("Process Add at index {0}, direction {1}, recursion {2}", chunkIndexAdd, direction, recursion);
-                Chunk addedChunk = DoGenerate(chunkIndexAdd);            
-                DoBuild(addedChunk);
-           
-            }
+            Chunk addedChunk = DoGenerate(chunkIndexAdd);
+            DoBuild(addedChunk);
+
         }
         #endregion
 
