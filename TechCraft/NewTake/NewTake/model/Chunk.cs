@@ -82,8 +82,8 @@ namespace NewTake.model
         /// </summary>
         public static int FlattenOffset = SIZE.Z * SIZE.Y;
 
-        public readonly Vector3i Position;
-        public readonly Vector3i Index;
+        public Vector3i Position;
+        public Vector3i Index;
 
         public bool dirty;
         //public bool visible;
@@ -107,22 +107,21 @@ namespace NewTake.model
         public Chunk(World world, Vector3i index)
         {
             this.world = world;
-            dirty = true;
-            //visible = true;
-            //generated = false;
-
-            Index = index;
-
-            Position = new Vector3i(index.X * SIZE.X, index.Y * SIZE.Y, index.Z * SIZE.Z);
-            //Blocks = new Block[SIZE.X, SIZE.Y, SIZE.Z]; //TODO test 3d sparse impl performance and memory
             this.Blocks = new Block[SIZE.X * SIZE.Z * SIZE.Y];
-            _boundingBox = new BoundingBox(new Vector3(Position.X, Position.Y, Position.Z), new Vector3(Position.X + SIZE.X, Position.Y + SIZE.Y, Position.Z + SIZE.Z));
-
-            //ensure world is set directly in here to have access to N S E W as soon as possible
-            world.viewableChunks[index.X, index.Z] = this;
             vertexList = new List<VertexPositionTextureLight>();
             indexList = new List<short>();
+            Assign(index);
         }
+
+        public void Assign(Vector3i index) {
+            //ensure world is set directly in here to have access to N S E W as soon as possible
+            world.viewableChunks.Remove(this.Index.X, this.Index.Z);
+            world.viewableChunks[index.X, index.Z] = this;
+            dirty = true;
+            this.Index = index;
+            this.Position = new Vector3i(index.X * SIZE.X, index.Y * SIZE.Y, index.Z * SIZE.Z);
+            this._boundingBox = new BoundingBox(new Vector3(Position.X, Position.Y, Position.Z), new Vector3(Position.X + SIZE.X, Position.Y + SIZE.Y, Position.Z + SIZE.Z));
+        } 
 
         public void Clear()
         {
