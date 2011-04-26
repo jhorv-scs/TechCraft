@@ -133,7 +133,6 @@ namespace NewTake.view
         #region Draw
         public override void Draw(GameTime gameTime)
         {
-
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
             if (cloudsEnabled)
             {
@@ -142,7 +141,7 @@ namespace NewTake.view
                 base.GeneratePerlinNoise(time);
             }
 
-            GraphicsDevice.Clear(Color.White);
+            GraphicsDevice.Clear(Color.Black);
             GraphicsDevice.RasterizerState = !this._wireframed ? this._normalRaster : this._wireframedRaster;
 
             // Draw the skyDome
@@ -161,6 +160,7 @@ namespace NewTake.view
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
 
             _solidBlockEffect.Parameters["SunColor"].SetValue(SUNCOLOR);
+            _solidBlockEffect.Parameters["timeOfDay"].SetValue(tod);
 
             foreach (EffectPass pass in _solidBlockEffect.CurrentTechnique.Passes)
             {
@@ -205,7 +205,6 @@ namespace NewTake.view
         #region Update
         public override void Update(GameTime gameTime)
         {
-
             Chunk currentChunk = world.ChunkAt(camera.Position);
 
             if (currentChunk == null) return; // should not happen when this code will be finished
@@ -216,7 +215,6 @@ namespace NewTake.view
 
                 Cardinal direction = camera.FacingCardinal();
 
-
                 if (direction == Cardinal.N)
                 {
                     Process(currentChunk, direction, 0);
@@ -224,6 +222,8 @@ namespace NewTake.view
                     Process(currentChunk.W, direction, 0);
                 }
             }
+
+            base.UpdateTOD(gameTime);
         }
         #endregion
 

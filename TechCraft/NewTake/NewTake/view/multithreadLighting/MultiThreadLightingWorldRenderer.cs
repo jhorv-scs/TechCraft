@@ -384,7 +384,7 @@ namespace NewTake.view
                 base.GeneratePerlinNoise(time);
             }
 
-            GraphicsDevice.Clear(Color.White);
+            GraphicsDevice.Clear(Color.Black);
             GraphicsDevice.RasterizerState = !this._wireframed ? this._normalRaster : this._wireframedRaster;
 
             // Draw the skyDome
@@ -403,6 +403,7 @@ namespace NewTake.view
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
 
             _solidBlockEffect.Parameters["SunColor"].SetValue(SUNCOLOR);
+            _solidBlockEffect.Parameters["timeOfDay"].SetValue(tod);
 
             foreach (EffectPass pass in _solidBlockEffect.CurrentTechnique.Passes)
             {
@@ -444,8 +445,12 @@ namespace NewTake.view
         }
         #endregion
 
+        #region Update
         public override void Update(GameTime gameTime) {
-            //update is handled in chunkReGenBuildTask for this class
+            //update of chunks is handled in chunkReGenBuildTask for this class
+            base.UpdateTOD(gameTime);
         }
+        #endregion
+
     }
 }

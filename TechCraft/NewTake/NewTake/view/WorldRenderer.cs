@@ -47,15 +47,21 @@ namespace NewTake.view
         #region Fields
 
         #region Atmospheric settings
-        public const float FARPLANE = 220 * 2;
-        public const int FOGNEAR = 200 * 2;
-        public const int FOGFAR = 220 * 2;
+        public const float FARPLANE = 220 * 4;
+        public const int FOGNEAR = 200 * 4;
+        public const int FOGFAR = 220 * 4;
 
         protected Vector3 SUNCOLOR = Color.White.ToVector3();
-        protected Vector4 OVERHEADSUNCOLOR = Color.Blue.ToVector4();
+
+        protected Vector4 OVERHEADSUNCOLOR = Color.DarkBlue.ToVector4();
+        protected Vector4 NIGHTCOLOR = Color.Black.ToVector4();
 
         protected Vector4 FOGCOLOR = Color.White.ToVector4();
         protected Vector4 HORIZONCOLOR = Color.White.ToVector4();
+
+        protected Vector4 EVENINGTINT = Color.Red.ToVector4();
+        protected Vector4 MORNINGTINT = Color.Gold.ToVector4();
+
         protected float CLOUDOVERCAST = 0.8f;
 
         protected const bool cloudsEnabled = true;
@@ -72,6 +78,12 @@ namespace NewTake.view
         protected RenderTarget2D cloudsRenderTarget;
         protected Effect _perlinNoiseEffect;
         protected VertexPositionTexture[] fullScreenVertices;
+
+        // Day/Night
+        public float tod = 12; // Midday
+        public Vector3 SunPos = new Vector3(0, 1, 0); // Directly overhead
+        public bool RealTime = false;
+
         #endregion
 
         #endregion
@@ -89,6 +101,8 @@ namespace NewTake.view
         protected readonly RasterizerState _wireframedRaster = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
         protected readonly RasterizerState _normalRaster = new RasterizerState() { CullMode = CullMode.CullCounterClockwiseFace, FillMode = FillMode.Solid };
         protected bool _wireframed = false;
+
+        public bool dayNightMode = true;
 
         public bool diagnosticsMode = false;
 
@@ -159,9 +173,6 @@ namespace NewTake.view
 
         public abstract Chunk DoBuild(Chunk chunk);
 
-
-
-
         #region Generate Clouds
         public virtual Texture2D CreateStaticMap(int resolution)
         {
@@ -218,7 +229,9 @@ namespace NewTake.view
             //rotation += 0.0005f;
             rotation = 0;
 
-            Matrix wMatrix = Matrix.CreateRotationY(rotation) * Matrix.CreateTranslation(0, 0, 0) * Matrix.CreateScale(100) * Matrix.CreateTranslation(camera.Position);
+            if (!dayNightMode) tod = 12;
+
+            Matrix wMatrix = Matrix.CreateRotationY(rotation) * Matrix.CreateTranslation(0, -0.1f, 0) * Matrix.CreateScale(100) * Matrix.CreateTranslation(camera.Position);
             foreach (ModelMesh mesh in skyDome.Meshes)
             {
                 foreach (Effect currentEffect in mesh.Effects)
@@ -231,8 +244,13 @@ namespace NewTake.view
                     currentEffect.Parameters["xProjection"].SetValue(projectionMatrix);
                     currentEffect.Parameters["xTexture"].SetValue(cloudMap);
 
+                    currentEffect.Parameters["NightColor"].SetValue(NIGHTCOLOR);
                     currentEffect.Parameters["SunColor"].SetValue(OVERHEADSUNCOLOR);
                     currentEffect.Parameters["HorizonColor"].SetValue(HORIZONCOLOR);
+
+                    currentEffect.Parameters["MorningTint"].SetValue(MORNINGTINT);
+                    currentEffect.Parameters["EveningTint"].SetValue(EVENINGTINT);
+                    currentEffect.Parameters["timeOfDay"].SetValue(tod);
                 }
                 mesh.Draw();
             }
@@ -254,6 +272,43 @@ namespace NewTake.view
                 //graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexBuffer.VertexCount / 3);
                 GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, chunk.VertexBuffer.VertexCount, 0, chunk.IndexBuffer.IndexCount / 3);
             }
+        }
+        #endregion
+
+        #region UpdateTOD
+        public virtual Vector3 UpdateTOD(GameTime gameTime)
+        {
+            long div = 10000;
+
+            if (!RealTime)
+                tod += ((float)gameTime.ElapsedGameTime.Milliseconds / div);
+            else
+                tod = ((float)DateTime.Now.Hour) + ((float)DateTime.Now.Minute) / 60 + (((float)DateTime.Now.Second) / 60) / 60;
+
+            if (tod >= 24)
+                tod = 0;
+
+            // Calculate the position of the sun based on the time of day.
+            float x = 0;
+            float y = 0;
+            float z = 0;
+
+            if (tod <= 12)
+            {
+                y = tod / 12;
+                x = 12 - tod;
+            }
+            else
+            {
+                y = (24 - tod) / 12;
+                x = 12 - tod;
+            }
+
+            x /= 10;
+
+            SunPos = new Vector3(-x, y, z);
+
+            return SunPos;
         }
         #endregion
 

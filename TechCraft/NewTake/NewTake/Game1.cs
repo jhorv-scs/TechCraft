@@ -166,6 +166,7 @@ namespace NewTake
             Console.WriteLine("F4 toggle 100*160 window size");
             Console.WriteLine("F7 toggle wireframe");
             Console.WriteLine("F8 toggle chunk diagnostics");
+            Console.WriteLine("F9 toggle day/night mode on/off");
             Console.WriteLine("F11 toggle fullscreen");
             Console.WriteLine("F release / regain focus");
             Console.WriteLine("Esc exit");
@@ -206,6 +207,13 @@ namespace NewTake
                 renderer.diagnosticsMode = !renderer.diagnosticsMode;
             }
 
+            //day/night mode
+            if (_oldKeyboardState.IsKeyUp(Keys.F9) && keyState.IsKeyDown(Keys.F9))
+            {
+                renderer.dayNightMode = !renderer.dayNightMode;
+                Debug.WriteLine("Day/Night Mode is " + renderer.dayNightMode);
+            }
+
             // Allows the game to exit
             if (keyState.IsKeyDown(Keys.Escape))
             {
@@ -219,6 +227,7 @@ namespace NewTake
                 this.IsMouseVisible = !this.IsMouseVisible;
             }
 
+            // fixed time step
             if (_oldKeyboardState.IsKeyUp(Keys.F3) && keyState.IsKeyDown(Keys.F3))
             {
                 graphics.SynchronizeWithVerticalRetrace = !graphics.SynchronizeWithVerticalRetrace;
@@ -279,13 +288,9 @@ namespace NewTake
         {
             //GraphicsDevice.Clear(Color.Black);
             renderer.Draw(gameTime);
-
             player1Renderer.Draw(gameTime);
-
             hud.Draw(gameTime);
-
             base.Draw(gameTime);
-
         }
         #endregion
 
