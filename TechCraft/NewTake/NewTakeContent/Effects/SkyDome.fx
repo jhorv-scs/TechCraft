@@ -66,8 +66,8 @@ sampler TextureSampler = sampler_state { texture = <xTexture> ; magfilter = LINE
 		nColor		*= (timeOfDay - 24) / -12;
 	 }
 
-	 bottomColor += (MorningTint * .1) * ((24 - timeOfDay)/24);
-	 bottomColor += (EveningTint * .1) * (timeOfDay / 24);	
+	 bottomColor += (MorningTint * .05) * ((24 - timeOfDay)/24);
+	 bottomColor += (EveningTint * .05) * (timeOfDay / 24);	
 	 topColor += nColor;
 	 bottomColor += nColor;
 

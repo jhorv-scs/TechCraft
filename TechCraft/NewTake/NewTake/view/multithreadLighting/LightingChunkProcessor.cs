@@ -77,12 +77,18 @@ namespace NewTake.view
                                 chunk.Blocks[offset + y].Sun = 0;
                             }
 
-                            if (chunk.Blocks[offset + y].Type == BlockType.RedFlower)
+                            if (chunk.Blocks[offset + y].Type == BlockType.Tree)
                             {
-                                chunk.Blocks[offset + y].R = 16;
-                                chunk.Blocks[offset + y].G = 10;
-                                chunk.Blocks[offset + y].B = 5;
+                                chunk.Blocks[offset + y].R = 0;
+                                chunk.Blocks[offset + y].G = 16;
+                                chunk.Blocks[offset + y].B = 0;
                             }
+                            //if (chunk.Blocks[offset + y].Type == BlockType.RedFlower)
+                            //{
+                            //    chunk.Blocks[offset + y].R = 16;
+                            //    chunk.Blocks[offset + y].G = 10;
+                            //    chunk.Blocks[offset + y].B = 5;
+                            //}
                             else
                             {
                                 chunk.Blocks[offset + y].R = 0;
@@ -287,7 +293,8 @@ namespace NewTake.view
                         int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
                         for (byte y = 0; y < Chunk.SIZE.Y; y++)
                         {
-                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
+                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
+                            //if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
                             {
                                 // Local light R
                                 if (chunk.Blocks[offset + y].R > 1)
@@ -323,7 +330,8 @@ namespace NewTake.view
                         int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
                         for (byte y = 0; y < Chunk.SIZE.Y; y++)
                         {
-                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
+                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
+                            //if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
                             {
                                 // Local light G
                                 if (chunk.Blocks[offset + y].G > 1)
@@ -358,7 +366,8 @@ namespace NewTake.view
                         int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
                         for (byte y = 0; y < Chunk.SIZE.Y; y++)
                         {
-                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
+                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
+                            //if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
                             {
                                 // Local light B
                                 if (chunk.Blocks[offset + y].B > 1)

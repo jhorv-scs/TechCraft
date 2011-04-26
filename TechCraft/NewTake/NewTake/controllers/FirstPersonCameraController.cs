@@ -118,6 +118,15 @@ namespace NewTake.controllers
             if (mouseDY != 0)
             {
                 camera.UpDownRotation -= ROTATIONSPEED * (mouseDY / 50);
+
+                // Locking camera rotation vertically between +/- 180 degrees
+                float newPosition = camera.UpDownRotation - ROTATIONSPEED * (mouseDY / 50);  
+                if (newPosition < -1.55f)  
+                    newPosition = -1.55f;  
+                else if (newPosition > 1.55f)  
+                    newPosition = 1.55f;  
+                camera.UpDownRotation = newPosition;  
+                // End of locking
             }
 
             //camera.LeftRightRotation -= GamePad.GetState(Game.ActivePlayerIndex).ThumbSticks.Right.X / 20;
