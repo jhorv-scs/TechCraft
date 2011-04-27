@@ -49,13 +49,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Effects\SolidBlockEffect.fx">
-      <Name>SolidBlockEffect</Name>
-      <Importer>EffectImporter</Importer>
-      <Processor>EffectProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Fonts\console.spritefont">
       <Name>console</Name>
       <Importer>FontDescriptionImporter</Importer>
@@ -84,13 +77,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Effects\DualTextureAOBlockEffect.fx">
-      <Name>DualTextureAOBlockEffect</Name>
-      <Importer>EffectImporter</Importer>
-      <Processor>EffectProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Textures\cracks.png">
       <Name>cracks</Name>
       <Importer>TextureImporter</Importer>
@@ -98,8 +84,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Effects\LightingAOBlockEffect.fx">
-      <Name>LightingAOBlockEffect</Name>
+    <Compile Include="Effects\SolidBlockEffect.fx">
+      <Name>SolidBlockEffect</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>

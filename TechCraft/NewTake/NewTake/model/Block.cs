@@ -68,7 +68,7 @@ namespace NewTake.model
         {
             get
             {
-                if (Type == BlockType.None || Type == BlockType.Leaves || Type == BlockType.RedFlower)
+                if (Type == BlockType.None || Type == BlockType.Leaves || Type == BlockType.RedFlower || Type == BlockType.Water)
                 {
                     return false;
                 }
