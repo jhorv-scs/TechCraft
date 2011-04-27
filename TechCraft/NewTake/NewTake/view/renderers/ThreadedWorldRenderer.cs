@@ -157,6 +157,7 @@ namespace NewTake.view.renderers
         {
             //Debug.WriteLine("DoBuild " + chunkIndex);
             Chunk chunk = _world.viewableChunks[chunkIndex.X, chunkIndex.Z];
+            if (chunk == null) return null;
             if (chunk.State == ChunkState.AwaitingBuild || chunk.State == ChunkState.AwaitingRebuild)
             {
                 chunk.State = ChunkState.Building;
