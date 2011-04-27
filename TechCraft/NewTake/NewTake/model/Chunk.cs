@@ -110,19 +110,34 @@ namespace NewTake.model
             this.Blocks = new Block[SIZE.X * SIZE.Z * SIZE.Y];
             vertexList = new List<VertexPositionTextureLight>();
             indexList = new List<short>();
-            Assign(index);
+            
+            //Assign(index);
+            world.viewableChunks[index.X, index.Z] = this;
+            dirty = true;
+            this.Index = index;
+            this.Position = new Vector3i(index.X * SIZE.X, index.Y * SIZE.Y, index.Z * SIZE.Z);
+            this._boundingBox = new BoundingBox(new Vector3(Position.X, Position.Y, Position.Z), new Vector3(Position.X + SIZE.X, Position.Y + SIZE.Y, Position.Z + SIZE.Z));
+
         }
 
-        public void Assign(Vector3i index) {
+        /*TODO re assign chunk instead of new + remove
+         public void Assign(Vector3i index) {
             //ensure world is set directly in here to have access to N S E W as soon as possible
-            world.viewableChunks.Remove(this.Index.X, this.Index.Z);
+            
+            world.viewableChunks.Remove(this.Index.X, this.Index.Z); 
             world.viewableChunks[index.X, index.Z] = this;
+            
             dirty = true;
             //Array.Clear(Blocks, 0, Blocks.Length);
             this.Index = index;
             this.Position = new Vector3i(index.X * SIZE.X, index.Y * SIZE.Y, index.Z * SIZE.Z);
             this._boundingBox = new BoundingBox(new Vector3(Position.X, Position.Y, Position.Z), new Vector3(Position.X + SIZE.X, Position.Y + SIZE.Y, Position.Z + SIZE.Z));
-        } 
+
+            //TODO next optimization step would be reusing the vertexbuffer
+            //vertexList.Clear(); 
+            //indexList.Clear();
+            
+        } */
 
         public void Clear()
         {

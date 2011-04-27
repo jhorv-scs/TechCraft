@@ -71,7 +71,7 @@ namespace NewTake.view
 
         public override void LoadContent(ContentManager content)
         {
-            _textureAtlas = content.Load<Texture2D>("Textures\\blocks");
+            _textureAtlas = content.Load<Texture2D>("Textures\\blocks_16");
             _solidBlockEffect = content.Load<Effect>("Effects\\LightingAOBlockEffect");
             _debugEffect = new BasicEffect(GraphicsDevice);
 
@@ -255,8 +255,6 @@ namespace NewTake.view
                         Process(adjacentChunk, direction);                       
                     }
                 }
-                    
-                
             }
         }
 
@@ -279,18 +277,17 @@ namespace NewTake.view
 
             chunkIndexAdd = fromChunk.Index.add(addDelta);
             chunkIndexRemove = fromChunk.Index.add(removeDelta);
-            Debug.WriteLine("Process fromChunk {0} direction {1} Add at {2}, remove at {3}",fromChunk,direction, chunkIndexAdd, chunkIndexRemove);
-            Chunk toRegen = world.viewableChunks[chunkIndexRemove.X, chunkIndexRemove.Z];
-            //if (toRemove==null) return;
+            Debug.WriteLine("Process  {0} Add at {1}, remove at {2}",direction, chunkIndexAdd, chunkIndexRemove);
+            
+            //Chunk toRemove = world.viewableChunks[chunkIndexRemove.X, chunkIndexRemove.Z];
+            //world.viewableChunks.Remove(toRemove.Index.X, toRemove.Index.Z);
+            world.viewableChunks.Remove(chunkIndexRemove.X, chunkIndexRemove.Z);//null safe
             
             // Instead of removing, Re assign new chunk to opposite chunk 
-            toRegen.Assign(chunkIndexAdd);
+            //toRegen.Assign(chunkIndexAdd);
 
             // Generate & Build new chunk
-            
-            world.viewableChunks.Remove(chunkIndexRemove.X, chunkIndexRemove.Z);//null safe
-
-            Chunk addedChunk = ReGenerate(toRegen);
+            Chunk addedChunk = DoGenerate(chunkIndexAdd);
             DoBuild(addedChunk);
 
             
