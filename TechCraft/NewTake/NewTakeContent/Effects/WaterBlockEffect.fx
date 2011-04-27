@@ -79,7 +79,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 
     float4 color;
 	color.rgb  = texColor1.rgb * input.Color.rgb;
-	color.a = texColor1.a;
+	color.a = 0.5f; //texColor1.a;
 
     if(color.a == 0)
     {
