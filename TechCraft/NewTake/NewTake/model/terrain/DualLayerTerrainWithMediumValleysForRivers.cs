@@ -139,29 +139,28 @@ namespace NewTake.model.terrain
                     int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y;
                     for (byte y = WATERLEVEL + 9; y >= MINIMUMGROUNDHEIGHT; y--)
                     {
-                        if (chunk.Blocks[offset + y].Type == BlockType.None)
+                        blockType = chunk.Blocks[offset + y].Type;
+                        if (blockType == BlockType.None)
                         {
                             blockType = BlockType.Water;
                         }
-                        else
-                        {
-                            if (chunk.Blocks[offset + y].Type == BlockType.Grass)
-                            {
-                                blockType = BlockType.Sand;
-                                //if (y <= WATERLEVEL)
-                                //{
-                                //    sunlit = false;
-                                //}
-                            }
-                            break;
-                        }
-
+                        //else
+                        //{
+                        //    if (chunk.Blocks[offset + y].Type == BlockType.Grass)
+                        //    {
+                        //        blockType = BlockType.Sand;
+                        //        //if (y <= WATERLEVEL)
+                        //        //{
+                        //        //    sunlit = false;
+                        //        //}
+                        //    }
+                        //    break;
+                        //}
                         chunk.setBlock(x, y, z, new Block(blockType));
                     }
-
-                    for (byte y = WATERLEVEL + 11; y >= WATERLEVEL + 8; y--)
+                    for (byte y = WATERLEVEL + 11; y >= WATERLEVEL; y--)
                     {
-                        if ((chunk.Blocks[offset + y].Type == BlockType.Dirt) || (chunk.Blocks[offset + y].Type == BlockType.Grass))
+                        if ((chunk.Blocks[offset + y].Type == BlockType.Dirt) || (chunk.Blocks[offset + y].Type == BlockType.Grass) || (chunk.Blocks[offset + y].Type == BlockType.Lava))
                         {
                             chunk.setBlock(x, y, z, new Block(BlockType.Sand));
                         }
