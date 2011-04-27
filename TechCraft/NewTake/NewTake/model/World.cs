@@ -156,13 +156,12 @@ namespace NewTake.model
                 // use Chunk accessors
                 if (localX == 0)
                 {
-                    //viewableChunks[(x / Chunk.SIZE.X) - 1, z / Chunk.SIZE.Z].dirty = true;
-                    if (chunk.W != null) chunk.W.State = ChunkState.AwaitingRelighting;
+                    if (chunk.E != null) chunk.E.State = ChunkState.AwaitingRelighting;
                 }
                 if (localX == Chunk.MAX.X)
                 {
                     //viewableChunks[(x / Chunk.SIZE.X) + 1, z / Chunk.SIZE.Z].dirty = true;
-                    if (chunk.E != null) chunk.E.State = ChunkState.AwaitingRelighting;
+                    if (chunk.W != null) chunk.W.State = ChunkState.AwaitingRelighting;
                 }
                 if (localZ == 0)
                 {
