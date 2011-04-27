@@ -85,8 +85,6 @@ namespace NewTake.view.renderers
         #endregion
         #endregion
 
-        public bool dayNightMode = true;
-
         #endregion
 
         public SkyDomeRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world)
@@ -193,12 +191,21 @@ namespace NewTake.view.renderers
 
             _tod = _world.tod;
 
+            if (_world.dayMode)
+            {
+                _tod = 12;
+                _world.nightMode = false;
+            }
+            else if (_world.nightMode)
+            {
+                _tod = 0;
+                _world.dayMode = false;
+            }
+
             Matrix[] modelTransforms = new Matrix[skyDome.Bones.Count];
             skyDome.CopyAbsoluteBoneTransformsTo(modelTransforms);
             //rotation += 0.0005f;
             rotation = 0;
-
-            if (!dayNightMode) _tod = 12;
 
             Matrix wMatrix = Matrix.CreateRotationY(rotation) * Matrix.CreateTranslation(0, -0.1f, 0) * Matrix.CreateScale(100) * Matrix.CreateTranslation(_camera.Position);
             foreach (ModelMesh mesh in skyDome.Meshes)

@@ -45,6 +45,9 @@ namespace NewTake.view.renderers
         private float _tod;
         private bool _running = true;
 
+        public bool dayMode = false;
+        public bool nightMode = false;
+
         public ThreadedWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world)
         {
             _graphicsDevice = graphicsDevice;
@@ -178,6 +181,17 @@ namespace NewTake.view.renderers
         {
 
             _tod = _world.tod;
+
+            if (_world.dayMode)
+            {
+                _tod = 12;
+                _world.nightMode = false;
+            }
+            else if (_world.nightMode)
+            {
+                _tod = 0;
+                _world.dayMode = false;
+            }
 
             _solidBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _solidBlockEffect.Parameters["View"].SetValue(_camera.View);

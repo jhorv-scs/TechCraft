@@ -180,12 +180,13 @@ namespace NewTake
             Console.WriteLine("F4 toggle 100*160 window size");
             Console.WriteLine("F7 toggle wireframe");
             Console.WriteLine("F8 toggle chunk diagnostics");
-            Console.WriteLine("F9 toggle day/night mode on/off");
+            Console.WriteLine("F9 toggle daycycle/day mode on/off");
+            Console.WriteLine("F10 toggle daycycle/night mode on/off");
             Console.WriteLine("F11 toggle fullscreen");
             Console.WriteLine("F release / regain focus");
             Console.WriteLine("Esc exit");
-
         }
+
         private void ProcessDebugKeys()
         {
             KeyboardState keyState = Keyboard.GetState();
@@ -208,7 +209,6 @@ namespace NewTake
                 hud.showMinimap = !hud.showMinimap;
             }
 
-
             //wireframe mode
             if (_oldKeyboardState.IsKeyUp(Keys.F7) && keyState.IsKeyDown(Keys.F7))
             {
@@ -221,11 +221,18 @@ namespace NewTake
                 _diagnosticMode = !_diagnosticMode;
             }
 
-            //day/night mode
+            //day cycle/dayMode
             if (_oldKeyboardState.IsKeyUp(Keys.F9) && keyState.IsKeyDown(Keys.F9))
             {
-                //renderer.dayNightMode = !renderer.dayNightMode;
-                //Debug.WriteLine("Day/Night Mode is " + renderer.dayNightMode);
+                world.dayMode = !world.dayMode;
+                //Debug.WriteLine("Day Mode is " + world.dayMode);
+            }
+
+            //day cycle/nightMode
+            if (_oldKeyboardState.IsKeyUp(Keys.F10) && keyState.IsKeyDown(Keys.F10))
+            {
+                world.nightMode = !world.nightMode;
+                //Debug.WriteLine("Day/Night Mode is " + world.nightMode);
             }
 
             // Allows the game to exit
@@ -246,7 +253,7 @@ namespace NewTake
             {
                 graphics.SynchronizeWithVerticalRetrace = !graphics.SynchronizeWithVerticalRetrace;
                 this.IsFixedTimeStep = !this.IsFixedTimeStep;
-                Debug.WriteLine("FixedTimeStep and v synch are " + this.IsFixedTimeStep);
+                Debug.WriteLine("FixedTimeStep and vsync are " + this.IsFixedTimeStep);
                 graphics.ApplyChanges();
             }
 

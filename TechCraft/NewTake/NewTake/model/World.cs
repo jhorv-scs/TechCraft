@@ -64,6 +64,8 @@ namespace NewTake.model
         public float tod = 12; // Midday
         public Vector3 SunPos = new Vector3(0, 1, 0); // Directly overhead
         public bool RealTime = false;
+        public bool dayMode = false;
+        public bool nightMode = false;
 
         #endregion
 
