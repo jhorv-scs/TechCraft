@@ -106,7 +106,7 @@ namespace NewTake.view
 
             world.Generator.Generate(chunk);
             // Clear down the chunk lighting 
-            _lightingChunkProcessor.InitChunk(chunk);
+            _lightingChunkProcessor.ProcessChunk(chunk);
 
 
             //chunk.generated = true;
@@ -123,7 +123,7 @@ namespace NewTake.view
 
             world.Generator.Generate(chunk);
             // Clear down the chunk lighting 
-            _lightingChunkProcessor.InitChunk(chunk);
+            _lightingChunkProcessor.ProcessChunk(chunk);
 
 
             //chunk.generated = true;

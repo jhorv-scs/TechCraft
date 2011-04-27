@@ -82,11 +82,11 @@ namespace NewTake.model
             viewableChunks = new ChunkManager(new MockChunkPersistence(this));
         }
 
-        public void visitChunks(Func<Vector3i,Chunk> visitor)
+        public void visitChunks(Func<Vector3i,Chunk> visitor,byte radius)
         {
-            for (uint x = origin - (World.VIEW_DISTANCE_NEAR_X); x < origin + (World.VIEW_DISTANCE_NEAR_X); x++)
+            for (uint x = origin - radius; x < origin + radius; x++)
             {
-                for (uint z = origin - (World.VIEW_DISTANCE_NEAR_Z); z < origin + (World.VIEW_DISTANCE_NEAR_Z); z++)
+                for (uint z = origin - radius; z < origin + radius; z++)
                 {
                     visitor(new Vector3i(x, 0, z));
                 }
