@@ -112,13 +112,13 @@ namespace NewTake.model
             switch (from)
             {
                 case Cardinal.N: return new Cardinal[] {Cardinal.E,Cardinal.W};
-                case Cardinal.NE: return new Cardinal[] { Cardinal.N, Cardinal.E };
+                case Cardinal.NE: return new Cardinal[] { Cardinal.S, Cardinal.W, Cardinal.E, Cardinal.N };
                 case Cardinal.E: return new Cardinal[] { Cardinal.N, Cardinal.S };
-                case Cardinal.SE: return new Cardinal[] { Cardinal.S, Cardinal.E };
+                case Cardinal.SE: return new Cardinal[] { Cardinal.N, Cardinal.W, Cardinal.E, Cardinal.S };
                 case Cardinal.S: return new Cardinal[] { Cardinal.E, Cardinal.W };
-                case Cardinal.SW: return new Cardinal[] { Cardinal.S, Cardinal.W };
+                case Cardinal.SW: return new Cardinal[] { Cardinal.N, Cardinal.E, Cardinal.W, Cardinal.S };
                 case Cardinal.W: return new Cardinal[] { Cardinal.N, Cardinal.S };
-                case Cardinal.NW: return new Cardinal[] { Cardinal.N, Cardinal.W };
+                case Cardinal.NW: return new Cardinal[] { Cardinal.S, Cardinal.E, Cardinal.N, Cardinal.W };
                 default:
                     break;
             }
