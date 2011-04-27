@@ -53,10 +53,19 @@ namespace NewTake.model
         public static Vector3b MAX = new Vector3b(15, 127, 15);
 
         public VertexBuffer VertexBuffer;
+        public VertexBuffer waterVertexBuffer;
+
         public IndexBuffer IndexBuffer;
+        public IndexBuffer waterIndexBuffer;
+
         public List<short> indexList;
+        public List<short> waterindexList;
+
         public List<VertexPositionTextureLight> vertexList;
+        public List<VertexPositionTextureLight> watervertexList;
+
         public short VertexCount;
+        public short waterVertexCount;
 
         /// <summary>
         /// Contains blocks as a flattened array.
@@ -109,7 +118,9 @@ namespace NewTake.model
             this.world = world;
             this.Blocks = new Block[SIZE.X * SIZE.Z * SIZE.Y];
             vertexList = new List<VertexPositionTextureLight>();
+            watervertexList = new List<VertexPositionTextureLight>();
             indexList = new List<short>();
+            waterindexList = new List<short>();
             
             //Assign(index);
             world.viewableChunks[index.X, index.Z] = this;
