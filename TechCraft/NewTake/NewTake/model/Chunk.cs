@@ -118,6 +118,7 @@ namespace NewTake.model
             world.viewableChunks.Remove(this.Index.X, this.Index.Z);
             world.viewableChunks[index.X, index.Z] = this;
             dirty = true;
+            //Array.Clear(Blocks, 0, Blocks.Length);
             this.Index = index;
             this.Position = new Vector3i(index.X * SIZE.X, index.Y * SIZE.Y, index.Z * SIZE.Z);
             this._boundingBox = new BoundingBox(new Vector3(Position.X, Position.Y, Position.Z), new Vector3(Position.X + SIZE.X, Position.Y + SIZE.Y, Position.Z + SIZE.Z));

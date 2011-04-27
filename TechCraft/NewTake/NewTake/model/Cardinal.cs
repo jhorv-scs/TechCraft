@@ -84,7 +84,7 @@ namespace NewTake.model
                 default:
                     break;
             }
-            throw new NotImplementedException("unknown cardinal direction" + c);
+            throw new NotImplementedException("unknown cardinal direction " + c);
         }
 
         public static Cardinal CardinalFrom(int x, int z)
@@ -106,6 +106,24 @@ namespace NewTake.model
             if (v == NW) return Cardinal.NW;
 
             throw new NotImplementedException("vector " + v + " does not map to a cardinal direction");
+        }
+
+        public static Cardinal[] Adjacents(Cardinal from) {
+            switch (from)
+            {
+                case Cardinal.N: return new Cardinal[] {Cardinal.E,Cardinal.W};
+                case Cardinal.NE: return new Cardinal[] { Cardinal.N, Cardinal.E };
+                case Cardinal.E: return new Cardinal[] { Cardinal.N, Cardinal.S };
+                case Cardinal.SE: return new Cardinal[] { Cardinal.S, Cardinal.E };
+                case Cardinal.S: return new Cardinal[] { Cardinal.E, Cardinal.W };
+                case Cardinal.SW: return new Cardinal[] { Cardinal.S, Cardinal.W };
+                case Cardinal.W: return new Cardinal[] { Cardinal.N, Cardinal.S };
+                case Cardinal.NW: return new Cardinal[] { Cardinal.N, Cardinal.W };
+                default:
+                    break;
+            }
+            throw new NotImplementedException("unknown cardinal direction " + from);
+            
         }
 
     }
