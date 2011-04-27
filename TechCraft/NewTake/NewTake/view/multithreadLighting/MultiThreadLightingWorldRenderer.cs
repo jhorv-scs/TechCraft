@@ -40,7 +40,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 using NewTake.model;
-using NewTake.profiling;
+
 using NewTake.view.blocks;
 #endregion
 
@@ -49,8 +49,6 @@ namespace NewTake.view
     class MultiThreadLightingWorldRenderer : WorldRenderer
     {
         #region Fields
-
-        private BasicEffect _debugEffect;
 
         private VertexBuildChunkProcessor _vertexBuildChunkProcessor;
         private LightingChunkProcessor _lightingChunkProcessor;
@@ -77,7 +75,6 @@ namespace NewTake.view
         {
             _textureAtlas = content.Load<Texture2D>("Textures\\blocks");
             _solidBlockEffect = content.Load<Effect>("Effects\\LightingAOBlockEffect");
-            _debugEffect = new BasicEffect(GraphicsDevice);
 
             #region SkyDome and Clouds
             // SkyDome
@@ -373,10 +370,10 @@ namespace NewTake.view
         }
         #endregion
 
-        #region Draw
-        public override void Draw(GameTime gameTime)
+        #region Update
+        public override void Update(GameTime gameTime)
         {
-            BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
+
             if (cloudsEnabled)
             {
                 // Generate the clouds
@@ -384,73 +381,11 @@ namespace NewTake.view
                 base.GeneratePerlinNoise(time);
             }
 
-            GraphicsDevice.Clear(Color.Black);
-            GraphicsDevice.RasterizerState = !this._wireframed ? this._normalRaster : this._wireframedRaster;
-
-            // Draw the skyDome
-            base.DrawSkyDome(camera.View);
-
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.BlendState = BlendState.Opaque;
-
-            _solidBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
-            _solidBlockEffect.Parameters["View"].SetValue(camera.View);
-            _solidBlockEffect.Parameters["Projection"].SetValue(camera.Projection);
-            _solidBlockEffect.Parameters["CameraPosition"].SetValue(camera.Position);
-            _solidBlockEffect.Parameters["FogColor"].SetValue(FOGCOLOR);
-            _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
-            _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
-            _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
-
-            _solidBlockEffect.Parameters["SunColor"].SetValue(SUNCOLOR);
-            _solidBlockEffect.Parameters["timeOfDay"].SetValue(tod);
-
-            foreach (EffectPass pass in _solidBlockEffect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-
-                foreach(Chunk chunk in world.viewableChunks.Values)
-                {
-                    if (chunk.BoundingBox.Intersects(viewFrustum) && (chunk.State==ChunkState.Ready) && !chunk.dirty)
-                    //if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.generated && !chunk.dirty)
-                    {
-                        base.DrawChunk(chunk);
-                    }
-                }
-            }
-
-            // Diagnostic rendering
-            if (diagnosticsMode)
-            {
-                foreach (Chunk chunk in world.viewableChunks.Values)
-                {
-                    if (chunk.BoundingBox.Intersects(viewFrustum))
-                    {
-                        if (chunk.broken)
-                        {
-                            Utility.DrawBoundingBox(chunk.BoundingBox, GraphicsDevice, _debugEffect, Matrix.Identity, camera.View, camera.Projection, Color.Red);
-                        }
-                        else
-                        {
-                            //if (!chunk.built)
-                            if (chunk.State != ChunkState.Ready)
-                            {
-                                // Draw the bounding box for the chunk so we can see them
-                                Utility.DrawBoundingBox(chunk.BoundingBox, GraphicsDevice, _debugEffect, Matrix.Identity, camera.View, camera.Projection, Color.Green);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        #endregion
-
-        #region Update
-        public override void Update(GameTime gameTime) {
             //update of chunks is handled in chunkReGenBuildTask for this class
             base.UpdateTOD(gameTime);
         }
         #endregion
+
 
     }
 }

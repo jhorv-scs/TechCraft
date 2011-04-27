@@ -331,6 +331,86 @@ namespace NewTake.view.blocks
             }
         }
         #endregion
+ 
+        #region BuildFaceVertices
+        public void BuildFaceVertices(Chunk chunk, Vector3i blockPosition, Vector3i chunkRelativePosition, BlockFaceDirection faceDir, BlockType blockType, float sunLightTL, float sunLightTR, float sunLightBL, float sunLightBR, Color localLightTL, Color localLightTR, Color localLightBL, Color localLightBR)
+        {
+            BlockTexture texture = BlockInformation.GetTexture(blockType, faceDir);
+
+            int faceIndex = (int)faceDir;
+
+            Vector2[] UVList = TextureHelper.UVMappings[(int)texture * 6 + faceIndex];
+
+            switch (faceDir)
+            {
+                case BlockFaceDirection.XIncreasing:
+                    {
+                        //TR,TL,BR,BR,TL,BL
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 1, 1), new Vector3(1, 0, 0), UVList[0], sunLightTR, localLightTR);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 1, 0), new Vector3(1, 0, 0), UVList[1], sunLightTL, localLightTL);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 0, 1), new Vector3(1, 0, 0), UVList[2], sunLightBR, localLightBR);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 0, 0), new Vector3(1, 0, 0), UVList[5], sunLightBL, localLightBL);
+                        AddIndex(chunk, 0, 1, 2, 2, 1, 3);
+                    }
+                    break;
+
+                case BlockFaceDirection.XDecreasing:
+                    {
+                        //TR,TL,BL,TR,BL,BR
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 1, 0), new Vector3(-1, 0, 0), UVList[0], sunLightTR, localLightTR);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 1, 1), new Vector3(-1, 0, 0), UVList[1], sunLightTL, localLightTL);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 0, 0), new Vector3(-1, 0, 0), UVList[5], sunLightBR, localLightBR);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 0, 1), new Vector3(-1, 0, 0), UVList[2], sunLightBL, localLightBL);
+                        AddIndex(chunk, 0, 1, 3, 0, 3, 2);
+                    }
+                    break;
+
+                case BlockFaceDirection.YIncreasing:
+                    {
+                        //BL,BR,TR,BL,TR,TL
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 1, 1), new Vector3(0, 1, 0), UVList[4], sunLightTR, localLightTR);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 1, 1), new Vector3(0, 1, 0), UVList[5], sunLightTL, localLightTL);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 1, 0), new Vector3(0, 1, 0), UVList[1], sunLightBR, localLightBR);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 1, 0), new Vector3(0, 1, 0), UVList[3], sunLightBL, localLightBL);
+                        AddIndex(chunk, 3, 2, 0, 3, 0, 1);
+                    }
+                    break;
+
+                case BlockFaceDirection.YDecreasing:
+                    {
+                        //TR,BR,TL,TL,BR,BL
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 0, 1), new Vector3(0, -1, 0), UVList[0], sunLightTR, localLightTR);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 0, 1), new Vector3(0, -1, 0), UVList[2], sunLightTL, localLightTL);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 0, 0), new Vector3(0, -1, 0), UVList[4], sunLightBR, localLightBR);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 0, 0), new Vector3(0, -1, 0), UVList[5], sunLightBL, localLightBL);
+                        AddIndex(chunk, 0, 2, 1, 1, 2, 3);
+                    }
+                    break;
+
+                case BlockFaceDirection.ZIncreasing:
+                    {
+                        //TR,TL,BL,TR,BL,BR
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 1, 1), new Vector3(0, 0, 1), UVList[0], sunLightTR, localLightTR);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 1, 1), new Vector3(0, 0, 1), UVList[1], sunLightTL, localLightTL);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 0, 1), new Vector3(0, 0, 1), UVList[5], sunLightBR, localLightBR);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 0, 1), new Vector3(0, 0, 1), UVList[2], sunLightBL, localLightBL);
+                        AddIndex(chunk, 0, 1, 3, 0, 3, 2);
+                    }
+                    break;
+
+                case BlockFaceDirection.ZDecreasing:
+                    {
+                        //TR,TL,BR,BR,TL,BL
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 1, 0), new Vector3(0, 0, -1), UVList[0], sunLightTR, localLightTR);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 1, 0), new Vector3(0, 0, -1), UVList[1], sunLightTL, localLightTL);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 0, 0), new Vector3(0, 0, -1), UVList[2], sunLightBR, localLightBR);
+                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 0, 0), new Vector3(0, 0, -1), UVList[5], sunLightBL, localLightBL);
+                        AddIndex(chunk, 0, 1, 2, 2, 1, 3);
+                    }
+                    break;
+            }
+        }
+        #endregion
 
         #region BuildPlantVertexList
         private void BuildPlantVertexList(Block block, Chunk chunk, Vector3i chunkRelativePosition)
@@ -452,86 +532,6 @@ namespace NewTake.view.blocks
             AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 0, 0.5f), new Vector3(0, 0, -1), UVList[2], sunLight, localLight);
             AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 0, 0.5f), new Vector3(0, 0, -1), UVList[5], sunLight, localLight);
             AddIndex(chunk, 0, 1, 2, 2, 1, 3);
-        }
-        #endregion
-
-        #region BuildFaceVertices
-        public void BuildFaceVertices(Chunk chunk, Vector3i blockPosition, Vector3i chunkRelativePosition, BlockFaceDirection faceDir, BlockType blockType, float sunLightTL, float sunLightTR, float sunLightBL, float sunLightBR, Color localLightTL, Color localLightTR, Color localLightBL, Color localLightBR)
-        {
-            BlockTexture texture = BlockInformation.GetTexture(blockType, faceDir);
-
-            int faceIndex = (int)faceDir;
-
-            Vector2[] UVList = TextureHelper.UVMappings[(int)texture * 6 + faceIndex];
-
-            switch (faceDir)
-            {
-                case BlockFaceDirection.XIncreasing:
-                    {
-                        //TR,TL,BR,BR,TL,BL
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 1, 1), new Vector3(1, 0, 0), UVList[0], sunLightTR, localLightTR);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 1, 0), new Vector3(1, 0, 0), UVList[1], sunLightTL, localLightTL);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 0, 1), new Vector3(1, 0, 0), UVList[2], sunLightBR, localLightBR);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 0, 0), new Vector3(1, 0, 0), UVList[5], sunLightBL, localLightBL);
-                        AddIndex(chunk, 0, 1, 2, 2, 1, 3);
-                    }
-                    break;
-
-                case BlockFaceDirection.XDecreasing:
-                    {
-                        //TR,TL,BL,TR,BL,BR
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 1, 0), new Vector3(-1, 0, 0), UVList[0], sunLightTR, localLightTR);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 1, 1), new Vector3(-1, 0, 0), UVList[1], sunLightTL, localLightTL);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 0, 0), new Vector3(-1, 0, 0), UVList[5], sunLightBR, localLightBR);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 0, 1), new Vector3(-1, 0, 0), UVList[2], sunLightBL, localLightBL);
-                        AddIndex(chunk, 0, 1, 3, 0, 3, 2);
-                    }
-                    break;
-
-                case BlockFaceDirection.YIncreasing:
-                    {
-                        //BL,BR,TR,BL,TR,TL
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 1, 1), new Vector3(0, 1, 0), UVList[4], sunLightTR, localLightTR);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 1, 1), new Vector3(0, 1, 0), UVList[5], sunLightTL, localLightTL);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 1, 0), new Vector3(0, 1, 0), UVList[1], sunLightBR, localLightBR);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 1, 0), new Vector3(0, 1, 0), UVList[3], sunLightBL, localLightBL);
-                        AddIndex(chunk, 3, 2, 0, 3, 0, 1);
-                    }
-                    break;
-
-                case BlockFaceDirection.YDecreasing:
-                    {
-                        //TR,BR,TL,TL,BR,BL
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 0, 1), new Vector3(0, -1, 0), UVList[0], sunLightTR, localLightTR);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 0, 1), new Vector3(0, -1, 0), UVList[2], sunLightTL, localLightTL);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 0, 0), new Vector3(0, -1, 0), UVList[4], sunLightBR, localLightBR);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 0, 0), new Vector3(0, -1, 0), UVList[5], sunLightBL, localLightBL);
-                        AddIndex(chunk, 0, 2, 1, 1, 2, 3);
-                    }
-                    break;
-
-                case BlockFaceDirection.ZIncreasing:
-                    {
-                        //TR,TL,BL,TR,BL,BR
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 1, 1), new Vector3(0, 0, 1), UVList[0], sunLightTR, localLightTR);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 1, 1), new Vector3(0, 0, 1), UVList[1], sunLightTL, localLightTL);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 0, 1), new Vector3(0, 0, 1), UVList[5], sunLightBR, localLightBR);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 0, 1), new Vector3(0, 0, 1), UVList[2], sunLightBL, localLightBL);
-                        AddIndex(chunk, 0, 1, 3, 0, 3, 2);
-                    }
-                    break;
-
-                case BlockFaceDirection.ZDecreasing:
-                    {
-                        //TR,TL,BR,BR,TL,BL
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 1, 0), new Vector3(0, 0, -1), UVList[0], sunLightTR, localLightTR);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 1, 0), new Vector3(0, 0, -1), UVList[1], sunLightTL, localLightTL);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(1, 0, 0), new Vector3(0, 0, -1), UVList[2], sunLightBR, localLightBR);
-                        AddVertex(chunk, blockPosition, chunkRelativePosition, new Vector3(0, 0, 0), new Vector3(0, 0, -1), UVList[5], sunLightBL, localLightBL);
-                        AddIndex(chunk, 0, 1, 2, 2, 1, 3);
-                    }
-                    break;
-            }
         }
         #endregion
 

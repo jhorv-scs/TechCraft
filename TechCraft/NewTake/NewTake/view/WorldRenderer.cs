@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.Collections.Concurrent;
 
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
@@ -37,7 +38,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 using NewTake.model;
-using System.Collections.Concurrent;
+using NewTake.profiling;
 #endregion
 
 namespace NewTake.view
@@ -83,29 +84,25 @@ namespace NewTake.view
         public float tod = 12; // Midday
         public Vector3 SunPos = new Vector3(0, 1, 0); // Directly overhead
         public bool RealTime = false;
-
         #endregion
-
         #endregion
 
         protected World world;
         protected readonly GraphicsDevice GraphicsDevice;
+        public readonly FirstPersonCamera camera;
 
         protected Effect _solidBlockEffect;
+        protected BasicEffect _debugEffect;
         protected Texture2D _textureAtlas;
-        public readonly FirstPersonCamera camera;
         protected Vector3i previousChunkIndex;
-
-        public bool _running = true;
 
         protected readonly RasterizerState _wireframedRaster = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
         protected readonly RasterizerState _normalRaster = new RasterizerState() { CullMode = CullMode.CullCounterClockwiseFace, FillMode = FillMode.Solid };
+
         protected bool _wireframed = false;
-
         public bool dayNightMode = true;
-
         public bool diagnosticsMode = false;
-
+        public bool _running = true;
         #endregion
 
         public void ToggleRasterMode()
@@ -149,21 +146,25 @@ namespace NewTake.view
         {
             _textureAtlas = content.Load<Texture2D>("Textures\\blocks)");
             _solidBlockEffect = content.Load<Effect>("Effects\\SolidBlockEffect");
+            _debugEffect = new BasicEffect(GraphicsDevice);
         }
 
+        #region DoGenerate
         public Chunk DoGenerate(int xIndex, int zIndex)
         {
             Vector3i temp = new Vector3i((uint)xIndex, 0, (uint)zIndex);
             return DoGenerate(temp);
         }
 
+        public abstract Chunk DoGenerate(Vector3i vector);
+        #endregion
+
+        #region DoBuild
         public Chunk DoBuild(int xIndex, int zIndex)
         {
             Vector3i temp = new Vector3i((uint)xIndex, 0, (uint)zIndex);
             return DoBuild(temp);
         }
-
-        public abstract Chunk DoGenerate(Vector3i vector);
 
         public Chunk DoBuild(Vector3i vector)
         {
@@ -172,6 +173,7 @@ namespace NewTake.view
         }
 
         public abstract Chunk DoBuild(Chunk chunk);
+        #endregion
 
         #region Generate Clouds
         public virtual Texture2D CreateStaticMap(int resolution)
@@ -257,20 +259,74 @@ namespace NewTake.view
         }
         #endregion
 
-        public abstract void Update(GameTime gameTime);
-
-        public abstract void Draw(GameTime gameTime);
-
-        #region DrawChunk
-        public virtual void DrawChunk(Chunk chunk)
+        #region DrawChunks
+        public virtual void DrawChunks()
         {
-            //if (chunk.built)
-            if (chunk.State == ChunkState.Ready)
+            BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
+
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.BlendState = BlendState.Opaque;
+
+            _solidBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
+            _solidBlockEffect.Parameters["View"].SetValue(camera.View);
+            _solidBlockEffect.Parameters["Projection"].SetValue(camera.Projection);
+            _solidBlockEffect.Parameters["CameraPosition"].SetValue(camera.Position);
+            _solidBlockEffect.Parameters["FogColor"].SetValue(FOGCOLOR);
+            _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
+            _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
+            _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
+
+            _solidBlockEffect.Parameters["SunColor"].SetValue(SUNCOLOR);
+            _solidBlockEffect.Parameters["timeOfDay"].SetValue(tod);
+
+            foreach (EffectPass pass in _solidBlockEffect.CurrentTechnique.Passes)
             {
-                GraphicsDevice.SetVertexBuffer(chunk.VertexBuffer);
-                GraphicsDevice.Indices = chunk.IndexBuffer;
-                //graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexBuffer.VertexCount / 3);
-                GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, chunk.VertexBuffer.VertexCount, 0, chunk.IndexBuffer.IndexCount / 3);
+                pass.Apply();
+
+                foreach (Chunk chunk in world.viewableChunks.Values)
+                {
+                    if (chunk.BoundingBox.Intersects(viewFrustum) && (chunk.State == ChunkState.Ready) && !chunk.dirty)
+                    //if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.generated && !chunk.dirty)
+                    {
+                        //if (chunk.built)
+                        if (chunk.State == ChunkState.Ready)
+                        {
+                            GraphicsDevice.SetVertexBuffer(chunk.VertexBuffer);
+                            GraphicsDevice.Indices = chunk.IndexBuffer;
+                            //graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexBuffer.VertexCount / 3);
+                            GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, chunk.VertexBuffer.VertexCount, 0, chunk.IndexBuffer.IndexCount / 3);
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region DrawChunkDiagnostics
+        public virtual void DrawChunkDiagnostics()
+        {
+            // Diagnostic rendering
+
+            BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
+
+            foreach (Chunk chunk in world.viewableChunks.Values)
+            {
+                if (chunk.BoundingBox.Intersects(viewFrustum))
+                {
+                    if (chunk.broken)
+                    {
+                        Utility.DrawBoundingBox(chunk.BoundingBox, GraphicsDevice, _debugEffect, Matrix.Identity, camera.View, camera.Projection, Color.Red);
+                    }
+                    else
+                    {
+                        //if (!chunk.built)
+                        if (chunk.State != ChunkState.Ready)
+                        {
+                            // Draw the bounding box for the chunk so we can see them
+                            Utility.DrawBoundingBox(chunk.BoundingBox, GraphicsDevice, _debugEffect, Matrix.Identity, camera.View, camera.Projection, Color.Green);
+                        }
+                    }
+                }
             }
         }
         #endregion
@@ -312,5 +368,23 @@ namespace NewTake.view
         }
         #endregion
 
+        public abstract void Update(GameTime gameTime);
+
+        #region Draw
+        public virtual void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.RasterizerState = !this._wireframed ? this._normalRaster : this._wireframedRaster;
+
+            DrawSkyDome(camera.View);
+
+            DrawChunks();
+
+            if (diagnosticsMode)
+            {
+                DrawChunkDiagnostics();
+            }
+        }
+        #endregion
     }
 }
