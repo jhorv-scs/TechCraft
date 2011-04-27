@@ -76,8 +76,9 @@ sampler TextureSampler = sampler_state { texture = <xTexture> ; magfilter = LINE
 	 bottomColor += nColor;
 
      float4 baseColor = lerp(bottomColor, topColor, saturate((PSIn.ObjectPosition.y)/0.9f));
-     
-     Output.Color = lerp(baseColor, 1, cloudValue);        
+	 float4 outCloudValue = lerp(bottomColor, cloudValue, saturate((PSIn.ObjectPosition.y)/0.5f));
+
+     Output.Color = lerp(baseColor, 1, outCloudValue);        
  
      return Output;
  }
