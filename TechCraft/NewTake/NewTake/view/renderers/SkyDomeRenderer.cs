@@ -81,10 +81,7 @@ namespace NewTake.view.renderers
         protected Effect _perlinNoiseEffect;
         protected VertexPositionTexture[] fullScreenVertices;
 
-        // Day/Night
-        public float tod = 12; // Midday
-        public Vector3 SunPos = new Vector3(0, 1, 0); // Directly overhead
-        public bool RealTime = false;
+        private float _tod;
         #endregion
         #endregion
 
@@ -170,43 +167,6 @@ namespace NewTake.view.renderers
         }
         #endregion
 
-        #region UpdateTOD
-        public virtual Vector3 UpdateTOD(GameTime gameTime)
-        {
-            long div = 10000;
-
-            if (!RealTime)
-                tod += ((float)gameTime.ElapsedGameTime.Milliseconds / div);
-            else
-                tod = ((float)DateTime.Now.Hour) + ((float)DateTime.Now.Minute) / 60 + (((float)DateTime.Now.Second) / 60) / 60;
-
-            if (tod >= 24)
-                tod = 0;
-
-            // Calculate the position of the sun based on the time of day.
-            float x = 0;
-            float y = 0;
-            float z = 0;
-
-            if (tod <= 12)
-            {
-                y = tod / 12;
-                x = 12 - tod;
-            }
-            else
-            {
-                y = (24 - tod) / 12;
-                x = 12 - tod;
-            }
-
-            x /= 10;
-
-            SunPos = new Vector3(-x, y, z);
-
-            return SunPos;
-        }
-        #endregion
-
         public void Stop()
         {
             //_running = false;
@@ -215,16 +175,13 @@ namespace NewTake.view.renderers
         #region Update
         public void Update(GameTime gameTime)
         {
-
             if (cloudsEnabled)
             {
                 // Generate the clouds
                 float time = (float)gameTime.TotalGameTime.TotalMilliseconds / 100.0f;
                 GeneratePerlinNoise(time);
             }
-
             //update of chunks is handled in chunkReGenBuildTask for this class
-            UpdateTOD(gameTime);
         }
         #endregion
 
@@ -234,12 +191,14 @@ namespace NewTake.view.renderers
 
             Matrix currentViewMatrix = _camera.View;
 
+            _tod = _world.tod;
+
             Matrix[] modelTransforms = new Matrix[skyDome.Bones.Count];
             skyDome.CopyAbsoluteBoneTransformsTo(modelTransforms);
             //rotation += 0.0005f;
             rotation = 0;
 
-            if (!dayNightMode) tod = 12;
+            if (!dayNightMode) _tod = 12;
 
             Matrix wMatrix = Matrix.CreateRotationY(rotation) * Matrix.CreateTranslation(0, -0.1f, 0) * Matrix.CreateScale(100) * Matrix.CreateTranslation(_camera.Position);
             foreach (ModelMesh mesh in skyDome.Meshes)
@@ -260,7 +219,7 @@ namespace NewTake.view.renderers
 
                     currentEffect.Parameters["MorningTint"].SetValue(MORNINGTINT);
                     currentEffect.Parameters["EveningTint"].SetValue(EVENINGTINT);
-                    currentEffect.Parameters["timeOfDay"].SetValue(tod);
+                    currentEffect.Parameters["timeOfDay"].SetValue(_tod);
                 }
                 mesh.Draw();
             }

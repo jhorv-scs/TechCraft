@@ -59,6 +59,11 @@ namespace NewTake.model
         public const byte VIEW_DISTANCE_FAR_X = VIEW_CHUNKS_X * 4;
         public const byte VIEW_DISTANCE_FAR_Z = VIEW_CHUNKS_Z * 4;
 
+        // Day/Night
+        public float tod = 12; // Midday
+        public Vector3 SunPos = new Vector3(0, 1, 0); // Directly overhead
+        public bool RealTime = false;
+
         #endregion
 
         #region choose terrain generation
