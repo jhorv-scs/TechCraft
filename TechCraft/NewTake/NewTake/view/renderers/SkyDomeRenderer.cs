@@ -147,7 +147,7 @@ namespace NewTake.view.renderers
         public virtual void GeneratePerlinNoise(float time)
         {
             _graphicsDevice.SetRenderTarget(cloudsRenderTarget);
-            _graphicsDevice.Clear(Color.White);
+            //_graphicsDevice.Clear(Color.White);
 
             _perlinNoiseEffect.CurrentTechnique = _perlinNoiseEffect.Techniques["PerlinNoise"];
             _perlinNoiseEffect.Parameters["xTexture"].SetValue(cloudStaticMap);
