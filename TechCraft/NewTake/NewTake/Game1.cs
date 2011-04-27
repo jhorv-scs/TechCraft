@@ -74,6 +74,7 @@ namespace NewTake
         private PlayerRenderer player1Renderer;
 
         private DiagnosticWorldRenderer diagnosticWorldRenderer;
+        bool _diagnosticMode = false;
 
         private SkyDomeRenderer skyDomeRenderer;
 
@@ -217,7 +218,7 @@ namespace NewTake
             //diagnose mode
             if (_oldKeyboardState.IsKeyUp(Keys.F8) && keyState.IsKeyDown(Keys.F8))
             {
-                //renderer.diagnosticsMode = !renderer.diagnosticsMode;
+                _diagnosticMode = !_diagnosticMode;
             }
 
             //day/night mode
@@ -288,7 +289,10 @@ namespace NewTake
 
                 skyDomeRenderer.Update(gameTime);
                 renderer.Update(gameTime);
-                diagnosticWorldRenderer.Update(gameTime);
+                if (_diagnosticMode)
+                {
+                    diagnosticWorldRenderer.Update(gameTime);
+                }
                 base.Update(gameTime);
             }
         }
@@ -304,7 +308,10 @@ namespace NewTake
             //GraphicsDevice.Clear(Color.Black);
             skyDomeRenderer.Draw(gameTime);
             renderer.Draw(gameTime);
-            diagnosticWorldRenderer.Draw(gameTime);
+            if (_diagnosticMode)
+            {
+                diagnosticWorldRenderer.Draw(gameTime);
+            }
             player1Renderer.Draw(gameTime);
             hud.Draw(gameTime);
             base.Draw(gameTime);

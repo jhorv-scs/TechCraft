@@ -36,8 +36,8 @@ namespace NewTake.view.renderers
 
         private Vector3i _previousChunkIndex;
 
-        public const float FOGFAR = 220 * 4;
-        public const int FOGNEAR = 200 * 4;
+        public const float FOGFAR = 290;
+        public const int FOGNEAR = 260;
 
         public Vector3 SUNCOLOR = Color.White.ToVector3();
         private bool _running = true;
@@ -203,10 +203,10 @@ namespace NewTake.view.renderers
             }
         }
 
-        private const byte REMOVE_RANGE = 10;
-        private const byte GENERATE_RANGE = 9;
-        private const byte LIGHT_RANGE = 8;
-        private const byte BUILD_RANGE = 7;
+        private const byte REMOVE_RANGE = 13;
+        private const byte GENERATE_RANGE = 12;
+        private const byte LIGHT_RANGE = 11;
+        private const byte BUILD_RANGE = 10;
 
         public void Update(GameTime gameTime)
         {

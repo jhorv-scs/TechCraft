@@ -73,18 +73,18 @@ namespace NewTake.view
                                 chunk.Blocks[offset + y].Sun = 0;
                             }
 
-                            if (chunk.Blocks[offset + y].Type == BlockType.Tree)
+                            if (chunk.Blocks[offset + y].Type == BlockType.RedFlower)
+                            {
+                                chunk.Blocks[offset + y].R = 16;
+                                chunk.Blocks[offset + y].G = 0;
+                                chunk.Blocks[offset + y].B = 8;
+                            }
+                            else if (chunk.Blocks[offset + y].Type == BlockType.Tree)
                             {
                                 chunk.Blocks[offset + y].R = 0;
                                 chunk.Blocks[offset + y].G = 16;
                                 chunk.Blocks[offset + y].B = 0;
                             }
-                            //if (chunk.Blocks[offset + y].Type == BlockType.RedFlower)
-                            //{
-                            //    chunk.Blocks[offset + y].R = 16;
-                            //    chunk.Blocks[offset + y].G = 10;
-                            //    chunk.Blocks[offset + y].B = 5;
-                            //}
                             else
                             {
                                 chunk.Blocks[offset + y].R = 0;
@@ -103,6 +103,11 @@ namespace NewTake.view
         #endregion
 
         #region PropogateLight
+
+        private byte Attenuate(byte light)
+        {
+            return (byte)((light*9)/10);
+        }
         private void PropogateSunLight(Chunk chunk, byte x, byte y, byte z, byte light)
         {
             try
@@ -116,33 +121,20 @@ namespace NewTake.view
 
                 if (light > 1)
                 {
-                    light = (byte)(light - 1);
+                    light = Attenuate(light);
 
                     // Propogate light within this chunk
                     if (x > 0) PropogateSunLight(chunk, (byte)(x - 1), y, z, light);
-                    if (x < Chunk.MAX.X - 1) PropogateSunLight(chunk, (byte)(x + 1), y, z, light);
+                    if (x < Chunk.MAX.X) PropogateSunLight(chunk, (byte)(x + 1), y, z, light);
                     if (y > 0) PropogateSunLight(chunk, x, (byte)(y - 1), z, light);
-                    if (y < Chunk.MAX.Y - 1) PropogateSunLight(chunk, x, (byte)(y + 1), z, light);
+                    if (y < Chunk.MAX.Y) PropogateSunLight(chunk, x, (byte)(y + 1), z, light);
                     if (z > 0) PropogateSunLight(chunk, x, y, (byte)(z - 1), light);
-                    if (z < Chunk.MAX.Z - 1) PropogateSunLight(chunk, x, y, (byte)(z + 1), light);
+                    if (z < Chunk.MAX.Z) PropogateSunLight(chunk, x, y, (byte)(z + 1), light);
 
-                    if (chunk.E != null)
-                    {
-                        if (x == 0) PropogateSunLight(chunk.E, (byte)(Chunk.MAX.X - 1), y, z, light);
-                    }
-                    if (chunk.W != null)
-                    {
-                        if (x == Chunk.MAX.X - 1) PropogateSunLight(chunk.W, 0, y, z, light);
-                    }
-                    if (chunk.S != null)
-                    {
-                        // No need to worry about y neighbours for the time being
-                        if (z == 0) PropogateSunLight(chunk.S, x, y, (byte)(Chunk.MAX.Z - 1), light);
-                    }
-                    if (chunk.N != null)
-                    {
-                        if (z == Chunk.MAX.Z - 1) PropogateSunLight(chunk.N, x, y, 0, light);
-                    }
+                    if (chunk.E != null && x == 0) PropogateSunLight(chunk.E, (byte)(Chunk.MAX.X), y, z, light);
+                    if (chunk.W != null && (x == Chunk.MAX.X)) PropogateSunLight(chunk.W, 0, y, z, light);
+                    if (chunk.S != null && z == 0) PropogateSunLight(chunk.S, x, y, (byte)(Chunk.MAX.Z), light);
+                    if (chunk.N != null && (z == Chunk.MAX.Z)) PropogateSunLight(chunk.N, x, y, 0, light);
 
                 }
             }
@@ -163,7 +155,7 @@ namespace NewTake.view
 
                 if (lightR > 1)
                 {
-                    lightR = (byte)(lightR - 1);
+                    lightR = Attenuate(lightR);
 
                     if (x > 0) PropogateLightR(chunk, (byte)(x - 1), y, z, lightR);
                     if (x < Chunk.MAX.X) PropogateLightR(chunk, (byte)(x + 1), y, z, lightR);
@@ -171,6 +163,11 @@ namespace NewTake.view
                     if (y < Chunk.MAX.Y) PropogateLightR(chunk, x, (byte)(y + 1), z, lightR);
                     if (z > 0) PropogateLightR(chunk, x, y, (byte)(z - 1), lightR);
                     if (z < Chunk.MAX.Z) PropogateLightR(chunk, x, y, (byte)(z + 1), lightR);
+
+                    if (chunk.E != null && x == 0) PropogateLightR(chunk.E, (byte)(Chunk.MAX.X), y, z, lightR);
+                    if (chunk.W != null && (x == Chunk.MAX.X)) PropogateLightR(chunk.W, 0, y, z, lightR);
+                    if (chunk.S != null && z == 0) PropogateLightR(chunk.S, x, y, (byte)(Chunk.MAX.Z), lightR);
+                    if (chunk.N != null && (z == Chunk.MAX.Z)) PropogateLightR(chunk.N, x, y, 0, lightR);
                 }
             }
             catch (Exception)
@@ -190,7 +187,7 @@ namespace NewTake.view
 
                 if (lightG > 1)
                 {
-                    lightG = (byte)(lightG - 1);
+                    lightG = Attenuate(lightG);
                     if (x > 0) PropogateLightG(chunk, (byte)(x - 1), y, z, lightG);
                     if (x < Chunk.MAX.X) PropogateLightG(chunk, (byte)(x + 1), y, z, lightG);
                     if (y > 0) PropogateLightG(chunk, x, (byte)(y - 1), z, lightG);
@@ -216,7 +213,7 @@ namespace NewTake.view
 
                 if (lightB > 1)
                 {
-                    lightB = (byte)(lightB - 1);
+                    lightB = Attenuate(lightB);
 
                     if (x > 0) PropogateLightB(chunk, (byte)(x - 1), y, z, lightB);
                     if (x < Chunk.MAX.X) PropogateLightB(chunk, (byte)(x + 1), y, z, lightB);
@@ -258,7 +255,7 @@ namespace NewTake.view
                                 // Sunlight
                                 if (chunk.Blocks[offset + y].Sun > 1)
                                 {
-                                    byte light = (byte)((chunk.Blocks[offset + y].Sun / 10) * 9);
+                                    byte light = Attenuate(chunk.Blocks[offset + y].Sun);
 
                                     if (x > 0) PropogateSunLight(chunk, (byte)(x - 1), y, z, light);
                                     if (x < Chunk.MAX.X) PropogateSunLight(chunk, (byte)(x + 1), y, z, light);
@@ -289,13 +286,12 @@ namespace NewTake.view
                         int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
                         for (byte y = 0; y < Chunk.SIZE.Y; y++)
                         {
-                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
-                            //if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
+                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
                             {
                                 // Local light R
                                 if (chunk.Blocks[offset + y].R > 1)
                                 {
-                                    byte light = (byte)((chunk.Blocks[offset + y].R / 10) * 9);
+                                    byte light = Attenuate(chunk.Blocks[offset + y].R);
 
                                     if (x > 0) PropogateLightR(chunk, (byte)(x - 1), y, z, light);
                                     if (x < Chunk.MAX.X) PropogateLightR(chunk, (byte)(x + 1), y, z, light);
@@ -326,13 +322,12 @@ namespace NewTake.view
                         int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
                         for (byte y = 0; y < Chunk.SIZE.Y; y++)
                         {
-                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
-                            //if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
+                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
                             {
                                 // Local light G
                                 if (chunk.Blocks[offset + y].G > 1)
                                 {
-                                    byte light = (byte)((chunk.Blocks[offset + y].G / 10) * 9);
+                                    byte light = Attenuate(chunk.Blocks[offset + y].G);
                                     if (x > 0) PropogateLightG(chunk, (byte)(x - 1), y, z, light);
                                     if (x < Chunk.MAX.X) PropogateLightG(chunk, (byte)(x + 1), y, z, light);
                                     if (y > 0) PropogateLightG(chunk, x, (byte)(y - 1), z, light);
@@ -362,13 +357,12 @@ namespace NewTake.view
                         int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
                         for (byte y = 0; y < Chunk.SIZE.Y; y++)
                         {
-                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree)
-                            //if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
+                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
                             {
                                 // Local light B
                                 if (chunk.Blocks[offset + y].B > 1)
                                 {
-                                    byte light = (byte)((chunk.Blocks[offset + y].B / 10) * 9);
+                                    byte light = Attenuate(chunk.Blocks[offset + y].B);
                                     if (x > 0) PropogateLightB(chunk, (byte)(x - 1), y, z, light);
                                     if (x < Chunk.MAX.X) PropogateLightB(chunk, (byte)(x + 1), y, z, light);
                                     if (y > 0) PropogateLightB(chunk, x, (byte)(y - 1), z, light);
