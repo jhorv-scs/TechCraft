@@ -232,7 +232,7 @@ namespace NewTake.view.renderers
 
             BoundingFrustum viewFrustum = new BoundingFrustum(_camera.View * _camera.Projection);
 
-            _graphicsDevice.BlendState = BlendState.Opaque;
+            _graphicsDevice.BlendState = BlendState.NonPremultiplied;
             _graphicsDevice.DepthStencilState = DepthStencilState.Default;
 
             foreach (EffectPass pass in _waterBlockEffect.CurrentTechnique.Passes)
