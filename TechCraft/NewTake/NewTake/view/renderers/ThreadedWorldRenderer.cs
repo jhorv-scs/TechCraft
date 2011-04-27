@@ -42,6 +42,7 @@ namespace NewTake.view.renderers
         public const int FOGNEAR = 260;
 
         public Vector3 SUNCOLOR = Color.White.ToVector3();
+        private float _tod;
         private bool _running = true;
 
         public ThreadedWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world)
@@ -175,6 +176,9 @@ namespace NewTake.view.renderers
 
         private void DrawSolid(GameTime gameTime)
         {
+
+            _tod = _world.tod;
+
             _solidBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _solidBlockEffect.Parameters["View"].SetValue(_camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
@@ -183,8 +187,8 @@ namespace NewTake.view.renderers
             _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
-            _solidBlockEffect.Parameters["SunColor"].SetValue(Color.White.ToVector3());
-            _solidBlockEffect.Parameters["timeOfDay"].SetValue(12);
+            _solidBlockEffect.Parameters["SunColor"].SetValue(SUNCOLOR);
+            _solidBlockEffect.Parameters["timeOfDay"].SetValue(_tod);
 
             BoundingFrustum viewFrustum = new BoundingFrustum(_camera.View * _camera.Projection);
 
@@ -218,6 +222,8 @@ namespace NewTake.view.renderers
         {
             rippleTime += 0.1f;
 
+            _tod = _world.tod;
+
             _waterBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _waterBlockEffect.Parameters["View"].SetValue(_camera.View);
             _waterBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
@@ -226,8 +232,8 @@ namespace NewTake.view.renderers
             _waterBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _waterBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _waterBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
-            _waterBlockEffect.Parameters["SunColor"].SetValue(Color.White.ToVector3());
-            _waterBlockEffect.Parameters["timeOfDay"].SetValue(12);
+            _waterBlockEffect.Parameters["SunColor"].SetValue(SUNCOLOR);
+            _waterBlockEffect.Parameters["timeOfDay"].SetValue(_tod);
             _waterBlockEffect.Parameters["RippleTime"].SetValue(rippleTime);
 
             BoundingFrustum viewFrustum = new BoundingFrustum(_camera.View * _camera.Projection);

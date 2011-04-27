@@ -270,6 +270,43 @@ namespace NewTake
         }
         #endregion
 
+        #region UpdateTOD
+        public virtual Vector3 UpdateTOD(GameTime gameTime)
+        {
+            long div = 10000;
+
+            if (!world.RealTime)
+                world.tod += ((float)gameTime.ElapsedGameTime.Milliseconds / div);
+            else
+                world.tod = ((float)DateTime.Now.Hour) + ((float)DateTime.Now.Minute) / 60 + (((float)DateTime.Now.Second) / 60) / 60;
+
+            if (world.tod >= 24)
+                world.tod = 0;
+
+            // Calculate the position of the sun based on the time of day.
+            float x = 0;
+            float y = 0;
+            float z = 0;
+
+            if (world.tod <= 12)
+            {
+                y = world.tod / 12;
+                x = 12 - world.tod;
+            }
+            else
+            {
+                y = (24 - world.tod) / 12;
+                x = 12 - world.tod;
+            }
+
+            x /= 10;
+
+            world.SunPos = new Vector3(-x, y, z);
+
+            return world.SunPos;
+        }
+        #endregion
+
         #region Update
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -295,6 +332,7 @@ namespace NewTake
                 }
                 base.Update(gameTime);
             }
+            UpdateTOD(gameTime);
         }
         #endregion
 
@@ -305,7 +343,7 @@ namespace NewTake
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            //GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.Black);
             skyDomeRenderer.Draw(gameTime);
             renderer.Draw(gameTime);
             if (_diagnosticMode)
