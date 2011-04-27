@@ -38,19 +38,18 @@ namespace NewTake.model.terrain
 {
     class DualLayerTerrainWithMediumValleysForRivers : SimpleTerrain
     {
-        
+
         public override void Generate(Chunk chunk)
         {
             base.Generate(chunk);
             GenerateWaterSandLayer(chunk);
+            GenerateTreesFlowers(chunk);
             chunk.State = ChunkState.AwaitingBuild;
         }
 
         #region generateTerrain
         protected sealed override void generateTerrain(Chunk chunk, byte blockXInChunk, byte blockZInChunk, uint worldX, uint worldZ)
         {
-            //Debug.WriteLine(chunk);
-           
             float lowerGroundHeight = GetLowerGroundHeight(chunk, worldX, worldZ);
             int upperGroundHeight = GetUpperGroundHeight(chunk, worldX, worldZ, lowerGroundHeight);
 
@@ -58,7 +57,7 @@ namespace NewTake.model.terrain
 
             for (int y = Chunk.MAX.Y; y >= 0; y--)
             {
-                
+
                 // Everything above ground height...is air.
                 BlockType blockType;
                 if (y > upperGroundHeight)
@@ -88,14 +87,7 @@ namespace NewTake.model.terrain
                             }
                             else
                             {
-                                if (r.Next(100) == 1)
-                                {
-                                    base.BuildTree(chunk, blockXInChunk, (byte)y, blockZInChunk);
-                                }
-                                else
-                                {
-                                    blockType = BlockType.Grass;
-                                }
+                                blockType = BlockType.Grass;
                             }
                             sunlit = false;
                         }
@@ -127,19 +119,18 @@ namespace NewTake.model.terrain
                         sunlit = false;
                     }
                 }
-                chunk.setBlock( blockXInChunk, (byte)y,blockZInChunk,new Block(blockType));
+                chunk.setBlock(blockXInChunk, (byte)y, blockZInChunk, new Block(blockType));
             }
         }
 
-       
+
         #endregion
 
         #region GenerateWaterSandLayer
         private void GenerateWaterSandLayer(Chunk chunk)
         {
             BlockType blockType;
-            
-            bool sunlit = true;
+            //bool sunlit = true;
 
             for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
@@ -148,34 +139,59 @@ namespace NewTake.model.terrain
                     int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y;
                     for (byte y = WATERLEVEL + 9; y >= MINIMUMGROUNDHEIGHT; y--)
                     {
-                        //if (chunk.Blocks[x, y, z].Type == BlockType.None)
                         if (chunk.Blocks[offset + y].Type == BlockType.None)
                         {
                             blockType = BlockType.Water;
                         }
                         else
                         {
-                            //if (chunk.Blocks[x, y, z].Type == BlockType.Grass)
                             if (chunk.Blocks[offset + y].Type == BlockType.Grass)
                             {
                                 blockType = BlockType.Sand;
-                                if (y <= WATERLEVEL)
-                                {
-                                    sunlit = false;
-                                }
+                                //if (y <= WATERLEVEL)
+                                //{
+                                //    sunlit = false;
+                                //}
                             }
                             break;
                         }
-                      
-                        chunk.setBlock(x, y, z,new Block(blockType));
+
+                        chunk.setBlock(x, y, z, new Block(blockType));
                     }
 
                     for (byte y = WATERLEVEL + 11; y >= WATERLEVEL + 8; y--)
                     {
-                        //if ((chunk.Blocks[x, y, z].Type == BlockType.Dirt) || (chunk.Blocks[x, y, z].Type == BlockType.Grass))
                         if ((chunk.Blocks[offset + y].Type == BlockType.Dirt) || (chunk.Blocks[offset + y].Type == BlockType.Grass))
                         {
-                            chunk.setBlock(x, y, z,new Block(BlockType.Sand));
+                            chunk.setBlock(x, y, z, new Block(BlockType.Sand));
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region GenerateTreesFlowers
+        private void GenerateTreesFlowers(Chunk chunk)
+        {
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
+            {
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
+                {
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y;
+                    for (byte y = Chunk.MAX.Y; y >= WATERLEVEL + 9; y--)
+                    {
+                        if (chunk.Blocks[offset + y].Type == BlockType.Grass)
+                        {
+                            if (r.Next(700) == 1)
+                            {
+                                base.BuildTree(chunk, x, y, z);
+                            }
+                            else if (r.Next(50) == 1)
+                            {
+                                y++;
+                                chunk.setBlock(x, y, z, new Block(BlockType.RedFlower));
+                            }
                         }
                     }
                 }
