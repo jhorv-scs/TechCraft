@@ -151,28 +151,28 @@ namespace NewTake.model
                 chunk.setBlock(localX, localY, localZ, new Block(newType.Type));
              
                 //Chunk should be responsible for maintaining this
-                //chunk.dirty = true;
+                chunk.State = ChunkState.AwaitingRebuild;
 
                 // use Chunk accessors
                 if (localX == 0)
                 {
                     //viewableChunks[(x / Chunk.SIZE.X) - 1, z / Chunk.SIZE.Z].dirty = true;
-                    if (chunk.W != null) chunk.W.dirty = true;
+                    if (chunk.W != null) chunk.W.State = ChunkState.AwaitingRebuild;
                 }
                 if (localX == Chunk.MAX.X)
                 {
                     //viewableChunks[(x / Chunk.SIZE.X) + 1, z / Chunk.SIZE.Z].dirty = true;
-                    if (chunk.E != null) chunk.E.dirty = true;
+                    if (chunk.E != null) chunk.E.State = ChunkState.AwaitingRebuild;
                 }
                 if (localZ == 0)
                 {
                     //viewableChunks[x / Chunk.SIZE.X, (z / Chunk.SIZE.Z) - 1].dirty = true;
-                    if (chunk.N != null) chunk.N.dirty = true;
+                    if (chunk.N != null) chunk.N.State = ChunkState.AwaitingRebuild;
                 }
                 if (localZ == Chunk.MAX.Z)
                 {
                     //viewableChunks[x / Chunk.SIZE.X, (z / Chunk.SIZE.Z) + 1].dirty = true;
-                    if (chunk.S != null) chunk.S.dirty = true;
+                    if (chunk.S != null) chunk.S.State = ChunkState.AwaitingRebuild;
                 }
 
                 return old;
