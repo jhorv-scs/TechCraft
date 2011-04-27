@@ -1,8 +1,36 @@
-﻿using System;
+﻿#region License
+
+//  TechCraft - http://techcraft.codeplex.com
+//  This source code is offered under the Microsoft Public License (Ms-PL) which is outlined as follows:
+
+//  Microsoft Public License (Ms-PL)
+//  This license governs use of the accompanying software. If you use the software, you accept this license. If you do not accept the license, do not use the software.
+
+//  1. Definitions
+//  The terms "reproduce," "reproduction," "derivative works," and "distribution" have the same meaning here as under U.S. copyright law.
+//  A "contribution" is the original software, or any additions or changes to the software.
+//  A "contributor" is any person that distributes its contribution under this license.
+//  "Licensed patents" are a contributor's patent claims that read directly on its contribution.
+
+//  2. Grant of Rights
+//  (A) Copyright Grant- Subject to the terms of this license, including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free copyright license to reproduce its contribution, prepare derivative works of its contribution, and distribute its contribution or any derivative works that you create.
+//  (B) Patent Grant- Subject to the terms of this license, including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free license under its licensed patents to make, have made, use, sell, offer for sale, import, and/or otherwise dispose of its contribution in the software or derivative works of the contribution in the software.
+
+//  3. Conditions and Limitations
+//  (A) No Trademark License- This license does not grant you rights to use any contributors' name, logo, or trademarks.
+//  (B) If you bring a patent claim against any contributor over patents that you claim are infringed by the software, your patent license from such contributor to the software ends automatically.
+//  (C) If you distribute any portion of the software, you must retain all copyright, patent, trademark, and attribution notices that are present in the software.
+//  (D) If you distribute any portion of the software in source code form, you may do so only under this license by including a complete copy of this license with your distribution. If you distribute any portion of the software in compiled or object code form, you may only do so under a license that complies with this license.
+//  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
+#endregion
+
+#region Using Statements
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Diagnostics;
 
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
@@ -12,13 +40,14 @@ using Microsoft.Xna.Framework.Input;
 using NewTake.model;
 using NewTake.profiling;
 using NewTake.view.blocks;
-
-using System.Diagnostics;
+#endregion
 
 namespace NewTake.view.renderers
 {
     public class ThreadedWorldRenderer : IRenderer
     {
+
+        #region Fields
         protected Effect _solidBlockEffect;
         protected Effect _waterBlockEffect;
 
@@ -38,15 +67,22 @@ namespace NewTake.view.renderers
 
         private Vector3i _previousChunkIndex;
 
-        public const float FOGFAR = 290;
-        public const int FOGNEAR = 260;
+        public const int FOGNEAR = 300;
+        public const float FOGFAR = FOGNEAR*2;
 
-        public Vector3 SUNCOLOR = Color.White.ToVector3();
+        protected Vector4 NIGHTCOLOR = Color.Black.ToVector4();
+        public Vector4 SUNCOLOR = Color.White.ToVector4();
+        protected Vector4 HORIZONCOLOR = Color.White.ToVector4();
+
+        protected Vector4 EVENINGTINT = Color.Red.ToVector4();
+        protected Vector4 MORNINGTINT = Color.Gold.ToVector4();
+
         private float _tod;
         private bool _running = true;
 
         public bool dayMode = false;
         public bool nightMode = false;
+        #endregion
 
         public ThreadedWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world)
         {
@@ -55,6 +91,7 @@ namespace NewTake.view.renderers
             _world = world;
         }
 
+        #region Initialize
         public void Initialize()
         {
             _vertexBuildChunkProcessor = new VertexBuildChunkProcessor(_graphicsDevice);
@@ -72,6 +109,7 @@ namespace NewTake.view.renderers
             _workerThread.IsBackground = true;
             _workerThread.Start();
         }
+        #endregion
 
         public void LoadContent(ContentManager content)
         {
@@ -88,6 +126,7 @@ namespace NewTake.view.renderers
             }
         }
 
+        #region DoLighting
         private Chunk DoLighting(Vector3i chunkIndex) 
         {
             //Debug.WriteLine("DoLighting " + chunkIndex);
@@ -107,6 +146,7 @@ namespace NewTake.view.renderers
             }
             return chunk;
         }
+        #endregion
 
         public void QueueGenerate(Vector3i chunkIndex)
         {
@@ -116,6 +156,7 @@ namespace NewTake.view.renderers
             }
         }
 
+        #region DoInitialGenerate
         private Chunk DoInitialGenerate(Vector3i chunkIndex)
         {
             //Debug.WriteLine("DoGenerate " + chunkIndex);
@@ -129,7 +170,9 @@ namespace NewTake.view.renderers
             }
             return chunk;
         }
+        #endregion
 
+        #region DoGenerate
         private Chunk DoGenerate(Vector3i chunkIndex)
         {
             //Debug.WriteLine("DoGenerate " + chunkIndex);
@@ -148,6 +191,7 @@ namespace NewTake.view.renderers
             }
             return chunk;
         }
+        #endregion
 
         public void QueueBuild(Vector3i chunkIndex)
         {
@@ -157,6 +201,7 @@ namespace NewTake.view.renderers
             }
         }
 
+        #region DoBuild
         private Chunk DoBuild(Vector3i chunkIndex)
         {
             //Debug.WriteLine("DoBuild " + chunkIndex);
@@ -170,6 +215,7 @@ namespace NewTake.view.renderers
             }
             return chunk;
         }
+        #endregion
 
         public void Draw(GameTime gameTime)
         {
@@ -177,6 +223,7 @@ namespace NewTake.view.renderers
             DrawWater(gameTime);
         }
 
+        #region DrawSolid
         private void DrawSolid(GameTime gameTime)
         {
 
@@ -197,10 +244,17 @@ namespace NewTake.view.renderers
             _solidBlockEffect.Parameters["View"].SetValue(_camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
             _solidBlockEffect.Parameters["CameraPosition"].SetValue(_camera.Position);
-            _solidBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
+            //_solidBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
             _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
+
+            _solidBlockEffect.Parameters["HorizonColor"].SetValue(HORIZONCOLOR);
+            _solidBlockEffect.Parameters["NightColor"].SetValue(NIGHTCOLOR);
+
+            _solidBlockEffect.Parameters["MorningTint"].SetValue(MORNINGTINT);
+            _solidBlockEffect.Parameters["EveningTint"].SetValue(EVENINGTINT);
+
             _solidBlockEffect.Parameters["SunColor"].SetValue(SUNCOLOR);
             _solidBlockEffect.Parameters["timeOfDay"].SetValue(_tod);
 
@@ -230,7 +284,9 @@ namespace NewTake.view.renderers
                 }
             }
         }
+        #endregion
 
+        #region DrawWater
         float rippleTime = 0;
         private void DrawWater(GameTime gameTime)
         {
@@ -242,11 +298,18 @@ namespace NewTake.view.renderers
             _waterBlockEffect.Parameters["View"].SetValue(_camera.View);
             _waterBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
             _waterBlockEffect.Parameters["CameraPosition"].SetValue(_camera.Position);
-            _waterBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
+            //_waterBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
             _waterBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _waterBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _waterBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
             _waterBlockEffect.Parameters["SunColor"].SetValue(SUNCOLOR);
+
+            _waterBlockEffect.Parameters["HorizonColor"].SetValue(HORIZONCOLOR);
+            _waterBlockEffect.Parameters["NightColor"].SetValue(NIGHTCOLOR);
+
+            _waterBlockEffect.Parameters["MorningTint"].SetValue(MORNINGTINT);
+            _waterBlockEffect.Parameters["EveningTint"].SetValue(EVENINGTINT);
+
             _waterBlockEffect.Parameters["timeOfDay"].SetValue(_tod);
             _waterBlockEffect.Parameters["RippleTime"].SetValue(rippleTime);
 
@@ -276,12 +339,14 @@ namespace NewTake.view.renderers
                 }
             }
         }
+        #endregion
 
         private const byte REMOVE_RANGE = 16;
         private const byte GENERATE_RANGE = 15;
         private const byte LIGHT_RANGE = 14;
         private const byte BUILD_RANGE = 13;
 
+        #region Update
         public void Update(GameTime gameTime)
         {
             uint cameraX = (uint) (_camera.Position.X / Chunk.SIZE.X);
@@ -353,12 +418,14 @@ namespace NewTake.view.renderers
                 //}
             }
         }
+        #endregion
 
         public void Stop()
         {
             _running = false;
         }
 
+        #region WorkerThread
         private void WorkerThread()
         {
             Vector3i target = new Vector3i(0,0,0);
@@ -415,5 +482,7 @@ namespace NewTake.view.renderers
                 Thread.Sleep(10);
             }
         }
+        #endregion
+
     }
 }
