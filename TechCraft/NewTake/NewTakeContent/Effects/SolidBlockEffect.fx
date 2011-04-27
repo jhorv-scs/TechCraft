@@ -6,10 +6,16 @@ float3 CameraPosition;
 
 float FogNear = 250;
 float FogFar = 300;
-float4 FogColor = {0.5,0.5,0.5,1.0};
-float3 SunColor;
-
+//float4 FogColor;
+//float3 SunColor;
 float timeOfDay;
+
+float4 HorizonColor;
+float4 SunColor;		
+float4 NightColor;
+
+float4 MorningTint;		
+float4 EveningTint;	
 
 Texture Texture1;
 sampler Texture1Sampler = sampler_state
@@ -54,7 +60,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
     output.TexCoords1 = input.TexCoords1;
 
-	float3 sColor = SunColor;
+	float4 sColor = SunColor;
 
     if(timeOfDay <= 12)
 	{
@@ -86,7 +92,29 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
         clip(-1);
     }
 
-    return lerp(FogColor, color ,fog);
+	float4 topColor = SunColor;	 
+    float4 FogColor = HorizonColor;    
+    float4 nColor = NightColor;
+
+	nColor *= (4 - input.TexCoords1.y) * .125f;
+
+	if(timeOfDay <= 12)
+	{
+		FogColor *= timeOfDay / 12;	
+	}
+	else
+	{
+		FogColor *= (timeOfDay - 24) / -12;	
+	}
+
+	FogColor += (MorningTint * .05) * ((24 - timeOfDay)/24);
+	FogColor += (EveningTint * .05) * (timeOfDay / 24);	
+	topColor += nColor;
+	FogColor += nColor;
+
+    float4 outputFogColor = lerp(FogColor, topColor, saturate((input.TexCoords1.y)/0.9f));
+
+    return lerp(FogColor, color, fog);
 }
 
 technique BlockTechnique
