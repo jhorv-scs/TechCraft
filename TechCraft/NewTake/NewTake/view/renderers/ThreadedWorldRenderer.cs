@@ -20,6 +20,8 @@ namespace NewTake.view.renderers
     public class ThreadedWorldRenderer : IRenderer
     {
         protected Effect _solidBlockEffect;
+        protected Effect _waterBlockEffect;
+
         protected Texture2D _textureAtlas;
 
         private VertexBuildChunkProcessor _vertexBuildChunkProcessor;
@@ -70,7 +72,8 @@ namespace NewTake.view.renderers
         public void LoadContent(ContentManager content)
         {
             _textureAtlas = content.Load<Texture2D>("Textures\\blocks");
-            _solidBlockEffect = content.Load<Effect>("Effects\\LightingAOBlockEffect");
+            _solidBlockEffect = content.Load<Effect>("Effects\\SolidBlockEffect");
+            _waterBlockEffect = content.Load<Effect>("Effects\\WaterBlockEffect");
         }
 
         public void QueueLighting(Vector3i chunkIndex)
@@ -165,6 +168,12 @@ namespace NewTake.view.renderers
 
         public void Draw(GameTime gameTime)
         {
+            DrawSolid(gameTime);
+            DrawWater(gameTime);
+        }
+
+        private void DrawSolid(GameTime gameTime)
+        {
             _solidBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _solidBlockEffect.Parameters["View"].SetValue(_camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
@@ -187,7 +196,7 @@ namespace NewTake.view.renderers
 
                 foreach (Chunk chunk in _world.viewableChunks.Values)
                 {
-                    if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.VertexBuffer!=null)
+                    if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.IndexBuffer != null)
                     {
                         lock (chunk)
                         {
@@ -197,7 +206,51 @@ namespace NewTake.view.renderers
                                 _graphicsDevice.Indices = chunk.IndexBuffer;
                                 _graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, chunk.VertexBuffer.VertexCount, 0, chunk.IndexBuffer.IndexCount / 3);
                             }
-                        }                        
+                        }
+                    }
+                }
+            }
+        }
+
+        float rippleTime = 0;
+        private void DrawWater(GameTime gameTime)
+        {
+            rippleTime += 0.1f;
+
+            _waterBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
+            _waterBlockEffect.Parameters["View"].SetValue(_camera.View);
+            _waterBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
+            _waterBlockEffect.Parameters["CameraPosition"].SetValue(_camera.Position);
+            _waterBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
+            _waterBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
+            _waterBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
+            _waterBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
+            _waterBlockEffect.Parameters["SunColor"].SetValue(Color.White.ToVector3());
+            _waterBlockEffect.Parameters["timeOfDay"].SetValue(12);
+            _waterBlockEffect.Parameters["RippleTime"].SetValue(rippleTime);
+
+            BoundingFrustum viewFrustum = new BoundingFrustum(_camera.View * _camera.Projection);
+
+            _graphicsDevice.BlendState = BlendState.Opaque;
+            _graphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+            foreach (EffectPass pass in _waterBlockEffect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+
+                foreach (Chunk chunk in _world.viewableChunks.Values)
+                {
+                    if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.waterVertexBuffer != null)
+                    {
+                        lock (chunk)
+                        {
+                            if (chunk.waterIndexBuffer.IndexCount > 0)
+                            {
+                                _graphicsDevice.SetVertexBuffer(chunk.waterVertexBuffer);
+                                _graphicsDevice.Indices = chunk.waterIndexBuffer;
+                                _graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, chunk.waterVertexBuffer.VertexCount, 0, chunk.waterIndexBuffer.IndexCount / 3);
+                            }
+                        }
                     }
                 }
             }

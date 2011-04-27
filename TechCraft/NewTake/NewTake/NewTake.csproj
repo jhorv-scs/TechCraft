@@ -176,7 +176,6 @@
     <Compile Include="view\renderers\deprecated\WorldRenderer.cs" />
     <Compile Include="view\blocks\VertexPositionTextureShade.cs" />
     <Compile Include="model\types\Vector3i.cs" />
-    <Compile Include="view\renderers\WaterRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

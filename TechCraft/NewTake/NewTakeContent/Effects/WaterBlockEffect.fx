@@ -2,19 +2,19 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 
-float4 AmbientColor;
-float AmbientIntensity;
-
 float3 CameraPosition;
-float RippleTime = 0;
+
 float FogNear = 250;
 float FogFar = 300;
 float4 FogColor = {0.5,0.5,0.5,1.0};
+float3 SunColor;
+float RippleTime = 0;
+float timeOfDay;
 
-Texture BlockTexture;
-sampler BlockTextureSampler = sampler_state
+Texture Texture1;
+sampler Texture1Sampler = sampler_state
 {
-	texture = <BlockTexture>;
+	texture = <Texture1>;
 	magfilter = POINT;
 	minfilter = POINT;
 	mipfilter = POINT;
@@ -25,17 +25,18 @@ sampler BlockTextureSampler = sampler_state
 struct VertexShaderInput
 {
     float4 Position : POSITION0;	
-	float2 TexCoords : TEXCOORD0;
-	float Shade : TEXCOORD1;
+	float2 TexCoords1 : TEXCOORD0;
+	float SunLight : COLOR0;
+    float3 LocalLight : COLOR1;
 };
 
 struct VertexShaderOutput
 {
     float4 Position : POSITION0;
-    float2 TexCoords : TEXCOORD0;
+    float2 TexCoords1 : TEXCOORD0;
     float3 CameraView : TEXCOORD1;
-    float Shade : TEXCOORD2;
-    float Distance : TEXCOORD3;
+    float Distance : TEXCOORD2;
+	float4 Color : COLOR0;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -46,30 +47,49 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     float4 viewPosition = mul(worldPosition, View);
     output.Position = mul(viewPosition, Projection);
 
-	output.Position.y += (0.2f * sin(RippleTime + (input.Position.x * input.Position.z)))-0.2f;
-	
-    output.Shade = input.Shade;
     output.CameraView = normalize(CameraPosition - worldPosition);
     output.Distance = length(CameraPosition - worldPosition);
-    output.TexCoords = input.TexCoords;
+
+	output.Position.y += (0.2f * sin(RippleTime + input.Position.x + (input.Position.z*2) ))-0.2f;
+	
+    output.TexCoords1 = input.TexCoords1;
+
+	float3 sColor = SunColor;
+
+    if(timeOfDay <= 12)
+	{
+		sColor *= timeOfDay / 12;	
+	}
+	else
+	{
+		sColor *= (timeOfDay - 24) / -12;	
+	}
+
+	output.Color.rgb = (sColor * input.SunLight) + (input.LocalLight.rgb);
+	output.Color.a = 1;
 
     return output;
 }
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-    float4 texColor = tex2D(BlockTextureSampler, input.TexCoords);
+    float4 texColor1 = tex2D(Texture1Sampler, input.TexCoords1);
 
-	float4 ambient = AmbientIntensity * AmbientColor;	    
     float fog = saturate((input.Distance - FogNear) / (FogNear-FogFar));    
-    float4 color =  texColor * input.Shade * ambient;
-    
-    float4 result = lerp(FogColor, color ,fog);
-    result.a = 0.8;
-    return result;
+
+    float4 color;
+	color.rgb  = texColor1.rgb * input.Color.rgb;
+	color.a = texColor1.a;
+
+    if(color.a == 0)
+    {
+        clip(-1);
+    }
+
+    return lerp(FogColor, color ,fog);
 }
 
-technique WaterBlockTechnique
+technique BlockTechnique
 {
     pass Pass1
     {
