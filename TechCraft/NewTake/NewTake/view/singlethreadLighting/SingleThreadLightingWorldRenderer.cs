@@ -230,8 +230,8 @@ namespace NewTake.view
           
             if (currentChunk == null) return; // should not happen when this code will be finished
 
-            if (currentChunk.Index != previousChunkIndex )
-            {
+          //  if (currentChunk.Index != previousChunkIndex )
+           // {
                 Cardinal direction = camera.FacingCardinal();
 
                 previousChunkIndex = currentChunk.Index;
@@ -255,7 +255,7 @@ namespace NewTake.view
                         Process(adjacentChunk, direction);                       
                     }
                 }
-            }
+            //}
         }
 
 
@@ -273,9 +273,10 @@ namespace NewTake.view
             SignedVector3i addDelta = Cardinals.VectorFrom(direction) * (World.VIEW_DISTANCE_NEAR_X );
             SignedVector3i removeDelta = Cardinals.OppositeVectorFrom(direction) * (World.VIEW_DISTANCE_NEAR_X );
 
-            Chunk currentChunk = fromChunk;
-
             chunkIndexAdd = fromChunk.Index.add(addDelta);
+            
+            if (world.viewableChunks[chunkIndexAdd.X,chunkIndexAdd.Z]!=null) return;
+            
             chunkIndexRemove = fromChunk.Index.add(removeDelta);
             Debug.WriteLine("Process  {0} Add at {1}, remove at {2}",direction, chunkIndexAdd, chunkIndexRemove);
             
