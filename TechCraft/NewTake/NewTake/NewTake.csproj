@@ -147,7 +147,6 @@
     <Compile Include="view\Camera.cs" />
     <Compile Include="view\HudRenderer.cs" />
     <Compile Include="controllers\PlayerPhysics.cs" />
-    <Compile Include="view\multithreadLighting\MultiThreadLightingWorldRenderer.cs" />
     <Compile Include="view\PlayerRenderer.cs" />
     <Compile Include="view\FirstPersonCamera.cs" />
     <Compile Include="Tests.cs" />
@@ -168,10 +167,12 @@
     <Compile Include="view\processors\IChunkProcessor.cs" />
     <Compile Include="view\processors\LightingChunkProcessor.cs" />
     <Compile Include="view\processors\VertexBuildChunkProcessor.cs" />
+    <Compile Include="view\renderers\deprecated\multithreadLighting\MultiThreadLightingWorldRenderer.cs" />
+    <Compile Include="view\renderers\deprecated\singlethreadLighting\SingleThreadLightingWorldRenderer.cs" />
+    <Compile Include="view\renderers\DiagnosticWorldRenderer.cs" />
     <Compile Include="view\renderers\IRenderer.cs" />
     <Compile Include="view\renderers\ThreadedWorldRenderer.cs" />
-    <Compile Include="view\singlethreadLighting\SingleThreadLightingWorldRenderer.cs" />
-    <Compile Include="view\WorldRenderer.cs" />
+    <Compile Include="view\renderers\deprecated\WorldRenderer.cs" />
     <Compile Include="view\blocks\VertexPositionTextureShade.cs" />
     <Compile Include="model\types\Vector3i.cs" />
   </ItemGroup>
@@ -212,7 +213,6 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

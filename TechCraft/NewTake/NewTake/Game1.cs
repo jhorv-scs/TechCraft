@@ -73,6 +73,8 @@ namespace NewTake
         private Player player1; //wont add a player2 for some time, but naming like this helps designing  
         private PlayerRenderer player1Renderer;
 
+        private DiagnosticWorldRenderer diagnosticWorldRenderer;
+
         #endregion
 
         public Game1()
@@ -121,9 +123,11 @@ namespace NewTake
             //renderer = new MultiThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
 
             renderer = new ThreadedWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            diagnosticWorldRenderer = new DiagnosticWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            renderer.Initialize();
+            diagnosticWorldRenderer.Initialize();
             #endregion
 
-            renderer.Initialize();
             //TODO refactor WorldRenderer needs player position + view frustum 
 
             base.Initialize();
@@ -278,6 +282,7 @@ namespace NewTake
                 }
 
                 renderer.Update(gameTime);
+                diagnosticWorldRenderer.Update(gameTime);
                 base.Update(gameTime);
             }
         }
@@ -292,6 +297,7 @@ namespace NewTake
         {
             //GraphicsDevice.Clear(Color.Black);
             renderer.Draw(gameTime);
+            diagnosticWorldRenderer.Draw(gameTime);
             player1Renderer.Draw(gameTime);
             hud.Draw(gameTime);
             base.Draw(gameTime);
