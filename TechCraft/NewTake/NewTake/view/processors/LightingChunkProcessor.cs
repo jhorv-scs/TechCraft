@@ -152,7 +152,7 @@ namespace NewTake.view
                 if (chunk.Blocks[offset].Type != BlockType.None) return;
                 if (chunk.Blocks[offset].R >= lightR) return;
                 chunk.Blocks[offset].R = lightR;
-
+                if (chunk.State > ChunkState.Lighting) chunk.State = ChunkState.AwaitingRebuild;
                 if (lightR > 1)
                 {
                     lightR = Attenuate(lightR);
@@ -194,6 +194,11 @@ namespace NewTake.view
                     if (y < Chunk.MAX.Y) PropogateLightG(chunk, x, (byte)(y + 1), z, lightG);
                     if (z > 0) PropogateLightG(chunk, x, y, (byte)(z - 1), lightG);
                     if (z < Chunk.MAX.Z) PropogateLightG(chunk, x, y, (byte)(z + 1), lightG);
+
+                    if (chunk.E != null && x == 0) PropogateLightG(chunk.E, (byte)(Chunk.MAX.X), y, z, lightG);
+                    if (chunk.W != null && (x == Chunk.MAX.X)) PropogateLightG(chunk.W, 0, y, z, lightG);
+                    if (chunk.S != null && z == 0) PropogateLightG(chunk.S, x, y, (byte)(Chunk.MAX.Z), lightG);
+                    if (chunk.N != null && (z == Chunk.MAX.Z)) PropogateLightG(chunk.N, x, y, 0, lightG);
                 }
             }
             catch (Exception)
@@ -221,6 +226,11 @@ namespace NewTake.view
                     if (y < Chunk.MAX.Y) PropogateLightB(chunk, x, (byte)(y + 1), z, lightB);
                     if (z > 0) PropogateLightB(chunk, x, y, (byte)(z - 1), lightB);
                     if (z < Chunk.MAX.Z) PropogateLightB(chunk, x, y, (byte)(z + 1), lightB);
+
+                    if (chunk.E != null && x == 0) PropogateLightB(chunk.E, (byte)(Chunk.MAX.X), y, z, lightB);
+                    if (chunk.W != null && (x == Chunk.MAX.X)) PropogateLightB(chunk.W, 0, y, z, lightB);
+                    if (chunk.S != null && z == 0) PropogateLightB(chunk.S, x, y, (byte)(Chunk.MAX.Z), lightB);
+                    if (chunk.N != null && (z == Chunk.MAX.Z)) PropogateLightB(chunk.N, x, y, 0, lightB);
                 }
             }
             catch (Exception)

@@ -211,23 +211,23 @@ namespace NewTake.model
 
             if (x != relx && x == 0)
                 if (z != relz && z == 0)
-                    nChunk = SE;
-                else if (z != relz && z == 15)
-                    nChunk = NE;
-                else
-                    nChunk = E;
-            else if (x != relx && x == 15)
-                if (z != relz && z == 0)
-                    nChunk = SW;
-                else if (z != relz && z == 15)
                     nChunk = NW;
+                else if (z != relz && z == 15)
+                    nChunk = SW;
                 else
                     nChunk = W;
+            else if (x != relx && x == 15)
+                if (z != relz && z == 0)
+                    nChunk = NE;
+                else if (z != relz && z == 15)
+                    nChunk = SE;
+                else
+                    nChunk = E;
             else
                 if (z != relz && z == 0)
-                    nChunk = S;
-                else if (z != relz && z == 15)
                     nChunk = N;
+                else if (z != relz && z == 15)
+                    nChunk = S;
 
             if (nChunk == null)
             {
@@ -250,7 +250,7 @@ namespace NewTake.model
         {
             get
             {
-                if (_N == null) _N = world.viewableChunks[Index.X, Index.Z - 1];
+                if (_N == null) _N = world.viewableChunks[Index.X, Index.Z + 1];
                 if (_N != null) _N._S = this;
                 return _N;
             }
@@ -259,7 +259,7 @@ namespace NewTake.model
         {
             get
             {
-                if (_S == null) _S = world.viewableChunks[Index.X, Index.Z + 1];
+                if (_S == null) _S = world.viewableChunks[Index.X, Index.Z - 1];
                 if (_S != null) _S._N = this;
                 return _S;
             }
@@ -268,7 +268,7 @@ namespace NewTake.model
         {
             get
             {
-                if (_E == null) _E = world.viewableChunks[Index.X + 1, Index.Z];
+                if (_E == null) _E = world.viewableChunks[Index.X - 1, Index.Z];
                 if (_E != null) _E._W = this;
                 return _E;
             }
@@ -278,16 +278,16 @@ namespace NewTake.model
         {
             get
             {
-                if (_W == null) _W = world.viewableChunks[Index.X - 1, Index.Z];
+                if (_W == null) _W = world.viewableChunks[Index.X + 1, Index.Z];
                 if (_W != null) _W._E = this;
                 return _W;
             }
         }
 
-        public Chunk NW { get { return _NW != null ? _NW : _NW = world.viewableChunks[Index.X - 1, Index.Z - 1]; } }
-        public Chunk NE { get { return _NE != null ? _NE : _NE = world.viewableChunks[Index.X + 1, Index.Z - 1]; } }
-        public Chunk SW { get { return _SW != null ? _SW : _SW = world.viewableChunks[Index.X - 1, Index.Z + 1]; } }
-        public Chunk SE { get { return _SE != null ? _SE : _SE = world.viewableChunks[Index.X + 1, Index.Z + 1]; } }
+        public Chunk NW { get { return _NW != null ? _NW : _NW = world.viewableChunks[Index.X + 1, Index.Z + 1]; } }
+        public Chunk NE { get { return _NE != null ? _NE : _NE = world.viewableChunks[Index.X - 1, Index.Z + 1]; } }
+        public Chunk SW { get { return _SW != null ? _SW : _SW = world.viewableChunks[Index.X + 1, Index.Z - 1]; } }
+        public Chunk SE { get { return _SE != null ? _SE : _SE = world.viewableChunks[Index.X - 1, Index.Z - 1]; } }
 
         public Chunk GetNeighbour(Cardinal c)
         {

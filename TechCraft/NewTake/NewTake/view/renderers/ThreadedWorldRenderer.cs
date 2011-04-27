@@ -91,7 +91,7 @@ namespace NewTake.view.renderers
                 _lightingChunkProcessor.ProcessChunk(chunk);
                 chunk.State = ChunkState.AwaitingBuild;
             }
-            if (chunk.State == ChunkState.AwaitingRebuild)
+            if (chunk.State == ChunkState.AwaitingRelighting)
             {
                 chunk.State = ChunkState.Lighting;
                 _lightingChunkProcessor.ProcessChunk(chunk);
@@ -154,7 +154,7 @@ namespace NewTake.view.renderers
         {
             //Debug.WriteLine("DoBuild " + chunkIndex);
             Chunk chunk = _world.viewableChunks[chunkIndex.X, chunkIndex.Z];
-            if (chunk.State == ChunkState.AwaitingBuild)
+            if (chunk.State == ChunkState.AwaitingBuild || chunk.State == ChunkState.AwaitingRebuild)
             {
                 chunk.State = ChunkState.Building;
                 _vertexBuildChunkProcessor.ProcessChunk(chunk);
@@ -267,9 +267,13 @@ namespace NewTake.view.renderers
                             continue;
                         }
                         Chunk rebuildChunk = _world.viewableChunks[ix, iz];
-                        if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRebuild)
+                        if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRelighting)
                         {
                             QueueLighting(chunkIndex);
+                        }
+                        if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRebuild)
+                        {
+                            QueueBuild(chunkIndex);
                         }
                     }
                 //}
