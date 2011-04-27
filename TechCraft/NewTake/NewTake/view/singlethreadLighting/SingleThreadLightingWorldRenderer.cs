@@ -52,6 +52,7 @@ namespace NewTake.view
 
         private VertexBuildChunkProcessor _vertexBuildChunkProcessor;
         private LightingChunkProcessor _lightingChunkProcessor;
+        private Cardinal previousDirection = Cardinal.N;
 
         #endregion
 
@@ -116,6 +117,24 @@ namespace NewTake.view
             chunk.State = ChunkState.AwaitingBuild;
             return chunk;
         }
+
+        public Chunk ReGenerate(Chunk chunk)
+        {
+            //TODO loading when regen 
+            //Chunk chunk = world.viewableChunks.load(index);
+
+            // Generate the chunk with the current generator
+
+            world.Generator.Generate(chunk);
+            // Clear down the chunk lighting 
+            _lightingChunkProcessor.InitChunk(chunk);
+
+
+            //chunk.generated = true;
+            chunk.State = ChunkState.AwaitingBuild;
+            return chunk;
+        }
+
         #endregion
 
         #region DoBuild
@@ -133,6 +152,7 @@ namespace NewTake.view
         #region Draw
         public override void Draw(GameTime gameTime)
         {
+
             BoundingFrustum viewFrustum = new BoundingFrustum(camera.View * camera.Projection);
             if (cloudsEnabled)
             {
@@ -205,54 +225,75 @@ namespace NewTake.view
         #region Update
         public override void Update(GameTime gameTime)
         {
-            Chunk currentChunk = world.ChunkAt(camera.Position);
 
+            Chunk currentChunk = world.ChunkAt(camera.Position);
+          
             if (currentChunk == null) return; // should not happen when this code will be finished
 
-            if (currentChunk.Index != previousChunkIndex)
+            if (currentChunk.Index != previousChunkIndex )
             {
-                previousChunkIndex = currentChunk.Index;
-
                 Cardinal direction = camera.FacingCardinal();
 
-                if (direction == Cardinal.N)
-                {
-                    Process(currentChunk, direction, 0);
-                    Process(currentChunk.E, direction, 0);
-                    Process(currentChunk.W, direction, 0);
-                }
-            }
+                previousChunkIndex = currentChunk.Index;
+                previousDirection = direction;
+                
+                Process(currentChunk, direction);
 
-            base.UpdateTOD(gameTime);
+                Cardinal[] adjacents = Cardinals.Adjacents(direction);
+
+                Chunk adjacentChunk;
+                
+                //process the adjacent chunks, for example when going north, first process west chunks and then east chunks 
+                foreach (Cardinal adj in adjacents)
+                {
+                    adjacentChunk = currentChunk;
+
+                    while (adjacentChunk.GetNeighbour(adj) != null)
+                    {
+                        adjacentChunk = adjacentChunk.GetNeighbour(adj);
+                        //Debug.WriteLine("current[ {0}],adj {1} : {2}",currentChunk, adj, adjacentChunk);
+                        Process(adjacentChunk, direction);                       
+                    }
+                }
+                    
+                
+            }
         }
+
+
         #endregion
 
         #region Process
-        private void Process(Chunk fromChunk, Cardinal direction, int recursion)
+        private void Process(Chunk fromChunk, Cardinal direction)
         {
-            if (fromChunk == null || recursion == 2) return;
+
+            if (fromChunk == null ) return;
 
             Vector3i chunkIndexAdd;
             Vector3i chunkIndexRemove;
 
-            SignedVector3i addDelta = Cardinals.VectorFrom(direction) * (World.VIEW_CHUNKS_X + 1);
+            SignedVector3i addDelta = Cardinals.VectorFrom(direction) * (World.VIEW_DISTANCE_NEAR_X );
+            SignedVector3i removeDelta = Cardinals.OppositeVectorFrom(direction) * (World.VIEW_DISTANCE_NEAR_X );
+
+            Chunk currentChunk = fromChunk;
+
             chunkIndexAdd = fromChunk.Index.add(addDelta);
-
-            SignedVector3i removeDelta = Cardinals.OppositeVectorFrom(direction) * (World.VIEW_CHUNKS_X + 1);
             chunkIndexRemove = fromChunk.Index.add(removeDelta);
-
-            Chunk toRemove = world.viewableChunks[chunkIndexRemove.X, chunkIndexRemove.Z];
-
+            Debug.WriteLine("Process fromChunk {0} direction {1} Add at {2}, remove at {3}",fromChunk,direction, chunkIndexAdd, chunkIndexRemove);
+            Chunk toRegen = world.viewableChunks[chunkIndexRemove.X, chunkIndexRemove.Z];
+            //if (toRemove==null) return;
+            
             // Instead of removing, Re assign new chunk to opposite chunk 
-            toRemove.Assign(chunkIndexAdd);
+            toRegen.Assign(chunkIndexAdd);
 
             // Generate & Build new chunk
-            Debug.WriteLine("Process Add at index {0}, direction {1}, recursion {2}", chunkIndexAdd, direction, recursion);
+            
             world.viewableChunks.Remove(chunkIndexRemove.X, chunkIndexRemove.Z);//null safe
 
-            Chunk addedChunk = DoGenerate(chunkIndexAdd);
+            Chunk addedChunk = ReGenerate(toRegen);
             DoBuild(addedChunk);
 
+            
         }
         #endregion
 

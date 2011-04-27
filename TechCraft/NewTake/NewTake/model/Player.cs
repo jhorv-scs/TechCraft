@@ -55,6 +55,10 @@ namespace NewTake.model
 
         public Tool LeftTool;
         public Tool RightTool;
+
+        public Tool AutoTool;
+
+
         //keep it stupid simple for now, left hand/mousebutton & right hand/mousebutton
         #endregion
 
