@@ -171,6 +171,7 @@
     <Compile Include="view\renderers\deprecated\singlethreadLighting\SingleThreadLightingWorldRenderer.cs" />
     <Compile Include="view\renderers\DiagnosticWorldRenderer.cs" />
     <Compile Include="view\renderers\IRenderer.cs" />
+    <Compile Include="view\renderers\SkyDomeRenderer.cs" />
     <Compile Include="view\renderers\ThreadedWorldRenderer.cs" />
     <Compile Include="view\renderers\deprecated\WorldRenderer.cs" />
     <Compile Include="view\blocks\VertexPositionTextureShade.cs" />
