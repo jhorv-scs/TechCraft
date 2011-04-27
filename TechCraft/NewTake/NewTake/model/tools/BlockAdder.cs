@@ -33,14 +33,34 @@ namespace NewTake.model.tools
 {
     public class BlockAdder : Tool
     {
+        private BlockType blockType = BlockType.Dirt;
+
         public BlockAdder(Player player) : base(player) { }
 
         public override void Use()
         {
             if (player.currentSelectedAdjacent.HasValue)
             {
-                player.world.setBlock(player.currentSelectedAdjacent.Value.position, new Block(BlockType.RedFlower));
+                player.world.setBlock(player.currentSelectedAdjacent.Value.position, new Block(blockType));
             }
+        }
+
+        public override void switchType(int delta)
+        {
+
+            if (delta >= 120)
+            {
+                blockType++;
+                if (blockType == BlockType.MAXIMUM) blockType = BlockType.MAXIMUM - 1;
+
+            }
+            else if (delta <= -120)
+            {
+                blockType--;
+                if (blockType == BlockType.None) blockType = (BlockType)1;                
+            }
+
+
         }
     }
 }
