@@ -42,5 +42,7 @@ namespace NewTake.model
 
         public abstract void Use();
 
+        public abstract void switchType(int delta );
+
     }
 }

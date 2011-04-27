@@ -45,5 +45,7 @@ namespace NewTake.model.tools
         
         }
 
+        public override void switchType(int delta) { }
+
     }
 }

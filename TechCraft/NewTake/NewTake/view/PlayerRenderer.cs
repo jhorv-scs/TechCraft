@@ -215,9 +215,9 @@ namespace NewTake.view
             cameraController.Update(gameTime);
 
             camera.Update(gameTime);
-            
+
             //Do not change methods order, its not very clean but works fine
-            if (! freeCam)
+            if (!freeCam)
                 physics.move(gameTime);
 
             //do not do this each tick
@@ -237,22 +237,31 @@ namespace NewTake.view
 
             MouseState mouseState = Mouse.GetState();
 
+            int scrollWheelDelta = previousMouseState.ScrollWheelValue - mouseState.ScrollWheelValue;
 
             if (mouseState.RightButton == ButtonState.Pressed
              && previousMouseState.RightButton != ButtonState.Pressed)
             {
-                player.RightTool.Use();
+                player.RightTool.Use();                
             }
-
+            
             if (mouseState.LeftButton == ButtonState.Pressed
              && previousMouseState.LeftButton != ButtonState.Pressed)
             {
-                player.LeftTool.Use();
+                player.LeftTool.Use();                
             }
+
+            player.RightTool.switchType(scrollWheelDelta);
+            player.LeftTool.switchType(scrollWheelDelta);
+
+
+
 
             previousMouseState = Mouse.GetState();
         }
         #endregion
+
+        
 
         #region Draw
         public void Draw(GameTime gameTime)
