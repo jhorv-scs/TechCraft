@@ -263,10 +263,10 @@ namespace NewTake.view.renderers
             }
         }
 
-        private const byte REMOVE_RANGE = 13;
-        private const byte GENERATE_RANGE = 12;
-        private const byte LIGHT_RANGE = 11;
-        private const byte BUILD_RANGE = 10;
+        private const byte REMOVE_RANGE = 16;
+        private const byte GENERATE_RANGE = 15;
+        private const byte LIGHT_RANGE = 14;
+        private const byte BUILD_RANGE = 13;
 
         public void Update(GameTime gameTime)
         {

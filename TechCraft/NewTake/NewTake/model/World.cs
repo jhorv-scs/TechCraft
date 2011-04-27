@@ -51,7 +51,8 @@ namespace NewTake.model
         public const byte VIEW_CHUNKS_X = 8;
         public const byte VIEW_CHUNKS_Y = 1;
         public const byte VIEW_CHUNKS_Z = 8;
-        public static int SEED = 12345;
+
+        public static int SEED = 54321;
 
         public const byte VIEW_DISTANCE_NEAR_X = VIEW_CHUNKS_X * 2;
         public const byte VIEW_DISTANCE_NEAR_Z = VIEW_CHUNKS_Z * 2;

@@ -55,6 +55,8 @@ namespace NewTake.view
         {
             try
             {
+                byte sunValue = MAX_SUN_VALUE;
+
                 for (byte x = 0; x < Chunk.SIZE.X; x++)
                 {
                     for (byte z = 0; z < Chunk.SIZE.Z; z++)
@@ -66,7 +68,7 @@ namespace NewTake.view
                             if (chunk.Blocks[offset + y].Type != BlockType.None) inShade = true;
                             if (!inShade)
                             {
-                                chunk.Blocks[offset + y].Sun = MAX_SUN_VALUE;
+                                chunk.Blocks[offset + y].Sun = sunValue;
                             }
                             else
                             {
@@ -115,7 +117,7 @@ namespace NewTake.view
                 //if (!dirty) dirty = true;
 
                 int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y + y;
-                if (chunk.Blocks[offset].Type != BlockType.None) return;
+                if (chunk.Blocks[offset].Type != BlockType.None && chunk.Blocks[offset].Type != BlockType.Water) return;
                 if (chunk.Blocks[offset].Sun >= light) return;
                 chunk.Blocks[offset].Sun = light;
 
@@ -149,7 +151,7 @@ namespace NewTake.view
             try
             {
                 int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y + y;
-                if (chunk.Blocks[offset].Type != BlockType.None) return;
+                if (chunk.Blocks[offset].Type != BlockType.None && chunk.Blocks[offset].Type != BlockType.Water) return;
                 if (chunk.Blocks[offset].R >= lightR) return;
                 chunk.Blocks[offset].R = lightR;
                 if (chunk.State > ChunkState.Lighting) chunk.State = ChunkState.AwaitingRebuild;
@@ -181,7 +183,7 @@ namespace NewTake.view
             try
             {
                 int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y + y;
-                if (chunk.Blocks[offset].Type != BlockType.None) return;
+                if (chunk.Blocks[offset].Type != BlockType.None && chunk.Blocks[offset].Type != BlockType.Water) return;
                 if (chunk.Blocks[offset].G >= lightG) return;
                 chunk.Blocks[offset].G = lightG;
 
@@ -212,7 +214,7 @@ namespace NewTake.view
             try
             {
                 int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y + y;
-                if (chunk.Blocks[offset].Type != BlockType.None) return;
+                if (chunk.Blocks[offset].Type != BlockType.None && chunk.Blocks[offset].Type != BlockType.Water) return;
                 if (chunk.Blocks[offset].B >= lightB) return;
                 chunk.Blocks[offset].B = lightB;
 
