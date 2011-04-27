@@ -64,7 +64,7 @@ namespace NewTake.view.renderers
         protected Vector4 EVENINGTINT = Color.Red.ToVector4();
         protected Vector4 MORNINGTINT = Color.Gold.ToVector4();
 
-        protected float CLOUDOVERCAST = 0.8f;
+        protected float CLOUDOVERCAST = 1.0f;
 
         protected const bool cloudsEnabled = true;
 
