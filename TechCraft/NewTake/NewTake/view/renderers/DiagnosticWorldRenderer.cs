@@ -66,7 +66,7 @@ namespace NewTake.view.renderers
                         case ChunkState.Building    :
                             Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.LightGreen);
                             break;
-                        case ChunkState.AwaitingRebuild:
+                        case ChunkState.AwaitingRelighting:
                             Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Black);
                             break;
                     }
