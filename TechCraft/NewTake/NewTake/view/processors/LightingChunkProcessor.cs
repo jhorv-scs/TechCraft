@@ -45,12 +45,8 @@ namespace NewTake.view
     {
         private const int MAX_SUN_VALUE = 16;
 
-        public void InitChunk(Chunk chunk)
-        {
-            ClearLighting(chunk);
-        }
-
         public void ProcessChunk(Chunk chunk) {
+            ClearLighting(chunk);
             FillLighting(chunk);
         }
 

@@ -124,7 +124,7 @@ namespace NewTake.view
             var generatingWatch = new Stopwatch();
             generatingWatch.Start();
             Debug.Write("Generating initial chunks.. ");
-            world.visitChunks(DoGenerate);
+            world.visitChunks(DoGenerate,World.VIEW_DISTANCE_FAR_X);
             generatingWatch.Stop();
             Debug.WriteLine(generatingWatch.Elapsed);
             #endregion
@@ -134,7 +134,7 @@ namespace NewTake.view
             var buildWatch = new Stopwatch();
             buildWatch.Start();
             Debug.Write("Building initial chunks.. ");
-            world.visitChunks(DoBuild);
+            world.visitChunks(DoBuild, World.VIEW_DISTANCE_FAR_X);
             buildWatch.Stop();
             Debug.WriteLine(buildWatch.Elapsed);
             #endregion

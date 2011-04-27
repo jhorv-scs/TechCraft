@@ -41,6 +41,7 @@ namespace NewTake.model
         Lighting,
         AwaitingBuild,
         Building,
-        Ready
+        Ready,
+        AwaitingRebuild
     }
 }

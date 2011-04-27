@@ -8,7 +8,6 @@ namespace NewTake.view
 {
     public interface IChunkProcessor
     {
-        void InitChunk(Chunk chunk);
         void ProcessChunk(Chunk chunk);
     }
 }

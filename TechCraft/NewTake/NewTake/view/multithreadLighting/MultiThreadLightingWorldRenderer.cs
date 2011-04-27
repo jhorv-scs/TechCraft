@@ -322,7 +322,7 @@ namespace NewTake.view
                     {
                         // Clear down the chunk lighting 
                         chunk.State = ChunkState.Lighting;
-                        _lightingChunkProcessor.InitChunk(chunk);
+                        _lightingChunkProcessor.ProcessChunk(chunk);
                         chunk.State = ChunkState.AwaitingBuild;
                         //chunk.generated = true;
                     }

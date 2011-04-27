@@ -45,6 +45,8 @@ using NewTake.view;
 using NewTake.controllers;
 using NewTake.view.blocks;
 using NewTake.profiling;
+using NewTake.view.renderers;
+
 #endregion
 
 namespace NewTake
@@ -58,7 +60,7 @@ namespace NewTake
 
         private GraphicsDeviceManager graphics;
         private World world;
-        private WorldRenderer renderer;
+        private IRenderer renderer;
 
         private KeyboardState _oldKeyboardState;
 
@@ -116,7 +118,9 @@ namespace NewTake
 
             #region choose renderer
             //renderer = new SingleThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
-            renderer = new MultiThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            //renderer = new MultiThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+
+            renderer = new ThreadedWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             #endregion
 
             renderer.Initialize();
@@ -128,7 +132,7 @@ namespace NewTake
 
         protected override void OnExiting(Object sender, EventArgs args)
         {
-            renderer._running = false;
+            renderer.Stop();
             base.OnExiting(sender, args);
         }
 
@@ -198,20 +202,20 @@ namespace NewTake
             //wireframe mode
             if (_oldKeyboardState.IsKeyUp(Keys.F7) && keyState.IsKeyDown(Keys.F7))
             {
-                renderer.ToggleRasterMode();
+                //renderer.ToggleRasterMode();
             }
 
             //diagnose mode
             if (_oldKeyboardState.IsKeyUp(Keys.F8) && keyState.IsKeyDown(Keys.F8))
             {
-                renderer.diagnosticsMode = !renderer.diagnosticsMode;
+                //renderer.diagnosticsMode = !renderer.diagnosticsMode;
             }
 
             //day/night mode
             if (_oldKeyboardState.IsKeyUp(Keys.F9) && keyState.IsKeyDown(Keys.F9))
             {
-                renderer.dayNightMode = !renderer.dayNightMode;
-                Debug.WriteLine("Day/Night Mode is " + renderer.dayNightMode);
+                //renderer.dayNightMode = !renderer.dayNightMode;
+                //Debug.WriteLine("Day/Night Mode is " + renderer.dayNightMode);
             }
 
             // Allows the game to exit
