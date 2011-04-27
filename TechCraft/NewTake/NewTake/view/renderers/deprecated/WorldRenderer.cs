@@ -259,6 +259,18 @@ namespace NewTake.view
         }
         #endregion
 
+        public virtual void DrawChunk(Chunk chunk)
+        {
+            //if (chunk.built)
+            if (chunk.State == ChunkState.Ready)
+            {
+                GraphicsDevice.SetVertexBuffer(chunk.VertexBuffer);
+                GraphicsDevice.Indices = chunk.IndexBuffer;
+                //graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexBuffer.VertexCount / 3);
+                GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, chunk.VertexBuffer.VertexCount, 0, chunk.IndexBuffer.IndexCount / 3);
+            }
+        }
+
         #region DrawChunks
         public virtual void DrawChunks()
         {
