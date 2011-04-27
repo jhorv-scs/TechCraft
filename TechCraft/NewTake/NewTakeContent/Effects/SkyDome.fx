@@ -53,17 +53,21 @@ sampler TextureSampler = sampler_state { texture = <xTexture> ; magfilter = LINE
 
 	 nColor *= (4 - PSIn.TextureCoords.y) * .125f;
 
+     float4 cloudValue = tex2D(TextureSampler, PSIn.TextureCoords).r;
+
 	 if(timeOfDay <= 12)
 	 {
 		bottomColor *= timeOfDay / 12;	
 		topColor	*= timeOfDay / 12;	
 		nColor		*= timeOfDay / 12;
+		cloudValue	*= timeOfDay / 12;
 	 }
 	 else
 	 {
 		bottomColor *= (timeOfDay - 24) / -12;	
 		topColor	*= (timeOfDay - 24) / -12;						
 		nColor		*= (timeOfDay - 24) / -12;
+		cloudValue	*= (timeOfDay - 24) / -12;
 	 }
 
 	 bottomColor += (MorningTint * .05) * ((24 - timeOfDay)/24);
@@ -72,7 +76,6 @@ sampler TextureSampler = sampler_state { texture = <xTexture> ; magfilter = LINE
 	 bottomColor += nColor;
 
      float4 baseColor = lerp(bottomColor, topColor, saturate((PSIn.ObjectPosition.y)/0.9f));
-     float4 cloudValue = tex2D(TextureSampler, PSIn.TextureCoords).r;
      
      Output.Color = lerp(baseColor, 1, cloudValue);        
  
