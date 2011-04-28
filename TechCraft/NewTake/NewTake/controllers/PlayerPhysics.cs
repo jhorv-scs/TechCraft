@@ -35,6 +35,7 @@ using Microsoft.Xna.Framework.Input;
 
 using NewTake.model;
 using NewTake.view;
+using NewTake.view.blocks;
 #endregion
 
 namespace NewTake.controllers
@@ -73,8 +74,8 @@ namespace NewTake.controllers
             Vector3 headPosition = player.position + new Vector3(0f, 0.1f, 0f);
             
             //TODO _isAboveSnowline = headPosition.Y > WorldSettings.SNOWLINE;
-            
-            if (player.world.BlockAt(footPosition).Solid || player.world.BlockAt(headPosition).Solid)
+
+            if (BlockInformation.IsSolidBlock(player.world.BlockAt(footPosition).Type) || BlockInformation.IsSolidBlock(player.world.BlockAt(headPosition).Type))
             {
                 BlockType standingOnBlock = player.world.BlockAt(footPosition).Type;
                 BlockType hittingHeadOnBlock = player.world.BlockAt(headPosition).Type;
@@ -103,7 +104,7 @@ namespace NewTake.controllers
                 //}
 
                 // If the player has their head stuck in a block, push them down.
-                if (player.world.BlockAt(headPosition).Solid)
+                if (BlockInformation.IsSolidBlock(player.world.BlockAt(headPosition).Type))
                 {
                     int blockIn = (int)(headPosition.Y);
                     player.position.Y = (float)(blockIn - 0.15f);
@@ -111,7 +112,7 @@ namespace NewTake.controllers
 
                 // If the player is stuck in the ground, bring them out.
                 // This happens because we're standing on a block at -1.5, but stuck in it at -1.4, so -1.45 is the sweet spot.
-                if (player.world.BlockAt(footPosition).Solid)
+                if (BlockInformation.IsSolidBlock(player.world.BlockAt(footPosition).Type))
                 {
                     int blockOn = (int)(footPosition.Y);
                     player.position.Y = (float)(blockOn + 1 + 1.45);
@@ -164,7 +165,7 @@ namespace NewTake.controllers
 
             if (kstate.IsKeyDown(Keys.Space))
             {
-                if (player.world.BlockAt(footPosition).Solid && player.velocity.Y == 0)
+                if (BlockInformation.IsSolidBlock(player.world.BlockAt(footPosition).Type) && player.velocity.Y == 0)
                 {
                     player.velocity.Y = PLAYERJUMPVELOCITY;
                     float amountBelowSurface = ((ushort)footPosition.Y) + 1 - footPosition.Y;
@@ -215,7 +216,7 @@ namespace NewTake.controllers
             Vector3 midBodyPoint = movePosition + new Vector3(0, -0.7f, 0);
             Vector3 lowerBodyPoint = movePosition + new Vector3(0, -1.4f, 0);
 
-            if (!player.world.BlockAt(movePosition).Solid && !player.world.BlockAt(lowerBodyPoint).Solid && ! player.world.BlockAt(midBodyPoint).Solid)
+            if (!BlockInformation.IsSolidBlock(player.world.BlockAt(movePosition).Type) && !BlockInformation.IsSolidBlock(player.world.BlockAt(lowerBodyPoint).Type) && !BlockInformation.IsSolidBlock(player.world.BlockAt(midBodyPoint).Type))
             {
                 player.position = player.position + moveVector;
                 if (moveVector != Vector3.Zero)

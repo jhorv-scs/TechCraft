@@ -63,18 +63,6 @@ namespace NewTake.model
             Sun = 0;
             R = 0; G = 0; B = 0;
         }
-
-        public bool Solid
-        {
-            get
-            {
-                if (Type == BlockType.None || Type == BlockType.Leaves || Type == BlockType.RedFlower || Type == BlockType.Water)
-                {
-                    return false;
-                }
-                return true;
-            } 
-        }
     }
 
     public struct LowMemBlock
