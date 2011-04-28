@@ -120,6 +120,9 @@ namespace NewTake.view.renderers
 
         public void QueueLighting(Vector3i chunkIndex)
         {
+            if (_world.viewableChunks[chunkIndex.X,chunkIndex.Z]== null) {
+                throw new ArgumentNullException("queuing lighting for a null chunk");
+            }
             lock (_lightingQueue)
             {
                 _lightingQueue.Enqueue(chunkIndex);
@@ -131,6 +134,11 @@ namespace NewTake.view.renderers
         {
             //Debug.WriteLine("DoLighting " + chunkIndex);
             Chunk chunk = _world.viewableChunks[chunkIndex.X, chunkIndex.Z];
+            
+            //TODO chunk happens to be null here sometime : it was not null when enqueued , it became null after
+            // => cancel this lighting
+            if (chunk == null) return null;
+
             if (chunk.State == ChunkState.AwaitingLighting)
             {
                 chunk.State = ChunkState.Lighting;
