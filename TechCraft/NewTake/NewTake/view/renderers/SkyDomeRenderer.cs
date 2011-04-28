@@ -73,7 +73,9 @@ namespace NewTake.view.renderers
         protected Model skyDome;
         protected Matrix projectionMatrix;
         protected Texture2D cloudMap;
-        protected float rotation;
+        protected Texture2D starMap;
+        protected float rotationClouds;
+        protected float rotationStars;
 
         // GPU generated clouds
         protected Texture2D cloudStaticMap;
@@ -103,6 +105,8 @@ namespace NewTake.view.renderers
             skyDome = content.Load<Model>("Models\\dome");
             skyDome.Meshes[0].MeshParts[0].Effect = content.Load<Effect>("Effects\\SkyDome");
             cloudMap = content.Load<Texture2D>("Textures\\cloudMap");
+            starMap = content.Load<Texture2D>("Textures\\stars");
+
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, _graphicsDevice.Viewport.AspectRatio, 0.3f, 1000.0f);
 
             // GPU Generated Clouds
@@ -193,22 +197,24 @@ namespace NewTake.view.renderers
 
             Matrix[] modelTransforms = new Matrix[skyDome.Bones.Count];
             skyDome.CopyAbsoluteBoneTransformsTo(modelTransforms);
-            //rotation += 0.0005f;
-            rotation = 0;
 
-            Matrix wMatrix = Matrix.CreateRotationY(rotation) * Matrix.CreateTranslation(0, -0.1f, 0) * Matrix.CreateScale(100) * Matrix.CreateTranslation(_camera.Position);
+            rotationStars += 0.0001f;
+            rotationClouds = 0;
+
+            // Stars
+            Matrix wStarMatrix = Matrix.CreateRotationY(rotationStars) * Matrix.CreateTranslation(0, -0.1f, 0) * Matrix.CreateScale(110) * Matrix.CreateTranslation(_camera.Position);
             foreach (ModelMesh mesh in skyDome.Meshes)
             {
                 foreach (Effect currentEffect in mesh.Effects)
                 {
-                    Matrix worldMatrix = modelTransforms[mesh.ParentBone.Index] * wMatrix;
+                    Matrix worldMatrix = modelTransforms[mesh.ParentBone.Index] * wStarMatrix;
 
-                    currentEffect.CurrentTechnique = currentEffect.Techniques["SkyDome"];
+                    currentEffect.CurrentTechnique = currentEffect.Techniques["SkyStarDome"];
+
                     currentEffect.Parameters["xWorld"].SetValue(worldMatrix);
                     currentEffect.Parameters["xView"].SetValue(currentViewMatrix);
                     currentEffect.Parameters["xProjection"].SetValue(projectionMatrix);
-                    currentEffect.Parameters["xTexture"].SetValue(cloudMap);
-
+                    currentEffect.Parameters["xTexture"].SetValue(starMap);
                     currentEffect.Parameters["NightColor"].SetValue(NIGHTCOLOR);
                     currentEffect.Parameters["SunColor"].SetValue(OVERHEADSUNCOLOR);
                     currentEffect.Parameters["HorizonColor"].SetValue(HORIZONCOLOR);
@@ -219,6 +225,32 @@ namespace NewTake.view.renderers
                 }
                 mesh.Draw();
             }
+
+            // Clouds
+            Matrix wMatrix = Matrix.CreateRotationY(rotationClouds) * Matrix.CreateTranslation(0, -0.1f, 0) * Matrix.CreateScale(100) * Matrix.CreateTranslation(_camera.Position);
+            foreach (ModelMesh mesh in skyDome.Meshes)
+            {
+                foreach (Effect currentEffect in mesh.Effects)
+                {
+                    Matrix worldMatrix = modelTransforms[mesh.ParentBone.Index] * wMatrix;
+
+                    currentEffect.CurrentTechnique = currentEffect.Techniques["SkyDome"];
+
+                    currentEffect.Parameters["xWorld"].SetValue(worldMatrix);
+                    currentEffect.Parameters["xView"].SetValue(currentViewMatrix);
+                    currentEffect.Parameters["xProjection"].SetValue(projectionMatrix);
+                    currentEffect.Parameters["xTexture"].SetValue(cloudMap);
+                    currentEffect.Parameters["NightColor"].SetValue(NIGHTCOLOR);
+                    currentEffect.Parameters["SunColor"].SetValue(OVERHEADSUNCOLOR);
+                    currentEffect.Parameters["HorizonColor"].SetValue(HORIZONCOLOR);
+
+                    currentEffect.Parameters["MorningTint"].SetValue(MORNINGTINT);
+                    currentEffect.Parameters["EveningTint"].SetValue(EVENINGTINT);
+                    currentEffect.Parameters["timeOfDay"].SetValue(_tod);
+                }
+                mesh.Draw();
+            }
+
         }
         #endregion
 
