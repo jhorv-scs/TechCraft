@@ -416,26 +416,16 @@ namespace NewTake.view.renderers
                         }
                         continue;
                     }
-                        //if (distX >= BUILD_RANGE || distZ >= BUILD_RANGE)
-                        //{
-                        //    Chunk chunk = _world.viewableChunks[ix, iz];
-                        //    if (chunk != null && chunk.State == ChunkState.AwaitingBuild)
-                        //    {
-                        //        QueueBuild(chunkIndex);
-                        //    }
-                        //    continue;
-                        //}
-                        Chunk rebuildChunk = _world.viewableChunks[ix, iz];
-                        if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRelighting)
-                        {
-                            QueueLighting(chunkIndex);
-                        }
-                        if (rebuildChunk != null && (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild))
-                        {
-                            QueueBuild(chunkIndex);
-                        }
+                    Chunk rebuildChunk = _world.viewableChunks[ix, iz];
+                    if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRelighting)
+                    {
+                        QueueLighting(chunkIndex);
                     }
-                //}
+                    if (rebuildChunk != null && (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild))
+                    {
+                        QueueBuild(chunkIndex);
+                    }
+                }
             }
         }
         #endregion
