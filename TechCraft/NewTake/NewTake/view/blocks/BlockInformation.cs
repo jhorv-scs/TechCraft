@@ -65,7 +65,7 @@ namespace NewTake.view.blocks
 
         public static bool IsSolidBlock(BlockType type)
         {
-            if (type == BlockType.Water || type == BlockType.None || type == BlockType.Snow) return false;
+            if (type == BlockType.Water || type == BlockType.None || type == BlockType.Snow || type == BlockType.RedFlower || type == BlockType.LongGrass) return false;
             return true;
         }
 
@@ -75,9 +75,15 @@ namespace NewTake.view.blocks
             return false;
         }
 
+        public static bool IsGrassBlock(BlockType type)
+        {
+            if (type == BlockType.LongGrass) return true;
+            return false;
+        }
+
         public static bool IsTransparentBlock(BlockType type)
         {
-            if (type == BlockType.None || type == BlockType.Water || type == BlockType.Leaves || type == BlockType.Snow || type == BlockType.RedFlower || type == BlockType.Rock) return true;
+            if (type == BlockType.None || type == BlockType.Water || type == BlockType.Leaves || type == BlockType.Snow || type == BlockType.RedFlower || type == BlockType.Rock || type == BlockType.LongGrass) return true;
             return false;
         }
 
@@ -144,6 +150,8 @@ namespace NewTake.view.blocks
                     return BlockTexture.Water;
                 case BlockType.RedFlower:
                     return BlockTexture.RedFlower;
+                case BlockType.LongGrass :
+                    return BlockTexture.LongGrass;
                 default:
                     return BlockTexture.Rock;
 

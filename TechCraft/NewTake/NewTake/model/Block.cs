@@ -47,6 +47,7 @@ namespace NewTake.model
         Water,
         Snow,
         RedFlower,
+        LongGrass,
         MAXIMUM 
     }
 

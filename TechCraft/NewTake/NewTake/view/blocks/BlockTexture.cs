@@ -54,7 +54,7 @@ namespace NewTake.view.blocks
         TreeSide,
         Water,
         Leaves,
-        Empty1,
+        LongGrass,
         RedFlower,
         Stone,
         Brick,
