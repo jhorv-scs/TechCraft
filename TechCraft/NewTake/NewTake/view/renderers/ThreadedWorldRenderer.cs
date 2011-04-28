@@ -67,8 +67,7 @@ namespace NewTake.view.renderers
 
         private Vector3i _previousChunkIndex;
 
-        public const int FOGNEAR = 400;
-        public const float FOGFAR = FOGNEAR * 2;
+
 
         protected Vector4 NIGHTCOLOR = Color.Black.ToVector4();
         public Vector4 SUNCOLOR = Color.White.ToVector4();
@@ -83,10 +82,13 @@ namespace NewTake.view.renderers
         public bool dayMode = false;
         public bool nightMode = false;
 
-        private const byte REMOVE_RANGE = 17;
-        private const byte GENERATE_RANGE = 16;
-        private const byte LIGHT_RANGE = 15;
-        private const byte BUILD_RANGE = 14;
+        private const byte REMOVE_RANGE = 18;
+        private const byte GENERATE_RANGE = 17;
+        private const byte LIGHT_RANGE = 16;
+        private const byte BUILD_RANGE = 15;
+
+        public const int FOGNEAR = (BUILD_RANGE-1) * 16;
+        public const float FOGFAR = (BUILD_RANGE+1) * 16;
 
         #endregion
 
@@ -111,7 +113,7 @@ namespace NewTake.view.renderers
             _world.visitChunks(DoBuild, BUILD_RANGE);
 
             _workerThread = new Thread(new ThreadStart(WorkerThread));
-            _workerThread.Priority = ThreadPriority.AboveNormal;
+            _workerThread.Priority = ThreadPriority.Highest;
             _workerThread.IsBackground = true;
             _workerThread.Start();
         }
@@ -284,6 +286,8 @@ namespace NewTake.view.renderers
 
                 foreach (Chunk chunk in _world.viewableChunks.Values)
                 {
+                    if (chunk == null) continue;
+
                     if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.IndexBuffer != null)
                     {
                         lock (chunk)
@@ -350,6 +354,8 @@ namespace NewTake.view.renderers
 
                 foreach (Chunk chunk in _world.viewableChunks.Values)
                 {
+                    if (chunk == null) continue;
+
                     if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.waterVertexBuffer != null)
                     {
                         lock (chunk)
@@ -370,6 +376,8 @@ namespace NewTake.view.renderers
         #region Update
         public void Update(GameTime gameTime)
         {
+            //Debug.WriteLine("M:" + GC.GetTotalMemory(false));
+
             uint cameraX = (uint)(_camera.Position.X / Chunk.SIZE.X);
             uint cameraZ = (uint)(_camera.Position.Z / Chunk.SIZE.Z);
 

@@ -60,6 +60,7 @@ namespace NewTake.model.types
 
             Chunk removed;
             TryRemove(KeyFromCoords(x, z), out removed);
+
         }
 
         private void beforeRemove(Chunk chunk)
