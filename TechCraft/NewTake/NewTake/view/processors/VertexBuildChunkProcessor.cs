@@ -648,15 +648,7 @@ namespace NewTake.view.blocks
         public void ProcessChunk(Chunk chunk)
         {
             chunk.Clear();
-            if (chunk.State != ChunkState.ToDelete)
-            {
-                BuildVertexList(chunk);
-            }
-            else
-            {
-                if (chunk.VertexBuffer != null) chunk.VertexBuffer.Dispose();
-                if (chunk.waterVertexBuffer != null) chunk.waterVertexBuffer.Dispose();
-            }
+            BuildVertexList(chunk);
         }
 
     }

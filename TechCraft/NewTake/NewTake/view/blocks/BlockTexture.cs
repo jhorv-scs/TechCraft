@@ -63,7 +63,7 @@ namespace NewTake.view.blocks
 
     public static class TextureHelper
     {
-        public const int TEXTUREATLASSIZE = 8;
+        public const int TEXTUREATLASSIZE = 16;
 
         public static Dictionary<int, Vector2[]> UVMappings;
 
