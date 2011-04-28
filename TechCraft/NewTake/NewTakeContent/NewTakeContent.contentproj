@@ -119,15 +119,15 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\blocks_64APR28.png">
-      <Name>blocks_64APR28</Name>
+    <Compile Include="Textures\newStars.png">
+      <Name>newStars</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\stars.jpg">
-      <Name>stars</Name>
+    <Compile Include="Textures\blocks_APR28_3.png">
+      <Name>blocks_APR28_3</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

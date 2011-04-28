@@ -105,7 +105,7 @@ namespace NewTake.view.renderers
             skyDome = content.Load<Model>("Models\\dome");
             skyDome.Meshes[0].MeshParts[0].Effect = content.Load<Effect>("Effects\\SkyDome");
             cloudMap = content.Load<Texture2D>("Textures\\cloudMap");
-            starMap = content.Load<Texture2D>("Textures\\stars");
+            starMap = content.Load<Texture2D>("Textures\\newStars");
 
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, _graphicsDevice.Viewport.AspectRatio, 0.3f, 1000.0f);
 

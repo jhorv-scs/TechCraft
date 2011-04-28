@@ -121,7 +121,7 @@ namespace NewTake.view.renderers
 
         public void LoadContent(ContentManager content)
         {
-            _textureAtlas = content.Load<Texture2D>("Textures\\blocks_64APR28");
+            _textureAtlas = content.Load<Texture2D>("Textures\\blocks_APR28_3");
             _solidBlockEffect = content.Load<Effect>("Effects\\SolidBlockEffect");
             _waterBlockEffect = content.Load<Effect>("Effects\\WaterBlockEffect");
         }
