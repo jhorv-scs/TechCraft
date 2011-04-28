@@ -45,7 +45,8 @@ namespace NewTake.view
     {
         private const int MAX_SUN_VALUE = 16;
 
-        public void ProcessChunk(Chunk chunk) {
+        public void ProcessChunk(Chunk chunk)
+        {
             ClearLighting(chunk);
             FillLighting(chunk);
         }
@@ -53,6 +54,8 @@ namespace NewTake.view
         #region ClearLighting
         private void ClearLighting(Chunk chunk)
         {
+            Random r = new Random();
+
             try
             {
                 byte sunValue = MAX_SUN_VALUE;
@@ -77,9 +80,9 @@ namespace NewTake.view
 
                             if (chunk.Blocks[offset + y].Type == BlockType.RedFlower)
                             {
-                                chunk.Blocks[offset + y].R = 16;
-                                chunk.Blocks[offset + y].G = 0;
-                                chunk.Blocks[offset + y].B = 8;
+                                chunk.Blocks[offset + y].R = (byte)r.Next(17);
+                                chunk.Blocks[offset + y].G = (byte)r.Next(17);
+                                chunk.Blocks[offset + y].B = (byte)r.Next(17);
                             }
                             else if (chunk.Blocks[offset + y].Type == BlockType.Tree)
                             {
@@ -108,9 +111,9 @@ namespace NewTake.view
 
         private byte Attenuate(byte light)
         {
-            return (byte)((light*9)/10);
+            return (byte)((light * 9) / 10);
         }
-        private void PropogateSunLight(Chunk chunk, byte x, byte y, byte z, byte light)
+        private void PropogateLightSun(Chunk chunk, byte x, byte y, byte z, byte light)
         {
             try
             {
@@ -126,17 +129,17 @@ namespace NewTake.view
                     light = Attenuate(light);
 
                     // Propogate light within this chunk
-                    if (x > 0) PropogateSunLight(chunk, (byte)(x - 1), y, z, light);
-                    if (x < Chunk.MAX.X) PropogateSunLight(chunk, (byte)(x + 1), y, z, light);
-                    if (y > 0) PropogateSunLight(chunk, x, (byte)(y - 1), z, light);
-                    if (y < Chunk.MAX.Y) PropogateSunLight(chunk, x, (byte)(y + 1), z, light);
-                    if (z > 0) PropogateSunLight(chunk, x, y, (byte)(z - 1), light);
-                    if (z < Chunk.MAX.Z) PropogateSunLight(chunk, x, y, (byte)(z + 1), light);
+                    if (x > 0) PropogateLightSun(chunk, (byte)(x - 1), y, z, light);
+                    if (x < Chunk.MAX.X) PropogateLightSun(chunk, (byte)(x + 1), y, z, light);
+                    if (y > 0) PropogateLightSun(chunk, x, (byte)(y - 1), z, light);
+                    if (y < Chunk.MAX.Y) PropogateLightSun(chunk, x, (byte)(y + 1), z, light);
+                    if (z > 0) PropogateLightSun(chunk, x, y, (byte)(z - 1), light);
+                    if (z < Chunk.MAX.Z) PropogateLightSun(chunk, x, y, (byte)(z + 1), light);
 
-                    if (chunk.E != null && x == 0) PropogateSunLight(chunk.E, (byte)(Chunk.MAX.X), y, z, light);
-                    if (chunk.W != null && (x == Chunk.MAX.X)) PropogateSunLight(chunk.W, 0, y, z, light);
-                    if (chunk.S != null && z == 0) PropogateSunLight(chunk.S, x, y, (byte)(Chunk.MAX.Z), light);
-                    if (chunk.N != null && (z == Chunk.MAX.Z)) PropogateSunLight(chunk.N, x, y, 0, light);
+                    if (chunk.E != null && x == 0) PropogateLightSun(chunk.E, (byte)(Chunk.MAX.X), y, z, light);
+                    if (chunk.W != null && (x == Chunk.MAX.X)) PropogateLightSun(chunk.W, 0, y, z, light);
+                    if (chunk.S != null && z == 0) PropogateLightSun(chunk.S, x, y, (byte)(Chunk.MAX.Z), light);
+                    if (chunk.N != null && (z == Chunk.MAX.Z)) PropogateLightSun(chunk.N, x, y, 0, light);
 
                 }
             }
@@ -245,13 +248,13 @@ namespace NewTake.view
         #region FillLighting
         private void FillLighting(Chunk chunk)
         {
-            FillSunLighting(chunk);
+            FillLightingSun(chunk);
             FillLightingR(chunk);
             FillLightingG(chunk);
             FillLightingB(chunk);
         }
 
-        private void FillSunLighting(Chunk chunk)
+        private void FillLightingSun(Chunk chunk)
         {
             try
             {
@@ -269,13 +272,19 @@ namespace NewTake.view
                                 {
                                     byte light = Attenuate(chunk.Blocks[offset + y].Sun);
 
-                                    if (x > 0) PropogateSunLight(chunk, (byte)(x - 1), y, z, light);
-                                    if (x < Chunk.MAX.X) PropogateSunLight(chunk, (byte)(x + 1), y, z, light);
-                                    if (y > 0) PropogateSunLight(chunk, x, (byte)(y - 1), z, light);
-                                    if (y < Chunk.MAX.Y) PropogateSunLight(chunk, x, (byte)(y + 1), z, light);
-                                    if (z > 0) PropogateSunLight(chunk, x, y, (byte)(z - 1), light);
-                                    if (z < Chunk.MAX.Z) PropogateSunLight(chunk, x, y, (byte)(z + 1), light);
+                                    if (x > 0) PropogateLightSun(chunk, (byte)(x - 1), y, z, light);
+                                    if (x < Chunk.MAX.X) PropogateLightSun(chunk, (byte)(x + 1), y, z, light);
+                                    if (y > 0) PropogateLightSun(chunk, x, (byte)(y - 1), z, light);
+                                    if (y < Chunk.MAX.Y) PropogateLightSun(chunk, x, (byte)(y + 1), z, light);
+                                    if (z > 0) PropogateLightSun(chunk, x, y, (byte)(z - 1), light);
+                                    if (z < Chunk.MAX.Z) PropogateLightSun(chunk, x, y, (byte)(z + 1), light);
                                 }
+
+                                // Pull in light from neighbours
+                                if (x == 0) PropogateLightSun(chunk, x, y, z, chunk.E.BlockAt(Chunk.MAX.X, y, z).Sun);
+                                if (x == Chunk.MAX.X) PropogateLightSun(chunk, x, y, z, chunk.W.BlockAt(0, y, z).Sun);
+                                if (z == 0) PropogateLightSun(chunk, x, y, z, chunk.S.BlockAt(x, y, Chunk.MAX.Z).Sun);
+                                if (z == Chunk.MAX.Z) PropogateLightSun(chunk, x, y, z, chunk.N.BlockAt(x, y, 0).Sun);
                             }
                         }
                     }
@@ -312,6 +321,12 @@ namespace NewTake.view
                                     if (z > 0) PropogateLightR(chunk, x, y, (byte)(z - 1), light);
                                     if (z < Chunk.MAX.Z) PropogateLightR(chunk, x, y, (byte)(z + 1), light);
                                 }
+
+                                // Pull in light from neighbours
+                                if (x == 0) PropogateLightR(chunk, x, y, z, chunk.E.BlockAt(Chunk.MAX.X, y, z).R);
+                                if (x == Chunk.MAX.X) PropogateLightR(chunk, x, y, z, chunk.W.BlockAt(0, y, z).R);
+                                if (z == 0) PropogateLightR(chunk, x, y, z, chunk.S.BlockAt(x, y, Chunk.MAX.Z).R);
+                                if (z == Chunk.MAX.Z) PropogateLightR(chunk, x, y, z, chunk.N.BlockAt(x, y, 0).R);
                             }
                         }
                     }
@@ -347,6 +362,12 @@ namespace NewTake.view
                                     if (z > 0) PropogateLightG(chunk, x, y, (byte)(z - 1), light);
                                     if (z < Chunk.MAX.Z) PropogateLightG(chunk, x, y, (byte)(z + 1), light);
                                 }
+
+                                // Pull in light from neighbours
+                                if (x == 0) PropogateLightG(chunk, x, y, z, chunk.E.BlockAt(Chunk.MAX.X, y, z).G);
+                                if (x == Chunk.MAX.X) PropogateLightG(chunk, x, y, z, chunk.W.BlockAt(0, y, z).G);
+                                if (z == 0) PropogateLightG(chunk, x, y, z, chunk.S.BlockAt(x, y, Chunk.MAX.Z).G);
+                                if (z == Chunk.MAX.Z) PropogateLightG(chunk, x, y, z, chunk.N.BlockAt(x, y, 0).G);
                             }
                         }
                     }
@@ -382,6 +403,12 @@ namespace NewTake.view
                                     if (z > 0) PropogateLightB(chunk, x, y, (byte)(z - 1), light);
                                     if (z < Chunk.MAX.Z) PropogateLightB(chunk, x, y, (byte)(z + 1), light);
                                 }
+
+                                // Pull in light from neighbours
+                                if (x == 0) PropogateLightB(chunk, x, y, z, chunk.E.BlockAt(Chunk.MAX.X, y, z).B);
+                                if (x == Chunk.MAX.X) PropogateLightB(chunk, x, y, z, chunk.W.BlockAt(0, y, z).B);
+                                if (z == 0) PropogateLightB(chunk, x, y, z, chunk.S.BlockAt(x, y, Chunk.MAX.Z).B);
+                                if (z == Chunk.MAX.Z) PropogateLightB(chunk, x, y, z, chunk.N.BlockAt(x, y, 0).B);
                             }
                         }
                     }
