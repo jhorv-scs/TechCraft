@@ -191,17 +191,6 @@ namespace NewTake.view.renderers
 
             _tod = _world.tod;
 
-            if (_world.dayMode)
-            {
-                _tod = 12;
-                _world.nightMode = false;
-            }
-            else if (_world.nightMode)
-            {
-                _tod = 0;
-                _world.dayMode = false;
-            }
-
             Matrix[] modelTransforms = new Matrix[skyDome.Bones.Count];
             skyDome.CopyAbsoluteBoneTransformsTo(modelTransforms);
             //rotation += 0.0005f;

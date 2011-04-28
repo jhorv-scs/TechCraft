@@ -154,6 +154,10 @@ namespace NewTake.model
         {
             vertexList.Clear();
             indexList.Clear();
+
+            watervertexList.Clear();
+            waterindexList.Clear();
+
             VertexCount = 0;
         }
 

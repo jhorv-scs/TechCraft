@@ -290,6 +290,17 @@ namespace NewTake
             if (world.tod >= 24)
                 world.tod = 0;
 
+            if (world.dayMode)
+            {
+                world.tod = 12;
+                world.nightMode = false;
+            }
+            else if (world.nightMode)
+            {
+                world.tod = 0;
+                world.dayMode = false;
+            }
+
             // Calculate the position of the sun based on the time of day.
             float x = 0;
             float y = 0;

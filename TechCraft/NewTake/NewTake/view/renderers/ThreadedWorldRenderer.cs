@@ -237,17 +237,6 @@ namespace NewTake.view.renderers
 
             _tod = _world.tod;
 
-            if (_world.dayMode)
-            {
-                _tod = 12;
-                _world.nightMode = false;
-            }
-            else if (_world.nightMode)
-            {
-                _tod = 0;
-                _world.dayMode = false;
-            }
-
             _solidBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _solidBlockEffect.Parameters["View"].SetValue(_camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
@@ -301,17 +290,6 @@ namespace NewTake.view.renderers
             rippleTime += 0.1f;
 
             _tod = _world.tod;
-
-            if (_world.dayMode)
-            {
-                _tod = 12;
-                _world.nightMode = false;
-            }
-            else if (_world.nightMode)
-            {
-                _tod = 0;
-                _world.dayMode = false;
-            }
 
             _waterBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _waterBlockEffect.Parameters["View"].SetValue(_camera.View);
@@ -375,9 +353,9 @@ namespace NewTake.view.renderers
             //if (_previousChunkIndex != currentChunkIndex)
             //{
                 _previousChunkIndex = currentChunkIndex;
-                for (uint ix = cameraX - REMOVE_RANGE; ix < cameraX + REMOVE_RANGE; ix++)
+                for (uint ix = cameraX - REMOVE_RANGE + 2; ix < cameraX + REMOVE_RANGE + 2; ix++)
                 {
-                    for (uint iz = cameraZ - REMOVE_RANGE; iz < cameraZ + REMOVE_RANGE; iz++)
+                    for (uint iz = cameraZ - REMOVE_RANGE + 2; iz < cameraZ + REMOVE_RANGE + 2; iz++)
                     {
                         int distX = (int)(ix - cameraX);
                         int distZ = (int)(iz - cameraZ);
@@ -391,13 +369,16 @@ namespace NewTake.view.renderers
                         {
                             if (_world.viewableChunks[ix, iz] != null)
                             {
+                                Chunk chunk = _world.viewableChunks[ix, iz];
+                                chunk.State = ChunkState.ToDelete;
+                                _vertexBuildChunkProcessor.ProcessChunk(chunk);
                                 _world.viewableChunks.Remove(ix, iz);
                             }
                             continue;
                         }
                         if (distX >= GENERATE_RANGE || distZ >= GENERATE_RANGE)
                         {
-                            if (_world.viewableChunks[ix, iz] == null)
+                            if (_world.viewableChunks[ix, iz] == null && !_generateQueue.Contains(chunkIndex))
                             {
                                 Chunk chunk = new Chunk(_world, chunkIndex);
                                 chunk.State = ChunkState.AwaitingGenerate;
@@ -409,7 +390,7 @@ namespace NewTake.view.renderers
                         if (distX >= LIGHT_RANGE || distZ >= LIGHT_RANGE)
                         {
                             Chunk chunk = _world.viewableChunks[ix, iz];
-                            if (chunk != null && chunk.State == ChunkState.AwaitingLighting)
+                            if (chunk != null && chunk.State == ChunkState.AwaitingLighting && !_lightingQueue.Contains(chunkIndex))
                             {
                                 QueueLighting(chunkIndex);
                             }
@@ -418,18 +399,18 @@ namespace NewTake.view.renderers
                         if (distX >= BUILD_RANGE || distZ >= BUILD_RANGE)
                         {
                             Chunk chunk = _world.viewableChunks[ix, iz];
-                            if (chunk != null && chunk.State == ChunkState.AwaitingBuild)
+                            if (chunk != null && chunk.State == ChunkState.AwaitingBuild && !_buildQueue.Contains(chunkIndex))
                             {
                                 QueueBuild(chunkIndex);
                             }
                             continue;
                         }
                         Chunk rebuildChunk = _world.viewableChunks[ix, iz];
-                        if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRelighting)
+                        if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRelighting && !_lightingQueue.Contains(chunkIndex))
                         {
                             QueueLighting(chunkIndex);
                         }
-                        if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRebuild)
+                        if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRebuild && !_buildQueue.Contains(chunkIndex))
                         {
                             QueueBuild(chunkIndex);
                         }
