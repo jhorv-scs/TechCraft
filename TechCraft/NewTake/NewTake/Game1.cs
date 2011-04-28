@@ -280,7 +280,7 @@ namespace NewTake
         #region UpdateTOD
         public virtual Vector3 UpdateTOD(GameTime gameTime)
         {
-            long div = 10000;
+            long div = 20000;
 
             if (!world.RealTime)
                 world.tod += ((float)gameTime.ElapsedGameTime.Milliseconds / div);
