@@ -536,6 +536,7 @@ namespace NewTake.view.blocks
 
             float height = 1;
             if (BlockInformation.IsCapBlock(blockType)) height = 0.1f;
+            if (BlockInformation.IsHalfBlock(blockType)) height = 0.5f;
             switch (faceDir)
             {
                 case BlockFaceDirection.XIncreasing:
