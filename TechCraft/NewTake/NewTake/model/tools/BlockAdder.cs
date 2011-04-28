@@ -33,7 +33,7 @@ namespace NewTake.model.tools
 {
     public class BlockAdder : Tool
     {
-        private BlockType blockType = BlockType.Dirt;
+        private BlockType blockType = BlockType.Rock;
 
         public BlockAdder(Player player) : base(player) { }
 
