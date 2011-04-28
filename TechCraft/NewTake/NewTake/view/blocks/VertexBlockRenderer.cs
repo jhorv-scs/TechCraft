@@ -115,14 +115,14 @@ namespace NewTake.view.blocks
                 blockZIncreasing = chunk.Blocks[chunkRelativePosition.X * Chunk.FlattenOffset + (chunkRelativePosition.Z + 1) * Chunk.SIZE.Y + chunkRelativePosition.Y];
             }
 
-            if (!blockXDecreasing.Solid) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.XDecreasing, block.Type);
-            if (!blockXIncreasing.Solid) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.XIncreasing, block.Type);
+            if (!BlockInformation.IsSolidBlock(blockXDecreasing.Type)) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.XDecreasing, block.Type);
+            if (!BlockInformation.IsSolidBlock(blockXIncreasing.Type)) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.XIncreasing, block.Type);
 
-            if (!blockYDecreasing.Solid) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.YDecreasing, block.Type);
-            if (!blockYIncreasing.Solid) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.YIncreasing, block.Type);
+            if (!BlockInformation.IsSolidBlock(blockYDecreasing.Type)) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.YDecreasing, block.Type);
+            if (!BlockInformation.IsSolidBlock(blockYIncreasing.Type)) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.YIncreasing, block.Type);
 
-            if (!blockZDecreasing.Solid) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.ZDecreasing, block.Type);
-            if (!blockZIncreasing.Solid) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.ZIncreasing, block.Type);
+            if (!BlockInformation.IsSolidBlock(blockZDecreasing.Type)) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.ZDecreasing, block.Type);
+            if (!BlockInformation.IsSolidBlock(blockZIncreasing.Type)) BuildFaceVertices(ref vertexList, blockPosition, BlockFaceDirection.ZIncreasing, block.Type);
         }
         #endregion
 

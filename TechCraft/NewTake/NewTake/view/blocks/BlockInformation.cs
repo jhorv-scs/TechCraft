@@ -51,9 +51,15 @@ namespace NewTake.view.blocks
             return 1;
         }
 
+        public static bool IsCapBlock(BlockType type)
+        {
+            if (type == BlockType.Snow) return true;
+            return false;
+        }
+
         public static bool IsSolidBlock(BlockType type)
         {
-            if (type == BlockType.Water || type == BlockType.None) return false;
+            if (type == BlockType.Water || type == BlockType.None || type == BlockType.Snow) return false;
             return true;
         }
 
@@ -65,7 +71,7 @@ namespace NewTake.view.blocks
 
         public static bool IsTransparentBlock(BlockType type)
         {
-            if (type == BlockType.None || type == BlockType.Water || type == BlockType.Leaves) return true;
+            if (type == BlockType.None || type == BlockType.Water || type == BlockType.Leaves || type == BlockType.Snow || type == BlockType.RedFlower) return true;
             return false;
         }
 

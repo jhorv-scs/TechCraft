@@ -225,7 +225,7 @@ namespace NewTake.view.blocks
 
             localTR = Color.Black; localTL = Color.Yellow; localBR = Color.Green; localBL = Color.Blue;
             // XDecreasing
-            if (!blockMidW.Solid && !(block.Type == BlockType.Water && blockMidW.Type == BlockType.Water))
+            if (BlockInformation.IsTransparentBlock(blockMidW.Type) && !(block.Type == BlockType.Water && blockMidW.Type == BlockType.Water))
             {
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopW.Sun + blockMidNW.Sun + blockMidW.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopSW.Sun + blockTopW.Sun + blockMidSW.Sun + blockMidW.Sun) / 4);
@@ -254,7 +254,7 @@ namespace NewTake.view.blocks
 
                 BuildFaceVertices(chunk, blockPosition, chunkRelativePosition, BlockFaceDirection.XDecreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
-            if (!blockMidE.Solid && !(block.Type == BlockType.Water && blockMidE.Type == BlockType.Water))
+            if (BlockInformation.IsTransparentBlock(blockMidE.Type) && !(block.Type == BlockType.Water && blockMidE.Type == BlockType.Water))
             {
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockTopSE.Sun + blockTopE.Sun + blockMidSE.Sun + blockMidE.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopNE.Sun + blockTopE.Sun + blockMidNE.Sun + blockMidE.Sun) / 4);
@@ -283,7 +283,7 @@ namespace NewTake.view.blocks
 
                 BuildFaceVertices(chunk, blockPosition, chunkRelativePosition, BlockFaceDirection.XIncreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
-            if (!blockBotM.Solid && !(block.Type == BlockType.Water && blockBotM.Type == BlockType.Water))
+            if (BlockInformation.IsTransparentBlock(blockBotM.Type) && !(block.Type == BlockType.Water && blockBotM.Type == BlockType.Water))
             {
                 sunBL = (1f / MAX_SUN_VALUE) * ((blockBotSW.Sun + blockBotS.Sun + blockBotM.Sun + blockTopW.Sun) / 4);
                 sunBR = (1f / MAX_SUN_VALUE) * ((blockBotSE.Sun + blockBotS.Sun + blockBotM.Sun + blockTopE.Sun) / 4);
@@ -312,7 +312,7 @@ namespace NewTake.view.blocks
 
                 BuildFaceVertices(chunk, blockPosition, chunkRelativePosition, BlockFaceDirection.YDecreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
-            if (!blockTopM.Solid && !(block.Type == BlockType.Water && blockTopM.Type == BlockType.Water))
+            if (BlockInformation.IsTransparentBlock(blockTopM.Type) && !(block.Type == BlockType.Water && blockTopM.Type == BlockType.Water))
             {
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopN.Sun + blockTopW.Sun + blockTopM.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopNE.Sun + blockTopN.Sun + blockTopE.Sun + blockTopM.Sun) / 4);
@@ -341,7 +341,7 @@ namespace NewTake.view.blocks
 
                 BuildFaceVertices(chunk, blockPosition, chunkRelativePosition, BlockFaceDirection.YIncreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
-            if (!blockMidS.Solid && !(block.Type == BlockType.Water && blockMidS.Type == BlockType.Water))
+            if (BlockInformation.IsTransparentBlock(blockMidS.Type) && !(block.Type == BlockType.Water && blockMidS.Type == BlockType.Water))
             {
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockTopSW.Sun + blockTopS.Sun + blockMidSW.Sun + blockMidS.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopSE.Sun + blockTopS.Sun + blockMidSE.Sun + blockMidS.Sun) / 4);
@@ -370,7 +370,7 @@ namespace NewTake.view.blocks
 
                 BuildFaceVertices(chunk, blockPosition, chunkRelativePosition, BlockFaceDirection.ZDecreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
-            if (!blockMidN.Solid && !(block.Type == BlockType.Water && blockMidN.Type == BlockType.Water))
+            if (BlockInformation.IsTransparentBlock(blockMidN.Type) && !(block.Type == BlockType.Water && blockMidN.Type == BlockType.Water))
             {
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockTopNE.Sun + blockTopN.Sun + blockMidNE.Sun + blockMidN.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopN.Sun + blockMidNW.Sun + blockMidN.Sun) / 4);
@@ -534,13 +534,15 @@ namespace NewTake.view.blocks
 
             Vector2[] UVList = TextureHelper.UVMappings[(int)texture * 6 + faceIndex];
 
+            float height = 1;
+            if (BlockInformation.IsCapBlock(blockType)) height = 0.1f;
             switch (faceDir)
             {
                 case BlockFaceDirection.XIncreasing:
                     {
                         //TR,TL,BR,BR,TL,BL
-                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 1, 1), new Vector3(1, 0, 0), UVList[0], sunLightTR, localLightTR);
-                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 1, 0), new Vector3(1, 0, 0), UVList[1], sunLightTL, localLightTL);
+                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, height, 1), new Vector3(1, 0, 0), UVList[0], sunLightTR, localLightTR);
+                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, height, 0), new Vector3(1, 0, 0), UVList[1], sunLightTL, localLightTL);
                         AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 0, 1), new Vector3(1, 0, 0), UVList[2], sunLightBR, localLightBR);
                         AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 0, 0), new Vector3(1, 0, 0), UVList[5], sunLightBL, localLightBL);
                         AddIndex(chunk, blockType, 0, 1, 2, 2, 1, 3);
@@ -550,8 +552,8 @@ namespace NewTake.view.blocks
                 case BlockFaceDirection.XDecreasing:
                     {
                         //TR,TL,BL,TR,BL,BR
-                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 1, 0), new Vector3(-1, 0, 0), UVList[0], sunLightTR, localLightTR);
-                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 1, 1), new Vector3(-1, 0, 0), UVList[1], sunLightTL, localLightTL);
+                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, height, 0), new Vector3(-1, 0, 0), UVList[0], sunLightTR, localLightTR);
+                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, height, 1), new Vector3(-1, 0, 0), UVList[1], sunLightTL, localLightTL);
                         AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 0, 0), new Vector3(-1, 0, 0), UVList[5], sunLightBR, localLightBR);
                         AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 0, 1), new Vector3(-1, 0, 0), UVList[2], sunLightBL, localLightBL);
                         AddIndex(chunk, blockType, 0, 1, 3, 0, 3, 2);
@@ -561,10 +563,10 @@ namespace NewTake.view.blocks
                 case BlockFaceDirection.YIncreasing:
                     {
                         //BL,BR,TR,BL,TR,TL
-                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 1, 1), new Vector3(0, 1, 0), UVList[4], sunLightTR, localLightTR);
-                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 1, 1), new Vector3(0, 1, 0), UVList[5], sunLightTL, localLightTL);
-                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 1, 0), new Vector3(0, 1, 0), UVList[1], sunLightBR, localLightBR);
-                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 1, 0), new Vector3(0, 1, 0), UVList[3], sunLightBL, localLightBL);
+                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, height, 1), new Vector3(0, 1, 0), UVList[4], sunLightTR, localLightTR);
+                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, height, 1), new Vector3(0, 1, 0), UVList[5], sunLightTL, localLightTL);
+                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, height, 0), new Vector3(0, 1, 0), UVList[1], sunLightBR, localLightBR);
+                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, height, 0), new Vector3(0, 1, 0), UVList[3], sunLightBL, localLightBL);
                         AddIndex(chunk, blockType, 3, 2, 0, 3, 0, 1);
                     }
                     break;
@@ -583,8 +585,8 @@ namespace NewTake.view.blocks
                 case BlockFaceDirection.ZIncreasing:
                     {
                         //TR,TL,BL,TR,BL,BR
-                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 1, 1), new Vector3(0, 0, 1), UVList[0], sunLightTR, localLightTR);
-                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 1, 1), new Vector3(0, 0, 1), UVList[1], sunLightTL, localLightTL);
+                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, height, 1), new Vector3(0, 0, 1), UVList[0], sunLightTR, localLightTR);
+                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, height, 1), new Vector3(0, 0, 1), UVList[1], sunLightTL, localLightTL);
                         AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 0, 1), new Vector3(0, 0, 1), UVList[5], sunLightBR, localLightBR);
                         AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 0, 1), new Vector3(0, 0, 1), UVList[2], sunLightBL, localLightBL);
                         AddIndex(chunk, blockType, 0, 1, 3, 0, 3, 2);
@@ -594,8 +596,8 @@ namespace NewTake.view.blocks
                 case BlockFaceDirection.ZDecreasing:
                     {
                         //TR,TL,BR,BR,TL,BL
-                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 1, 0), new Vector3(0, 0, -1), UVList[0], sunLightTR, localLightTR);
-                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 1, 0), new Vector3(0, 0, -1), UVList[1], sunLightTL, localLightTL);
+                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, height, 0), new Vector3(0, 0, -1), UVList[0], sunLightTR, localLightTR);
+                        AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, height, 0), new Vector3(0, 0, -1), UVList[1], sunLightTL, localLightTL);
                         AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 0, 0), new Vector3(0, 0, -1), UVList[2], sunLightBR, localLightBR);
                         AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 0, 0), new Vector3(0, 0, -1), UVList[5], sunLightBL, localLightBL);
                         AddIndex(chunk, blockType, 0, 1, 2, 2, 1, 3);
