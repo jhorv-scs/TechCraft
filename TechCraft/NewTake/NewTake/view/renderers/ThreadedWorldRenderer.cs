@@ -67,7 +67,7 @@ namespace NewTake.view.renderers
 
         private Vector3i _previousChunkIndex;
 
-        public const int FOGNEAR = 300;
+        public const int FOGNEAR = 400;
         public const float FOGFAR = FOGNEAR*2;
 
         protected Vector4 NIGHTCOLOR = Color.Black.ToVector4();
@@ -360,10 +360,10 @@ namespace NewTake.view.renderers
         }
         #endregion
 
-        private const byte REMOVE_RANGE = 16;
-        private const byte GENERATE_RANGE = 15;
-        private const byte LIGHT_RANGE = 14;
-        private const byte BUILD_RANGE = 13;
+        private const byte REMOVE_RANGE = 15;
+        private const byte GENERATE_RANGE = 14;
+        private const byte LIGHT_RANGE = 13;
+        private const byte BUILD_RANGE = 12;
 
         #region Update
         public void Update(GameTime gameTime)
@@ -415,21 +415,21 @@ namespace NewTake.view.renderers
                             }
                             continue;
                         }
-                        if (distX >= BUILD_RANGE || distZ >= BUILD_RANGE)
-                        {
-                            Chunk chunk = _world.viewableChunks[ix, iz];
-                            if (chunk != null && chunk.State == ChunkState.AwaitingBuild)
-                            {
-                                QueueBuild(chunkIndex);
-                            }
-                            continue;
-                        }
+                        //if (distX >= BUILD_RANGE || distZ >= BUILD_RANGE)
+                        //{
+                        //    Chunk chunk = _world.viewableChunks[ix, iz];
+                        //    if (chunk != null && chunk.State == ChunkState.AwaitingBuild)
+                        //    {
+                        //        QueueBuild(chunkIndex);
+                        //    }
+                        //    continue;
+                        //}
                         Chunk rebuildChunk = _world.viewableChunks[ix, iz];
                         if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRelighting)
                         {
                             QueueLighting(chunkIndex);
                         }
-                        if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRebuild)
+                        if (rebuildChunk != null && (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild))
                         {
                             QueueBuild(chunkIndex);
                         }
