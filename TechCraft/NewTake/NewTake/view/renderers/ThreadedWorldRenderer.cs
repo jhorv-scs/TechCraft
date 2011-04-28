@@ -82,6 +82,12 @@ namespace NewTake.view.renderers
 
         public bool dayMode = false;
         public bool nightMode = false;
+
+        private const byte REMOVE_RANGE = 17;
+        private const byte GENERATE_RANGE = 16;
+        private const byte LIGHT_RANGE = 15;
+        private const byte BUILD_RANGE = 14;
+
         #endregion
 
         public ThreadedWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world)
@@ -360,11 +366,6 @@ namespace NewTake.view.renderers
             }
         }
         #endregion
-
-        private const byte REMOVE_RANGE = 15;
-        private const byte GENERATE_RANGE = 14;
-        private const byte LIGHT_RANGE = 13;
-        private const byte BUILD_RANGE = 12;
 
         #region Update
         public void Update(GameTime gameTime)

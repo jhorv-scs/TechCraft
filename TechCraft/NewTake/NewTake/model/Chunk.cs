@@ -159,6 +159,7 @@ namespace NewTake.model
             waterindexList.Clear();
 
             VertexCount = 0;
+            waterVertexCount = 0;
         }
 
         #region setBlock

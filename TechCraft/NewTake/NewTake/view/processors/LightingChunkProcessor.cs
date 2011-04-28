@@ -44,6 +44,7 @@ namespace NewTake.view
     public class LightingChunkProcessor : IChunkProcessor
     {
         private const int MAX_SUN_VALUE = 16;
+        private Random r = new Random();
 
         public void ProcessChunk(Chunk chunk)
         {
@@ -78,15 +79,9 @@ namespace NewTake.view
 
                             if (chunk.Blocks[offset + y].Type == BlockType.RedFlower)
                             {
-                                chunk.Blocks[offset + y].R = 16;
-                                chunk.Blocks[offset + y].G = 0;
-                                chunk.Blocks[offset + y].B = 8;
-                            }
-                            else if (chunk.Blocks[offset + y].Type == BlockType.Tree)
-                            {
-                                chunk.Blocks[offset + y].R = 0;
-                                chunk.Blocks[offset + y].G = 16;
-                                chunk.Blocks[offset + y].B = 0;
+                                chunk.Blocks[offset + y].R = (byte) r.Next(17);
+                                chunk.Blocks[offset + y].G = (byte)r.Next(17);
+                                chunk.Blocks[offset + y].B = (byte)r.Next(17);
                             }
                             else
                             {
