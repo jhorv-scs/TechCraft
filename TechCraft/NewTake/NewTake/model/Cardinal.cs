@@ -43,7 +43,7 @@ namespace NewTake.model
 
     public static class Cardinals
     {
-
+        //TODO N is +1
         public static SignedVector3i N = new SignedVector3i(0, 0, -1);
         public static SignedVector3i NE = new SignedVector3i(+1, 0, -1);
         public static SignedVector3i E = new SignedVector3i(+1, 0, 0);
