@@ -59,7 +59,7 @@ namespace NewTake.view.blocks
             //TODO generalize highest/lowest None to non-solid
 
             byte yLow = (byte)(chunk.lowestNoneBlock.Y == 0 ? 0 : chunk.lowestNoneBlock.Y - 1);
-            byte yHigh =  (byte)(chunk.highestSolidBlock.Y == Chunk.SIZE.Y ? Chunk.SIZE.Y : chunk.highestSolidBlock.Y + 1);
+            byte yHigh = (byte)(chunk.highestSolidBlock.Y == Chunk.SIZE.Y ? Chunk.SIZE.Y : chunk.highestSolidBlock.Y + 1);
 
             for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
@@ -67,27 +67,61 @@ namespace NewTake.view.blocks
                 {
                     int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
 
+                    #region ylow and yhigh on chunk borders
                     if (x == 0)
                     {
-                        yHigh = Math.Max(yHigh, chunk.E.highestSolidBlock.Y);
-                        yLow = Math.Min(yLow, chunk.E.lowestNoneBlock.Y);
+                        if (chunk.E == null)
+                        {
+                            yHigh = Chunk.SIZE.Y;
+                            yLow = 0;
+                        }
+                        else
+                        {
+                            yHigh = Math.Max(yHigh, chunk.E.highestSolidBlock.Y);
+                            yLow = Math.Min(yLow, chunk.E.lowestNoneBlock.Y);
+                        }
                     }
                     else if (x == Chunk.MAX.X)
                     {
-                        yHigh = Math.Max(yHigh, chunk.W.highestSolidBlock.Y);
-                        yLow = Math.Min(yLow, chunk.W.lowestNoneBlock.Y);
+                        if (chunk.W == null)
+                        {
+                            yHigh = Chunk.SIZE.Y;
+                            yLow = 0;
+                        }
+                        else
+                        {
+                            yHigh = Math.Max(yHigh, chunk.W.highestSolidBlock.Y);
+                            yLow = Math.Min(yLow, chunk.W.lowestNoneBlock.Y);
+                        }
                     }
-                    
+
                     if (z == 0)
                     {
-                        yHigh = Math.Max(yHigh, chunk.S.highestSolidBlock.Y);
-                        yLow = Math.Min(yLow, chunk.S.lowestNoneBlock.Y);
+                        if (chunk.S == null)
+                        {
+                            yHigh = Chunk.SIZE.Y;
+                            yLow = 0;
+                        }
+                        else
+                        {
+                            yHigh = Math.Max(yHigh, chunk.S.highestSolidBlock.Y);
+                            yLow = Math.Min(yLow, chunk.S.lowestNoneBlock.Y);
+                        }
                     }
                     else if (z == Chunk.MAX.Z)
                     {
-                        yHigh = Math.Max(yHigh, chunk.N.highestSolidBlock.Y);
-                        yLow = Math.Min(yLow, chunk.N.lowestNoneBlock.Y);
+                        if (chunk.N == null)
+                        {
+                            yHigh = Chunk.SIZE.Y;
+                            yLow = 0;
+                        }
+                        else
+                        {
+                            yHigh = Math.Max(yHigh, chunk.N.highestSolidBlock.Y);
+                            yLow = Math.Min(yLow, chunk.N.lowestNoneBlock.Y);
+                        }
                     }
+                    #endregion
 
                     for (byte y = yLow; y < yHigh; y++)
                     {
@@ -191,7 +225,7 @@ namespace NewTake.view.blocks
 
             localTR = Color.Black; localTL = Color.Yellow; localBR = Color.Green; localBL = Color.Blue;
             // XDecreasing
-            if (!blockMidW.Solid && !(block.Type == BlockType.Water && blockMidW.Type==BlockType.Water))
+            if (!blockMidW.Solid && !(block.Type == BlockType.Water && blockMidW.Type == BlockType.Water))
             {
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopW.Sun + blockMidNW.Sun + blockMidW.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopSW.Sun + blockTopW.Sun + blockMidSW.Sun + blockMidW.Sun) / 4);
@@ -220,7 +254,7 @@ namespace NewTake.view.blocks
 
                 BuildFaceVertices(chunk, blockPosition, chunkRelativePosition, BlockFaceDirection.XDecreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
-            if (!blockMidE.Solid && !(block.Type == BlockType.Water && blockMidE.Type==BlockType.Water))
+            if (!blockMidE.Solid && !(block.Type == BlockType.Water && blockMidE.Type == BlockType.Water))
             {
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockTopSE.Sun + blockTopE.Sun + blockMidSE.Sun + blockMidE.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopNE.Sun + blockTopE.Sun + blockMidNE.Sun + blockMidE.Sun) / 4);
@@ -249,7 +283,7 @@ namespace NewTake.view.blocks
 
                 BuildFaceVertices(chunk, blockPosition, chunkRelativePosition, BlockFaceDirection.XIncreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
-            if (!blockBotM.Solid && !(block.Type == BlockType.Water && blockBotM.Type==BlockType.Water))
+            if (!blockBotM.Solid && !(block.Type == BlockType.Water && blockBotM.Type == BlockType.Water))
             {
                 sunBL = (1f / MAX_SUN_VALUE) * ((blockBotSW.Sun + blockBotS.Sun + blockBotM.Sun + blockTopW.Sun) / 4);
                 sunBR = (1f / MAX_SUN_VALUE) * ((blockBotSE.Sun + blockBotS.Sun + blockBotM.Sun + blockTopE.Sun) / 4);
@@ -278,7 +312,7 @@ namespace NewTake.view.blocks
 
                 BuildFaceVertices(chunk, blockPosition, chunkRelativePosition, BlockFaceDirection.YDecreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
-            if (!blockTopM.Solid && !(block.Type == BlockType.Water && blockTopM.Type==BlockType.Water))
+            if (!blockTopM.Solid && !(block.Type == BlockType.Water && blockTopM.Type == BlockType.Water))
             {
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopN.Sun + blockTopW.Sun + blockTopM.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopNE.Sun + blockTopN.Sun + blockTopE.Sun + blockTopM.Sun) / 4);
@@ -336,7 +370,7 @@ namespace NewTake.view.blocks
 
                 BuildFaceVertices(chunk, blockPosition, chunkRelativePosition, BlockFaceDirection.ZDecreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
-            if (!blockMidN.Solid && !(block.Type == BlockType.Water && blockMidN.Type==BlockType.Water))
+            if (!blockMidN.Solid && !(block.Type == BlockType.Water && blockMidN.Type == BlockType.Water))
             {
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockTopNE.Sun + blockTopN.Sun + blockMidNE.Sun + blockMidN.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopN.Sun + blockMidNW.Sun + blockMidN.Sun) / 4);
