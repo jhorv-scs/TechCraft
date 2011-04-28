@@ -60,9 +60,9 @@ namespace NewTake.model.terrain
                             block.Type = BlockType.Rock;
                         else if (y == sizeY / 2)
                         {
-                            uint i = chunk.Index.X%2 ==0 ? chunk.Index.X ^ chunk.Index.Y : chunk.Index.X / (chunk.Index.Y+1);
+                            uint i = chunk.Index.X % 2 == 0 ? chunk.Index.X ^ chunk.Index.Y : chunk.Index.X / (chunk.Index.Y + 1);
 
-                            block.Type = (BlockType)( i % (uint)(BlockType.MAXIMUM - 1));
+                            block.Type = (BlockType)(i % (uint)(BlockType.MAXIMUM - 1));
                         }
                         else
                         {
@@ -72,10 +72,10 @@ namespace NewTake.model.terrain
                                 block.Type = BlockType.None;
                         }
 
-                        byte h = (byte)( chunk.Index.X % 2 == 0 && y>1 ? y-1 : y);
+                        byte h = (byte)(chunk.Index.Z % 2 == 0 && y > 1 ? y - 1 : y);
 
-                            chunk.setBlock( x, h, z,block);
-                        
+                        chunk.setBlock(x, h, z, block);
+
 
                     }
                 }

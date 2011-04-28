@@ -59,13 +59,36 @@ namespace NewTake.view.blocks
             //TODO generalize highest/lowest None to non-solid
 
             byte yLow = (byte)(chunk.lowestNoneBlock.Y == 0 ? 0 : chunk.lowestNoneBlock.Y - 1);
-            byte yHigh = (byte)(chunk.highestSolidBlock.Y == Chunk.MAX.Y ? Chunk.MAX.Y : chunk.highestSolidBlock.Y + 1);
+            byte yHigh =  (byte)(chunk.highestSolidBlock.Y == Chunk.SIZE.Y ? Chunk.SIZE.Y : chunk.highestSolidBlock.Y + 1);
 
             for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
                 for (byte z = 0; z < Chunk.SIZE.Z; z++)
                 {
                     int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
+
+                    if (x == 0)
+                    {
+                        yHigh = Math.Max(yHigh, chunk.E.highestSolidBlock.Y);
+                        yLow = Math.Min(yLow, chunk.E.lowestNoneBlock.Y);
+                    }
+                    else if (x == Chunk.MAX.X)
+                    {
+                        yHigh = Math.Max(yHigh, chunk.W.highestSolidBlock.Y);
+                        yLow = Math.Min(yLow, chunk.W.lowestNoneBlock.Y);
+                    }
+                    
+                    if (z == 0)
+                    {
+                        yHigh = Math.Max(yHigh, chunk.S.highestSolidBlock.Y);
+                        yLow = Math.Min(yLow, chunk.S.lowestNoneBlock.Y);
+                    }
+                    else if (z == Chunk.MAX.Z)
+                    {
+                        yHigh = Math.Max(yHigh, chunk.N.highestSolidBlock.Y);
+                        yLow = Math.Min(yLow, chunk.N.lowestNoneBlock.Y);
+                    }
+
                     for (byte y = yLow; y < yHigh; y++)
                     {
                         if (chunk.Blocks[offset + y].Type != BlockType.None)
