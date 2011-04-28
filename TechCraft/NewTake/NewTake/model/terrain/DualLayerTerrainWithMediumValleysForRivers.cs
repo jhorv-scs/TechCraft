@@ -191,6 +191,11 @@ namespace NewTake.model.terrain
                                 y++;
                                 chunk.setBlock(x, y, z, new Block(BlockType.RedFlower));
                             }
+                            //else if (r.Next(2) == 1)
+                            //{
+                            //    y++;
+                            //    chunk.setBlock(x, y, z, new Block(BlockType.LongGrass));
+                            //}
                         }
                     }
                 }
