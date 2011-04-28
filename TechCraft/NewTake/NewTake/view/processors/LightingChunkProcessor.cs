@@ -54,8 +54,6 @@ namespace NewTake.view
         #region ClearLighting
         private void ClearLighting(Chunk chunk)
         {
-            Random r = new Random();
-
             try
             {
                 byte sunValue = MAX_SUN_VALUE;
@@ -80,9 +78,9 @@ namespace NewTake.view
 
                             if (chunk.Blocks[offset + y].Type == BlockType.RedFlower)
                             {
-                                chunk.Blocks[offset + y].R = (byte)r.Next(17);
-                                chunk.Blocks[offset + y].G = (byte)r.Next(17);
-                                chunk.Blocks[offset + y].B = (byte)r.Next(17);
+                                chunk.Blocks[offset + y].R = 16;
+                                chunk.Blocks[offset + y].G = 0;
+                                chunk.Blocks[offset + y].B = 8;
                             }
                             else if (chunk.Blocks[offset + y].Type == BlockType.Tree)
                             {
