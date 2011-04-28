@@ -131,6 +131,10 @@ namespace NewTake.view.blocks
                             {
                                 BuildPlantVertexList(chunk.Blocks[offset + y], chunk, new Vector3i(x, y, z));
                             }
+                            else if (BlockInformation.IsGrassBlock(chunk.Blocks[offset + y].Type))
+                            {
+                                BuildGrassVertexList(chunk.Blocks[offset + y], chunk, new Vector3i(x, y, z));
+                            }
                             else
                             {
                                 BuildBlockVertexList(chunk.Blocks[offset + y], chunk, new Vector3i(x, y, z));
@@ -488,6 +492,155 @@ namespace NewTake.view.blocks
             BuildPlantVertices(chunk, blockPosition, chunkRelativePosition, block.Type, 0.6f, Color.LightGray);
         }
         #endregion
+
+        #region BuildGrassVertexList
+        private void BuildGrassVertexList(Block block, Chunk chunk, Vector3i chunkRelativePosition)
+        {
+
+            Vector3i blockPosition = chunk.Position + chunkRelativePosition;
+
+            //get signed bytes from these to be able to remove 1 without further casts
+            sbyte X = (sbyte)chunkRelativePosition.X;
+            sbyte Y = (sbyte)chunkRelativePosition.Y;
+            sbyte Z = (sbyte)chunkRelativePosition.Z;
+
+
+            //Block blockTopNW, blockTopN, blockTopNE, blockTopW, blockTopM, blockTopE, blockTopSW, blockTopS, blockTopSE;
+            //Block blockMidNW, blockMidN, blockMidNE, blockMidW, blockMidM, blockMidE, blockMidSW, blockMidS, blockMidSE;
+            //Block blockBotNW, blockBotN, blockBotNE, blockBotW, blockBotM, blockBotE, blockBotSW, blockBotS, blockBotSE;
+
+            //Block solidBlock = new Block(BlockType.Rock);
+
+            //blockTopNW = chunk.BlockAt(X - 1, Y + 1, Z + 1);
+            //blockTopN = chunk.BlockAt(X, Y + 1, Z + 1);
+            //blockTopNE = chunk.BlockAt(X + 1, Y + 1, Z + 1);
+            //blockTopW = chunk.BlockAt(X - 1, Y + 1, Z);
+            //blockTopM = chunk.BlockAt(X, Y + 1, Z);
+            //blockTopE = chunk.BlockAt(X + 1, Y + 1, Z);
+            //blockTopSW = chunk.BlockAt(X - 1, Y + 1, Z - 1);
+            //blockTopS = chunk.BlockAt(X, Y + 1, Z - 1);
+            //blockTopSE = chunk.BlockAt(X + 1, Y + 1, Z - 1);
+
+            //blockMidNW = chunk.BlockAt(X - 1, Y, Z + 1);
+            //blockMidN = chunk.BlockAt(X, Y, Z + 1);
+            //blockMidNE = chunk.BlockAt(X + 1, Y, Z + 1);
+            //blockMidW = chunk.BlockAt(X - 1, Y, Z);
+            //blockMidM = chunk.BlockAt(X, Y, Z);
+            //blockMidE = chunk.BlockAt(X + 1, Y, Z);
+            //blockMidSW = chunk.BlockAt(X - 1, Y, Z - 1);
+            //blockMidS = chunk.BlockAt(X, Y, Z - 1);
+            //blockMidSE = chunk.BlockAt(X + 1, Y, Z - 1);
+
+            //blockBotNW = chunk.BlockAt(X - 1, Y - 1, Z + 1);
+            //blockBotN = chunk.BlockAt(X, Y - 1, Z + 1);
+            //blockBotNE = chunk.BlockAt(X + 1, Y - 1, Z + 1);
+            //blockBotW = chunk.BlockAt(X - 1, Y - 1, Z);
+            //blockBotM = chunk.BlockAt(X, Y - 1, Z);
+            //blockBotE = chunk.BlockAt(X + 1, Y - 1, Z);
+            //blockBotSW = chunk.BlockAt(X - 1, Y - 1, Z - 1);
+            //blockBotS = chunk.BlockAt(X, Y - 1, Z - 1);
+            //blockBotSE = chunk.BlockAt(X + 1, Y - 1, Z - 1);
+
+            //float sunTR, sunTL, sunBR, sunBL;
+            //float redTR, redTL, redBR, redBL;
+            //float grnTR, grnTL, grnBR, grnBL;
+            //float bluTR, bluTL, bluBR, bluBL;
+            //Color localTR, localTL, localBR, localBL;
+
+            //localTR = Color.White; localTL = Color.White; localBR = Color.White; localBL = Color.White;
+
+            //sunTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopW.Sun + blockMidNW.Sun + blockMidW.Sun) / 4);
+            //sunTR = (1f / MAX_SUN_VALUE) * ((blockTopSW.Sun + blockTopW.Sun + blockMidSW.Sun + blockMidW.Sun) / 4);
+            //sunBL = (1f / MAX_SUN_VALUE) * ((blockBotNW.Sun + blockBotW.Sun + blockMidNW.Sun + blockMidW.Sun) / 4);
+            //sunBR = (1f / MAX_SUN_VALUE) * ((blockBotSW.Sun + blockBotW.Sun + blockMidSW.Sun + blockMidW.Sun) / 4);
+
+            //redTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.R + blockTopW.R + blockMidNW.R + blockMidW.R) / 4);
+            //redTR = (1f / MAX_SUN_VALUE) * ((blockTopSW.R + blockTopW.R + blockMidSW.R + blockMidW.R) / 4);
+            //redBL = (1f / MAX_SUN_VALUE) * ((blockBotNW.R + blockBotW.R + blockMidNW.R + blockMidW.R) / 4);
+            //redBR = (1f / MAX_SUN_VALUE) * ((blockBotSW.R + blockBotW.R + blockMidSW.R + blockMidW.R) / 4);
+
+            //grnTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.G + blockTopW.G + blockMidNW.G + blockMidW.G) / 4);
+            //grnTR = (1f / MAX_SUN_VALUE) * ((blockTopSW.G + blockTopW.G + blockMidSW.G + blockMidW.G) / 4);
+            //grnBL = (1f / MAX_SUN_VALUE) * ((blockBotNW.G + blockBotW.G + blockMidNW.G + blockMidW.G) / 4);
+            //grnBR = (1f / MAX_SUN_VALUE) * ((blockBotSW.G + blockBotW.G + blockMidSW.G + blockMidW.G) / 4);
+
+            //bluTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.B + blockTopW.B + blockMidNW.B + blockMidW.B) / 4);
+            //bluTR = (1f / MAX_SUN_VALUE) * ((blockTopSW.B + blockTopW.B + blockMidSW.B + blockMidW.B) / 4);
+            //bluBL = (1f / MAX_SUN_VALUE) * ((blockBotNW.B + blockBotW.B + blockMidNW.B + blockMidW.B) / 4);
+            //bluBR = (1f / MAX_SUN_VALUE) * ((blockBotSW.B + blockBotW.B + blockMidSW.B + blockMidW.B) / 4);
+
+            //localTL = new Color(redTL, grnTL, bluTL);
+            //localTR = new Color(redTR, grnTR, bluTR);
+            //localBL = new Color(redBL, grnBL, bluBL);
+            //localBR = new Color(redBR, grnBR, bluBR);
+
+            //_blockRenderer.BuildFaceVertices(blockPosition, chunkRelativePosition, BlockFaceDirection.XDecreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
+
+            BuildGrassVertices(chunk, blockPosition, chunkRelativePosition, block.Type, 0.6f, Color.LightGray);
+        }
+        #endregion
+
+        public void BuildGrassVertices(Chunk chunk, Vector3i blockPosition, Vector3i chunkRelativePosition, BlockType blockType, float sunLight, Color localLight)
+        {
+            BlockTexture texture = BlockInformation.GetTexture(blockType);
+            Vector2[] UVList;
+
+            UVList = TextureHelper.UVMappings[(int)texture * 6 + (int)BlockFaceDirection.XIncreasing];
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.3f, 1, 1), new Vector3(1, 0, 0), UVList[0], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.3f, 1, 0), new Vector3(1, 0, 0), UVList[1], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.3f, 0, 1), new Vector3(1, 0, 0), UVList[2], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.3f, 0, 0), new Vector3(1, 0, 0), UVList[5], sunLight, localLight);
+            AddIndex(chunk, blockType, 0, 1, 2, 2, 1, 3);
+
+            UVList = TextureHelper.UVMappings[(int)texture * 6 + (int)BlockFaceDirection.XDecreasing];
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.3f, 1, 0), new Vector3(-1, 0, 0), UVList[0], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.3f, 1, 1), new Vector3(-1, 0, 0), UVList[1], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.3f, 0, 0), new Vector3(-1, 0, 0), UVList[5], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.3f, 0, 1), new Vector3(-1, 0, 0), UVList[2], sunLight, localLight);
+            AddIndex(chunk, blockType, 0, 1, 3, 0, 3, 2);
+
+            UVList = TextureHelper.UVMappings[(int)texture * 6 + (int)BlockFaceDirection.XIncreasing];
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.7f, 1, 1), new Vector3(1, 0, 0), UVList[0], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.7f, 1, 0), new Vector3(1, 0, 0), UVList[1], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.7f, 0, 1), new Vector3(1, 0, 0), UVList[2], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.7f, 0, 0), new Vector3(1, 0, 0), UVList[5], sunLight, localLight);
+            AddIndex(chunk, blockType, 0, 1, 2, 2, 1, 3);
+
+            UVList = TextureHelper.UVMappings[(int)texture * 6 + (int)BlockFaceDirection.XDecreasing];
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.7f, 1, 0), new Vector3(-1, 0, 0), UVList[0], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.7f, 1, 1), new Vector3(-1, 0, 0), UVList[1], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.7f, 0, 0), new Vector3(-1, 0, 0), UVList[5], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0.7f, 0, 1), new Vector3(-1, 0, 0), UVList[2], sunLight, localLight);
+            AddIndex(chunk, blockType, 0, 1, 3, 0, 3, 2);
+
+            UVList = TextureHelper.UVMappings[(int)texture * 6 + (int)BlockFaceDirection.ZIncreasing];
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 1, 0.3f), new Vector3(0, 0, 1), UVList[0], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 1, 0.3f), new Vector3(0, 0, 1), UVList[1], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 0, 0.3f), new Vector3(0, 0, 1), UVList[5], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 0, 0.3f), new Vector3(0, 0, 1), UVList[2], sunLight, localLight);
+            AddIndex(chunk, blockType, 0, 1, 3, 0, 3, 2);
+
+            UVList = TextureHelper.UVMappings[(int)texture * 6 + (int)BlockFaceDirection.ZDecreasing];
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 1, 0.3f), new Vector3(0, 0, -1), UVList[0], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 1, 0.3f), new Vector3(0, 0, -1), UVList[1], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 0, 0.3f), new Vector3(0, 0, -1), UVList[2], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 0, 0.3f), new Vector3(0, 0, -1), UVList[5], sunLight, localLight);
+            AddIndex(chunk, blockType, 0, 1, 2, 2, 1, 3);
+
+            UVList = TextureHelper.UVMappings[(int)texture * 6 + (int)BlockFaceDirection.ZIncreasing];
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 1, 0.7f), new Vector3(0, 0, 1), UVList[0], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 1, 0.7f), new Vector3(0, 0, 1), UVList[1], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 0, 0.7f), new Vector3(0, 0, 1), UVList[5], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 0, 0.7f), new Vector3(0, 0, 1), UVList[2], sunLight, localLight);
+            AddIndex(chunk, blockType, 0, 1, 3, 0, 3, 2);
+
+            UVList = TextureHelper.UVMappings[(int)texture * 6 + (int)BlockFaceDirection.ZDecreasing];
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 1, 0.7f), new Vector3(0, 0, -1), UVList[0], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 1, 0.7f), new Vector3(0, 0, -1), UVList[1], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(1, 0, 0.7f), new Vector3(0, 0, -1), UVList[2], sunLight, localLight);
+            AddVertex(chunk, blockType, blockPosition, chunkRelativePosition, new Vector3(0, 0, 0.7f), new Vector3(0, 0, -1), UVList[5], sunLight, localLight);
+            AddIndex(chunk, blockType, 0, 1, 2, 2, 1, 3);
+        }
 
         #region BuildPlantVertices
         public void BuildPlantVertices(Chunk chunk, Vector3i blockPosition, Vector3i chunkRelativePosition, BlockType blockType, float sunLight, Color localLight)
