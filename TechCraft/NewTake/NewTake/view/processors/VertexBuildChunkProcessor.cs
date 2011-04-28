@@ -223,9 +223,9 @@ namespace NewTake.view.blocks
             float bluTR, bluTL, bluBR, bluBL;
             Color localTR, localTL, localBR, localBL;
 
-            localTR = Color.Black; localTL = Color.Yellow; localBR = Color.Green; localBL = Color.Blue;
+
             // XDecreasing
-            if (BlockInformation.IsTransparentBlock(blockMidW.Type) && !(block.Type == BlockType.Water && blockMidW.Type == BlockType.Water))
+            if (BlockInformation.IsTransparentBlock(blockMidW.Type) && !(block.Type == blockMidW.Type))
             {
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopW.Sun + blockMidNW.Sun + blockMidW.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopSW.Sun + blockTopW.Sun + blockMidSW.Sun + blockMidW.Sun) / 4);
@@ -254,7 +254,7 @@ namespace NewTake.view.blocks
 
                 BuildFaceVertices(chunk, blockPosition, chunkRelativePosition, BlockFaceDirection.XDecreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
-            if (BlockInformation.IsTransparentBlock(blockMidE.Type) && !(block.Type == BlockType.Water && blockMidE.Type == BlockType.Water))
+            if (BlockInformation.IsTransparentBlock(blockMidE.Type) && !(block.Type == blockMidE.Type))
             {
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockTopSE.Sun + blockTopE.Sun + blockMidSE.Sun + blockMidE.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopNE.Sun + blockTopE.Sun + blockMidNE.Sun + blockMidE.Sun) / 4);
@@ -283,7 +283,7 @@ namespace NewTake.view.blocks
 
                 BuildFaceVertices(chunk, blockPosition, chunkRelativePosition, BlockFaceDirection.XIncreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
-            if (BlockInformation.IsTransparentBlock(blockBotM.Type) && !(block.Type == BlockType.Water && blockBotM.Type == BlockType.Water))
+            if (BlockInformation.IsTransparentBlock(blockBotM.Type) && !(block.Type == blockBotM.Type))
             {
                 sunBL = (1f / MAX_SUN_VALUE) * ((blockBotSW.Sun + blockBotS.Sun + blockBotM.Sun + blockTopW.Sun) / 4);
                 sunBR = (1f / MAX_SUN_VALUE) * ((blockBotSE.Sun + blockBotS.Sun + blockBotM.Sun + blockTopE.Sun) / 4);
@@ -312,7 +312,7 @@ namespace NewTake.view.blocks
 
                 BuildFaceVertices(chunk, blockPosition, chunkRelativePosition, BlockFaceDirection.YDecreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
-            if (BlockInformation.IsTransparentBlock(blockTopM.Type) && !(block.Type == BlockType.Water && blockTopM.Type == BlockType.Water))
+            if (BlockInformation.IsTransparentBlock(blockTopM.Type) && !(block.Type == blockTopM.Type))
             {
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopN.Sun + blockTopW.Sun + blockTopM.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopNE.Sun + blockTopN.Sun + blockTopE.Sun + blockTopM.Sun) / 4);
@@ -341,7 +341,7 @@ namespace NewTake.view.blocks
 
                 BuildFaceVertices(chunk, blockPosition, chunkRelativePosition, BlockFaceDirection.YIncreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
-            if (BlockInformation.IsTransparentBlock(blockMidS.Type) && !(block.Type == BlockType.Water && blockMidS.Type == BlockType.Water))
+            if (BlockInformation.IsTransparentBlock(blockMidS.Type) && !(block.Type == blockMidS.Type))
             {
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockTopSW.Sun + blockTopS.Sun + blockMidSW.Sun + blockMidS.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopSE.Sun + blockTopS.Sun + blockMidSE.Sun + blockMidS.Sun) / 4);
@@ -370,7 +370,7 @@ namespace NewTake.view.blocks
 
                 BuildFaceVertices(chunk, blockPosition, chunkRelativePosition, BlockFaceDirection.ZDecreasing, block.Type, sunTL, sunTR, sunBL, sunBR, localTL, localTR, localBL, localBR);
             }
-            if (BlockInformation.IsTransparentBlock(blockMidN.Type) && !(block.Type == BlockType.Water && blockMidN.Type == BlockType.Water))
+            if (BlockInformation.IsTransparentBlock(blockMidN.Type) && !(block.Type == blockMidN.Type))
             {
                 sunTL = (1f / MAX_SUN_VALUE) * ((blockTopNE.Sun + blockTopN.Sun + blockMidNE.Sun + blockMidN.Sun) / 4);
                 sunTR = (1f / MAX_SUN_VALUE) * ((blockTopNW.Sun + blockTopN.Sun + blockMidNW.Sun + blockMidN.Sun) / 4);
