@@ -160,7 +160,7 @@ namespace NewTake.model
         #region setBlock
         public void setBlock(byte x, byte y, byte z, Block b)
         {
-            if (b.Type == BlockType.None)
+            if (b.Type == BlockType.None || b.Type == BlockType.Water )
             {
                 if (lowestNoneBlock.Y > y)
                 {
