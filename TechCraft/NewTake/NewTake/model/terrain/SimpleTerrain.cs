@@ -133,7 +133,7 @@ namespace NewTake.model.terrain
                 int lx = tx + r.Next(radius) - r.Next(radius);
                 int ly = ny + r.Next(radius) - r.Next(radius);
                 int lz = tz + r.Next(radius) - r.Next(radius);
-                unchecked //TODO floliage out of bound => new chunk.blockat or needs a chunk.setat
+                unchecked //TODO foliage out of bound => new chunk.blockat or needs a chunk.setat
                 {
                     if (chunk.outOfBounds((byte)lx, (byte)ly, (byte)lz) == false)
                     {
@@ -146,6 +146,55 @@ namespace NewTake.model.terrain
 
         }
         #endregion
+
+        #region MakeTreeTrunk
+        private void MakeTreeTrunk(Chunk chunk, byte tx, byte ty, byte tz, int height)
+        {
+            Debug.WriteLine("New tree    at {0},{1},{2}={3}", tx, ty, tz, height);
+            for (byte y = ty; y < ty + height; y++)
+            {
+                chunk.setBlock(tx, y, tz, new Block(BlockType.Tree));
+            }
+        }
+        #endregion
+
+        #region MakeTreeFoliage
+        private void MakeTreeFoliage(Chunk chunk, int tx, int ty, int tz, int height)
+        {
+            Debug.WriteLine("New foliage at {0},{1},{2}={3}", tx, ty, tz, height);
+            int start = ty + height - 4;
+            int end = ty + height + 3;
+
+            int rad;
+            int radiusEnd = 2;
+            int radiusMiddle = radiusEnd + 1;
+
+            for (int y = start; y < end; y++)
+            {
+                if ((y > start) && (y < end - 1))
+                {
+                    rad = radiusMiddle;
+                }
+                else
+                {
+                    rad = radiusEnd;
+                }
+
+                for (int xoff = -rad; xoff < rad + 1; xoff++)
+                {
+                    for (int zoff = -rad; zoff < rad + 1; zoff++)
+                    {
+                        if (chunk.outOfBounds((byte)(tx + xoff), (byte)y, (byte)(tz + zoff)) == false)
+                        {
+                            chunk.setBlock((byte)(tx + xoff), (byte)y, (byte)(tz + zoff), new Block(BlockType.Leaves));
+                            //Debug.WriteLine("rad={0},xoff={1},zoff={2},y={3},start={4},end={5}", rad, xoff, zoff, y, start, end);
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
+
 
     }
 }
