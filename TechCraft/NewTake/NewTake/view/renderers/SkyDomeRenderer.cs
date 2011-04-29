@@ -195,6 +195,8 @@ namespace NewTake.view.renderers
         public void Draw(GameTime gameTime)
         {
 
+            _graphicsDevice.RasterizerState = !_world._wireframed ? _world._normalRaster : _world._wireframedRaster;
+
             Matrix currentViewMatrix = _camera.View;
 
             _tod = _world.tod;

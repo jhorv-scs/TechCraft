@@ -65,7 +65,7 @@ namespace NewTake.view.renderers
         private FirstPersonCamera _camera;
         private World _world;
 
-        private Vector3i _previousChunkIndex;
+        //private Vector3i _previousChunkIndex;
 
         protected Vector4 NIGHTCOLOR = Color.Black.ToVector4();
         public Vector4 SUNCOLOR = Color.White.ToVector4();
@@ -244,22 +244,10 @@ namespace NewTake.view.renderers
 
             _tod = _world.tod;
 
-            if (_world.dayMode)
-            {
-                _tod = 12;
-                _world.nightMode = false;
-            }
-            else if (_world.nightMode)
-            {
-                _tod = 0;
-                _world.dayMode = false;
-            }
-
             _solidBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _solidBlockEffect.Parameters["View"].SetValue(_camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
             _solidBlockEffect.Parameters["CameraPosition"].SetValue(_camera.Position);
-            //_solidBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
             _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
@@ -274,6 +262,8 @@ namespace NewTake.view.renderers
             _solidBlockEffect.Parameters["timeOfDay"].SetValue(_tod);
 
             BoundingFrustum viewFrustum = new BoundingFrustum(_camera.View * _camera.Projection);
+
+            _graphicsDevice.RasterizerState = !_world._wireframed ? _world._normalRaster : _world._wireframedRaster;
 
             _graphicsDevice.BlendState = BlendState.Opaque;
             _graphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -311,22 +301,10 @@ namespace NewTake.view.renderers
 
             _tod = _world.tod;
 
-            if (_world.dayMode)
-            {
-                _tod = 12;
-                _world.nightMode = false;
-            }
-            else if (_world.nightMode)
-            {
-                _tod = 0;
-                _world.dayMode = false;
-            }
-
             _waterBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _waterBlockEffect.Parameters["View"].SetValue(_camera.View);
             _waterBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
             _waterBlockEffect.Parameters["CameraPosition"].SetValue(_camera.Position);
-            //_waterBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
             _waterBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _waterBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _waterBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
@@ -342,6 +320,8 @@ namespace NewTake.view.renderers
             _waterBlockEffect.Parameters["RippleTime"].SetValue(rippleTime);
 
             BoundingFrustum viewFrustum = new BoundingFrustum(_camera.View * _camera.Projection);
+
+            _graphicsDevice.RasterizerState = !_world._wireframed ? _world._normalRaster : _world._wireframedRaster;
 
             _graphicsDevice.BlendState = BlendState.NonPremultiplied;
             _graphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -382,7 +362,7 @@ namespace NewTake.view.renderers
             Vector3i currentChunkIndex = new Vector3i(cameraX, 0, cameraZ);
             //if (_previousChunkIndex != currentChunkIndex)
             //{
-            _previousChunkIndex = currentChunkIndex;
+            //_previousChunkIndex = currentChunkIndex;
             for (uint ix = cameraX - REMOVE_RANGE; ix < cameraX + REMOVE_RANGE; ix++)
             {
                 for (uint iz = cameraZ - REMOVE_RANGE; iz < cameraZ + REMOVE_RANGE; iz++)

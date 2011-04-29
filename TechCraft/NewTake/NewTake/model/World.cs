@@ -30,7 +30,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 using NewTake.model.terrain;
 using NewTake.model.terrain.biome;
@@ -54,11 +56,18 @@ namespace NewTake.model
 
         public static int SEED = 54321;
 
+        public static uint origin = 1000;
+        //TODO UInt32 requires decoupling rendering coordinates to avoid float problems
+
         //public const byte VIEW_DISTANCE_NEAR_X = VIEW_CHUNKS_X * 2;
        // public const byte VIEW_DISTANCE_NEAR_Z = VIEW_CHUNKS_Z * 2;
 
         //public const byte VIEW_DISTANCE_FAR_X = VIEW_CHUNKS_X * 4;
         //public const byte VIEW_DISTANCE_FAR_Z = VIEW_CHUNKS_Z * 4;
+
+        public readonly RasterizerState _wireframedRaster = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
+        public readonly RasterizerState _normalRaster = new RasterizerState() { CullMode = CullMode.CullCounterClockwiseFace, FillMode = FillMode.Solid };
+        public bool _wireframed = false;
 
         // Day/Night
         public float tod = 12; // Midday
@@ -81,8 +90,10 @@ namespace NewTake.model
         //public IChunkGenerator Generator = new Grassland_Temperate();
         #endregion
 
-        public static uint origin = 1000;
-        //TODO UInt32 requires decoupling rendering coordinates to avoid float problems
+        public void ToggleRasterMode()
+        {
+            this._wireframed = !this._wireframed;
+        }
 
         public World()
         {
@@ -90,6 +101,7 @@ namespace NewTake.model
             viewableChunks = new ChunkManager(new MockChunkPersistence(this));
         }
 
+        #region visitChunks
         public void visitChunks(Func<Vector3i,Chunk> visitor,byte radius)
         {
             for (uint x = origin - radius; x < origin + radius; x++)
@@ -100,6 +112,7 @@ namespace NewTake.model
                 }
             }
         }
+        #endregion
 
         #region BlockAt
         public Block BlockAt(Vector3 position)
