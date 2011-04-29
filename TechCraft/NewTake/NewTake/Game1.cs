@@ -89,7 +89,7 @@ namespace NewTake
             preferredBackBufferWidth = graphics.PreferredBackBufferWidth;
 
             //enter stealth mode at start
-            // graphics.PreferredBackBufferHeight = 100;
+            //graphics.PreferredBackBufferHeight = 100;
             //graphics.PreferredBackBufferWidth = 160;
 
             FrameRateCounter frameRate = new FrameRateCounter(this);
@@ -175,16 +175,16 @@ namespace NewTake
         private void showDebugKeysHelp()
         {
             Console.WriteLine("Debug keys");
-            Console.WriteLine("F1 toggle freelook / player physics");
-            Console.WriteLine("F3 toggle vsynch + fixedtimestep updates ");
-            Console.WriteLine("F4 toggle 100*160 window size");
-            Console.WriteLine("F7 toggle wireframe");
-            Console.WriteLine("F8 toggle chunk diagnostics");
-            Console.WriteLine("F9 toggle daycycle/day mode on/off");
-            Console.WriteLine("F10 toggle daycycle/night mode on/off");
-            Console.WriteLine("F11 toggle fullscreen");
-            Console.WriteLine("F release / regain focus");
-            Console.WriteLine("Esc exit");
+            Console.WriteLine("F1  = toggle freelook(fly) / player physics");
+            Console.WriteLine("F3  = toggle vsync + fixedtimestep updates ");
+            Console.WriteLine("F4  = toggle 100*160 window size");
+            Console.WriteLine("F7  = toggle wireframe");
+            Console.WriteLine("F8  = toggle chunk diagnostics");
+            Console.WriteLine("F9  = toggle day cycle / day mode");
+            Console.WriteLine("F10 = toggle day cycle / night mode");
+            Console.WriteLine("F11 = toggle fullscreen");
+            Console.WriteLine("F   = release / regain focus");
+            Console.WriteLine("Esc = exit");
         }
 
         private void ProcessDebugKeys()
@@ -212,7 +212,7 @@ namespace NewTake
             //wireframe mode
             if (_oldKeyboardState.IsKeyUp(Keys.F7) && keyState.IsKeyDown(Keys.F7))
             {
-                //renderer.ToggleRasterMode();
+                world.ToggleRasterMode();
             }
 
             //diagnose mode
