@@ -80,7 +80,7 @@ namespace NewTake.view.renderers
         public bool dayMode = false;
         public bool nightMode = false;
 
-        private const byte BUILD_RANGE = 1;
+        private const byte BUILD_RANGE = 15;
         private const byte LIGHT_RANGE = BUILD_RANGE + 1;
         private const byte GENERATE_RANGE = LIGHT_RANGE + 1;
         private const byte REMOVE_RANGE = GENERATE_RANGE + 1;
@@ -412,7 +412,7 @@ namespace NewTake.view.renderers
                         continue;
                     }
 
-                    if (distX >= GENERATE_RANGE || distZ >= GENERATE_RANGE)
+                    /*if (distX >= GENERATE_RANGE || distZ >= GENERATE_RANGE)
                     {
                         if (_world.viewableChunks[ix, iz] == null)
                         {
@@ -427,24 +427,24 @@ namespace NewTake.view.renderers
 
                             Debug.WriteLine("Remove({0},{1}) , Assign ({2},{3})", removeX, removeZ, ix, iz);
 
-                            /*when it works, replace by toReAssign next commented block*/
+                            //when it works, replace by toReAssign next commented block
                             _world.viewableChunks.Remove(removeX, removeZ);
                             Chunk chunk = new Chunk(_world, chunkIndex);
                             chunk.State = ChunkState.AwaitingGenerate;
                             _world.viewableChunks[ix, iz] = chunk;
 
 
-                            /* Chunk toReAssign = _world.viewableChunks[removeX, removeZ];
-                            if(toReAssign!=null) toReAssign.Assign(chunkIndex);
-                            toReAssign.State = ChunkState.AwaitingGenerate; 
-                            */
+                            // Chunk toReAssign = _world.viewableChunks[removeX, removeZ];
+                            //if(toReAssign!=null) toReAssign.Assign(chunkIndex);
+                            //toReAssign.State = ChunkState.AwaitingGenerate; 
+                            //
 
                             QueueGenerate(chunkIndex);
 
                         }
                         continue;
-                    }
-                    /*
+                    }*/
+                    
                     if (distX >= GENERATE_RANGE || distZ >= GENERATE_RANGE)
                     {
                         if (_world.viewableChunks[ix, iz] == null)
@@ -457,7 +457,7 @@ namespace NewTake.view.renderers
                             QueueGenerate(chunkIndex);
                         }
                         continue;
-                    }*/
+                    }
 
                     if (distX >= LIGHT_RANGE || distZ >= LIGHT_RANGE)
                     {
