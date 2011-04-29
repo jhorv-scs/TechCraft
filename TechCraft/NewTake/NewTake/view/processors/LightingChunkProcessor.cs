@@ -79,7 +79,7 @@ namespace NewTake.view
 
                             if (chunk.Blocks[offset + y].Type == BlockType.RedFlower)
                             {
-                                chunk.Blocks[offset + y].R = (byte) r.Next(17);
+                                chunk.Blocks[offset + y].R = (byte)r.Next(17);
                                 chunk.Blocks[offset + y].G = (byte)r.Next(17);
                                 chunk.Blocks[offset + y].B = (byte)r.Next(17);
                             }
@@ -249,168 +249,198 @@ namespace NewTake.view
 
         private void FillLightingSun(Chunk chunk)
         {
-            try
+            //try
+            //{
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
-                for (byte x = 0; x < Chunk.SIZE.X; x++)
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
                 {
-                    for (byte z = 0; z < Chunk.SIZE.Z; z++)
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
+                    for (byte y = 0; y < Chunk.SIZE.Y; y++)
                     {
-                        int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
-                        for (byte y = 0; y < Chunk.SIZE.Y; y++)
+                        if (chunk.Blocks[offset + y].Type == BlockType.None)
                         {
-                            if (chunk.Blocks[offset + y].Type == BlockType.None)
+                            // Sunlight
+                            if (chunk.Blocks[offset + y].Sun > 1)
                             {
-                                // Sunlight
-                                if (chunk.Blocks[offset + y].Sun > 1)
-                                {
-                                    byte light = Attenuate(chunk.Blocks[offset + y].Sun);
+                                byte light = Attenuate(chunk.Blocks[offset + y].Sun);
 
-                                    if (x > 0) PropogateLightSun(chunk, (byte)(x - 1), y, z, light);
-                                    if (x < Chunk.MAX.X) PropogateLightSun(chunk, (byte)(x + 1), y, z, light);
-                                    if (y > 0) PropogateLightSun(chunk, x, (byte)(y - 1), z, light);
-                                    if (y < Chunk.MAX.Y) PropogateLightSun(chunk, x, (byte)(y + 1), z, light);
-                                    if (z > 0) PropogateLightSun(chunk, x, y, (byte)(z - 1), light);
-                                    if (z < Chunk.MAX.Z) PropogateLightSun(chunk, x, y, (byte)(z + 1), light);
-                                }
-
-                                // Pull in light from neighbours
-                                if (x == 0) PropogateLightSun(chunk, x, y, z, chunk.E.BlockAt(Chunk.MAX.X, y, z).Sun);
-                                if (x == Chunk.MAX.X) PropogateLightSun(chunk, x, y, z, chunk.W.BlockAt(0, y, z).Sun);
-                                if (z == 0) PropogateLightSun(chunk, x, y, z, chunk.S.BlockAt(x, y, Chunk.MAX.Z).Sun);
-                                if (z == Chunk.MAX.Z) PropogateLightSun(chunk, x, y, z, chunk.N.BlockAt(x, y, 0).Sun);
+                                if (x > 0) PropogateLightSun(chunk, (byte)(x - 1), y, z, light);
+                                if (x < Chunk.MAX.X) PropogateLightSun(chunk, (byte)(x + 1), y, z, light);
+                                if (y > 0) PropogateLightSun(chunk, x, (byte)(y - 1), z, light);
+                                if (y < Chunk.MAX.Y) PropogateLightSun(chunk, x, (byte)(y + 1), z, light);
+                                if (z > 0) PropogateLightSun(chunk, x, y, (byte)(z - 1), light);
+                                if (z < Chunk.MAX.Z) PropogateLightSun(chunk, x, y, (byte)(z + 1), light);
                             }
+
+                            // Pull in light from neighbours
+
+                            if ((x == 0) && chunk.E != null)
+                                PropogateLightSun(chunk, x, y, z, chunk.E.BlockAt(Chunk.MAX.X, y, z).Sun);
+
+                            if ((x == Chunk.MAX.X) && chunk.W != null)
+                                PropogateLightSun(chunk, x, y, z, chunk.W.BlockAt(0, y, z).Sun);
+
+                            if ((z == 0) && chunk.S != null)
+                                PropogateLightSun(chunk, x, y, z, chunk.S.BlockAt(x, y, Chunk.MAX.Z).Sun);
+
+                            if ((z == Chunk.MAX.Z) && chunk.N != null)
+                                PropogateLightSun(chunk, x, y, z, chunk.N.BlockAt(x, y, 0).Sun);
+
                         }
                     }
                 }
             }
-            catch (Exception)
-            {
-                Debug.WriteLine("FillSunLighting Exception: Chunk={0}", chunk.Index);
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    Debug.WriteLine("FillSunLighting Exception: Chunk={0}",chunk.Index);
+            //}
         }
 
         private void FillLightingR(Chunk chunk)
         {
-            try
+            //try
+            //{
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
-                for (byte x = 0; x < Chunk.SIZE.X; x++)
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
                 {
-                    for (byte z = 0; z < Chunk.SIZE.Z; z++)
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
+                    for (byte y = 0; y < Chunk.SIZE.Y; y++)
                     {
-                        int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
-                        for (byte y = 0; y < Chunk.SIZE.Y; y++)
+                        if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
                         {
-                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
+                            // Local light R
+                            if (chunk.Blocks[offset + y].R > 1)
                             {
-                                // Local light R
-                                if (chunk.Blocks[offset + y].R > 1)
-                                {
-                                    byte light = Attenuate(chunk.Blocks[offset + y].R);
+                                byte light = Attenuate(chunk.Blocks[offset + y].R);
 
-                                    if (x > 0) PropogateLightR(chunk, (byte)(x - 1), y, z, light);
-                                    if (x < Chunk.MAX.X) PropogateLightR(chunk, (byte)(x + 1), y, z, light);
-                                    if (y > 0) PropogateLightR(chunk, x, (byte)(y - 1), z, light);
-                                    if (y < Chunk.MAX.Y) PropogateLightR(chunk, x, (byte)(y + 1), z, light);
-                                    if (z > 0) PropogateLightR(chunk, x, y, (byte)(z - 1), light);
-                                    if (z < Chunk.MAX.Z) PropogateLightR(chunk, x, y, (byte)(z + 1), light);
-                                }
-
-                                // Pull in light from neighbours
-                                if (x == 0) PropogateLightR(chunk, x, y, z, chunk.E.BlockAt(Chunk.MAX.X, y, z).R);
-                                if (x == Chunk.MAX.X) PropogateLightR(chunk, x, y, z, chunk.W.BlockAt(0, y, z).R);
-                                if (z == 0) PropogateLightR(chunk, x, y, z, chunk.S.BlockAt(x, y, Chunk.MAX.Z).R);
-                                if (z == Chunk.MAX.Z) PropogateLightR(chunk, x, y, z, chunk.N.BlockAt(x, y, 0).R);
+                                if (x > 0) PropogateLightR(chunk, (byte)(x - 1), y, z, light);
+                                if (x < Chunk.MAX.X) PropogateLightR(chunk, (byte)(x + 1), y, z, light);
+                                if (y > 0) PropogateLightR(chunk, x, (byte)(y - 1), z, light);
+                                if (y < Chunk.MAX.Y) PropogateLightR(chunk, x, (byte)(y + 1), z, light);
+                                if (z > 0) PropogateLightR(chunk, x, y, (byte)(z - 1), light);
+                                if (z < Chunk.MAX.Z) PropogateLightR(chunk, x, y, (byte)(z + 1), light);
                             }
+
+                            // Pull in light from neighbours
+                            if ((x == 0) && chunk.E != null)
+                                PropogateLightR(chunk, x, y, z, chunk.E.BlockAt(Chunk.MAX.X, y, z).R);
+
+                            if ((x == Chunk.MAX.X) && chunk.W != null)
+                                PropogateLightR(chunk, x, y, z, chunk.W.BlockAt(0, y, z).R);
+
+                            if ((z == 0) && chunk.S != null)
+                                PropogateLightR(chunk, x, y, z, chunk.S.BlockAt(x, y, Chunk.MAX.Z).R);
+
+                            if ((z == Chunk.MAX.Z) && chunk.N != null)
+                                PropogateLightR(chunk, x, y, z, chunk.N.BlockAt(x, y, 0).R);
                         }
                     }
                 }
             }
-            catch (Exception)
-            {
-                //Debug.WriteLine("FillLightingR Exception");
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    //Debug.WriteLine("FillLightingR Exception");
+            //}
         }
 
         private void FillLightingG(Chunk chunk)
         {
-            try
+            //try
+            //{
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
-                for (byte x = 0; x < Chunk.SIZE.X; x++)
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
                 {
-                    for (byte z = 0; z < Chunk.SIZE.Z; z++)
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
+                    for (byte y = 0; y < Chunk.SIZE.Y; y++)
                     {
-                        int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
-                        for (byte y = 0; y < Chunk.SIZE.Y; y++)
+                        if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
                         {
-                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
+                            // Local light G
+                            if (chunk.Blocks[offset + y].G > 1)
                             {
-                                // Local light G
-                                if (chunk.Blocks[offset + y].G > 1)
-                                {
-                                    byte light = Attenuate(chunk.Blocks[offset + y].G);
-                                    if (x > 0) PropogateLightG(chunk, (byte)(x - 1), y, z, light);
-                                    if (x < Chunk.MAX.X) PropogateLightG(chunk, (byte)(x + 1), y, z, light);
-                                    if (y > 0) PropogateLightG(chunk, x, (byte)(y - 1), z, light);
-                                    if (y < Chunk.MAX.Y) PropogateLightG(chunk, x, (byte)(y + 1), z, light);
-                                    if (z > 0) PropogateLightG(chunk, x, y, (byte)(z - 1), light);
-                                    if (z < Chunk.MAX.Z) PropogateLightG(chunk, x, y, (byte)(z + 1), light);
-                                }
-
-                                // Pull in light from neighbours
-                                if (x == 0) PropogateLightG(chunk, x, y, z, chunk.E.BlockAt(Chunk.MAX.X, y, z).G);
-                                if (x == Chunk.MAX.X) PropogateLightG(chunk, x, y, z, chunk.W.BlockAt(0, y, z).G);
-                                if (z == 0) PropogateLightG(chunk, x, y, z, chunk.S.BlockAt(x, y, Chunk.MAX.Z).G);
-                                if (z == Chunk.MAX.Z) PropogateLightG(chunk, x, y, z, chunk.N.BlockAt(x, y, 0).G);
+                                byte light = Attenuate(chunk.Blocks[offset + y].G);
+                                if (x > 0) PropogateLightG(chunk, (byte)(x - 1), y, z, light);
+                                if (x < Chunk.MAX.X) PropogateLightG(chunk, (byte)(x + 1), y, z, light);
+                                if (y > 0) PropogateLightG(chunk, x, (byte)(y - 1), z, light);
+                                if (y < Chunk.MAX.Y) PropogateLightG(chunk, x, (byte)(y + 1), z, light);
+                                if (z > 0) PropogateLightG(chunk, x, y, (byte)(z - 1), light);
+                                if (z < Chunk.MAX.Z) PropogateLightG(chunk, x, y, (byte)(z + 1), light);
                             }
+
+                            // Pull in light from neighbours
+                            if ((x == 0) && chunk.E != null)
+                                PropogateLightG(chunk, x, y, z, chunk.E.BlockAt(Chunk.MAX.X, y, z).G);
+
+                            if ((x == Chunk.MAX.X) && chunk.W != null)
+                                PropogateLightG(chunk, x, y, z, chunk.W.BlockAt(0, y, z).G);
+
+                            if ((z == 0) && chunk.S != null)
+                                PropogateLightG(chunk, x, y, z, chunk.S.BlockAt(x, y, Chunk.MAX.Z).G);
+
+                            if ((z == Chunk.MAX.Z) && chunk.N != null)
+                                PropogateLightG(chunk, x, y, z, chunk.N.BlockAt(x, y, 0).G);
                         }
                     }
                 }
             }
-            catch (Exception)
-            {
-                //Debug.WriteLine("FillLightingG Exception");
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    //Debug.WriteLine("FillLightingG Exception");
+            //}
         }
 
         private void FillLightingB(Chunk chunk)
         {
-            try
+            //try
+            //{
+            for (byte x = 0; x < Chunk.SIZE.X; x++)
             {
-                for (byte x = 0; x < Chunk.SIZE.X; x++)
+                for (byte z = 0; z < Chunk.SIZE.Z; z++)
                 {
-                    for (byte z = 0; z < Chunk.SIZE.Z; z++)
+                    int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
+                    for (byte y = 0; y < Chunk.SIZE.Y; y++)
                     {
-                        int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y; // we don't want this x-z value to be calculated each in in y-loop!
-                        for (byte y = 0; y < Chunk.SIZE.Y; y++)
+                        if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
                         {
-                            if (chunk.Blocks[offset + y].Type == BlockType.None || chunk.Blocks[offset + y].Type == BlockType.Tree || chunk.Blocks[offset + y].Type == BlockType.RedFlower)
+                            // Local light B
+                            if (chunk.Blocks[offset + y].B > 1)
                             {
-                                // Local light B
-                                if (chunk.Blocks[offset + y].B > 1)
-                                {
-                                    byte light = Attenuate(chunk.Blocks[offset + y].B);
-                                    if (x > 0) PropogateLightB(chunk, (byte)(x - 1), y, z, light);
-                                    if (x < Chunk.MAX.X) PropogateLightB(chunk, (byte)(x + 1), y, z, light);
-                                    if (y > 0) PropogateLightB(chunk, x, (byte)(y - 1), z, light);
-                                    if (y < Chunk.MAX.Y) PropogateLightB(chunk, x, (byte)(y + 1), z, light);
-                                    if (z > 0) PropogateLightB(chunk, x, y, (byte)(z - 1), light);
-                                    if (z < Chunk.MAX.Z) PropogateLightB(chunk, x, y, (byte)(z + 1), light);
-                                }
-
-                                // Pull in light from neighbours
-                                if (x == 0) PropogateLightB(chunk, x, y, z, chunk.E.BlockAt(Chunk.MAX.X, y, z).B);
-                                if (x == Chunk.MAX.X) PropogateLightB(chunk, x, y, z, chunk.W.BlockAt(0, y, z).B);
-                                if (z == 0) PropogateLightB(chunk, x, y, z, chunk.S.BlockAt(x, y, Chunk.MAX.Z).B);
-                                if (z == Chunk.MAX.Z) PropogateLightB(chunk, x, y, z, chunk.N.BlockAt(x, y, 0).B);
+                                byte light = Attenuate(chunk.Blocks[offset + y].B);
+                                if (x > 0) PropogateLightB(chunk, (byte)(x - 1), y, z, light);
+                                if (x < Chunk.MAX.X) PropogateLightB(chunk, (byte)(x + 1), y, z, light);
+                                if (y > 0) PropogateLightB(chunk, x, (byte)(y - 1), z, light);
+                                if (y < Chunk.MAX.Y) PropogateLightB(chunk, x, (byte)(y + 1), z, light);
+                                if (z > 0) PropogateLightB(chunk, x, y, (byte)(z - 1), light);
+                                if (z < Chunk.MAX.Z) PropogateLightB(chunk, x, y, (byte)(z + 1), light);
                             }
+
+                            // Pull in light from neighbours
+                            if ((x == 0) && chunk.E != null)
+                                PropogateLightB(chunk, x, y, z, chunk.E.BlockAt(Chunk.MAX.X, y, z).B);
+
+                            if ((x == Chunk.MAX.X) && chunk.W != null)
+                                PropogateLightB(chunk, x, y, z, chunk.W.BlockAt(0, y, z).B);
+
+                            if ((z == 0) && chunk.S != null)
+                                PropogateLightB(chunk, x, y, z, chunk.S.BlockAt(x, y, Chunk.MAX.Z).B);
+
+                            if ((z == Chunk.MAX.Z) && chunk.N != null)
+                                PropogateLightB(chunk, x, y, z, chunk.N.BlockAt(x, y, 0).B);
                         }
                     }
                 }
             }
-            catch (Exception)
-            {
-                //Debug.WriteLine("FillLightingB Exception");
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    //Debug.WriteLine("FillLightingB Exception");
+            //}
         }
         #endregion
 

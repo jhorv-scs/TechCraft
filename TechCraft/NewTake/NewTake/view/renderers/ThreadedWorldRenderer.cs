@@ -67,7 +67,7 @@ namespace NewTake.view.renderers
         private FirstPersonCamera _camera;
         private World _world;
 
-        //private Vector3i _previousChunkIndex;
+        private Vector3i _previousChunkIndex;
 
         protected Vector4 NIGHTCOLOR = Color.Black.ToVector4();
         public Vector4 SUNCOLOR = Color.White.ToVector4();
@@ -392,7 +392,7 @@ namespace NewTake.view.renderers
 
                 //if (_previousChunkIndex != currentChunkIndex)
                 //{
-                //_previousChunkIndex = currentChunkIndex;
+                //    _previousChunkIndex = currentChunkIndex;
 
                 for (uint ix = cameraX - REMOVE_RANGE; ix < cameraX + REMOVE_RANGE; ix++)
                 {
@@ -411,8 +411,10 @@ namespace NewTake.view.renderers
                             distZ = 0 - distZ;
                             zdir = -1;
                         }
+
                         Vector3i chunkIndex = new Vector3i(ix, 0, iz);
 
+                        //Debug.WriteLine("currentChunkIndex = {0}, chunkIndex = {1}, distX = {2}, distZ = {3}", currentChunkIndex, chunkIndex, distX, distZ);
                         #region Remove
                         if (distX > GENERATE_RANGE || distZ > GENERATE_RANGE)
                         {
@@ -443,7 +445,7 @@ namespace NewTake.view.renderers
                                 {
                                     if (chunkRemove.State == ChunkState.Ready)
                                     {
-                                        Debug.WriteLine("Remove({0},{1}), Assign ({2},{3}), Dist ({4},{5}), Dir ({6},{7}) ChunkCount = {8}", removeX, removeZ, ix, iz, distX, distZ, xdir, zdir, _world.viewableChunks.Count);
+                                        //Debug.WriteLine("Remove({0},{1}), Assign ({2},{3}), Dist ({4},{5}), Dir ({6},{7}) ChunkCount = {8}", removeX, removeZ, ix, iz, distX, distZ, xdir, zdir, _world.viewableChunks.Count);
 
                                         // remove chunk is in a ready state, so we can remove it
                                         //_world.viewableChunks.Remove(removeX, removeZ);
@@ -465,7 +467,7 @@ namespace NewTake.view.renderers
                                     }
                                     else if (chunkRemove.State != ChunkState.AwaitingLighting)
                                     {
-                                        Debug.WriteLine("chunkGenerate at {0}, state = {1}", chunkIndex, chunkRemove.State);
+                                        Debug.WriteLine("chunkGenerate Error at {0}, state = {1}", chunkIndex, chunkRemove.State);
                                     }
                                 }
                                 //else if (chunkRemove == null)
@@ -533,6 +535,7 @@ namespace NewTake.view.renderers
                     }
                 }
                 Thread.Sleep(10);
+                //}
             }
         }
         #endregion
@@ -707,6 +710,9 @@ namespace NewTake.view.renderers
                 foundGenerate = false;
                 foundLighting = false;
                 foundBuild = false;
+
+                if (_generateQueue.Count != 0 || _lightingQueue.Count != 0 || _buildQueue.Count != 0)
+                    Debug.WriteLine("_gQ = {0}, _lQ = {1}, _bQ = {2}", _generateQueue.Count, _lightingQueue.Count, _buildQueue.Count);
 
                 // LOOK FOR CHUNKS REQUIRING GENERATION
                 lock (_generateQueue)
