@@ -285,7 +285,7 @@ namespace NewTake.view
             }
             catch (Exception)
             {
-                Debug.WriteLine("FillSunLighting Exception");
+                Debug.WriteLine("FillSunLighting Exception: Chunk={0}", chunk.Index);
             }
         }
 
@@ -327,7 +327,7 @@ namespace NewTake.view
             }
             catch (Exception)
             {
-                Debug.WriteLine("FillLightingR Exception");
+                //Debug.WriteLine("FillLightingR Exception");
             }
         }
 
@@ -368,7 +368,7 @@ namespace NewTake.view
             }
             catch (Exception)
             {
-                Debug.WriteLine("FillLightingG Exception");
+                //Debug.WriteLine("FillLightingG Exception");
             }
         }
 
@@ -409,7 +409,7 @@ namespace NewTake.view
             }
             catch (Exception)
             {
-                Debug.WriteLine("FillLightingB Exception");
+                //Debug.WriteLine("FillLightingB Exception");
             }
         }
         #endregion
