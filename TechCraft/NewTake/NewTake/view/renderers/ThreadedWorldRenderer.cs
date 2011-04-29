@@ -60,7 +60,9 @@ namespace NewTake.view.renderers
         private Queue<Vector3i> _buildQueue = new Queue<Vector3i>();
         private Queue<Vector3i> _lightingQueue = new Queue<Vector3i>();
 
-        private Thread _workerThread;
+        private Thread _workerQueueThread;
+        private Thread _workerCheckThread;
+
         private GraphicsDevice _graphicsDevice;
         private FirstPersonCamera _camera;
         private World _world;
@@ -80,7 +82,7 @@ namespace NewTake.view.renderers
         public bool dayMode = false;
         public bool nightMode = false;
 
-        private const byte BUILD_RANGE = 15;
+        private const byte BUILD_RANGE = 1;
         private const byte LIGHT_RANGE = BUILD_RANGE + 1;
         private const byte GENERATE_RANGE = LIGHT_RANGE + 1;
         private const byte REMOVE_RANGE = GENERATE_RANGE + 1;
@@ -110,10 +112,15 @@ namespace NewTake.view.renderers
             Debug.WriteLine("Build initial chunks");
             _world.visitChunks(DoBuild, BUILD_RANGE);
 
-            _workerThread = new Thread(new ThreadStart(WorkerThread));
-            _workerThread.Priority = ThreadPriority.Highest;
-            _workerThread.IsBackground = true;
-            _workerThread.Start();
+            _workerQueueThread = new Thread(new ThreadStart(WorkerThread));
+            _workerQueueThread.Priority = ThreadPriority.AboveNormal;
+            _workerQueueThread.IsBackground = true;
+            _workerQueueThread.Start();
+
+            _workerCheckThread = new Thread(new ThreadStart(WorkerCheckThread));
+            _workerCheckThread.Priority = ThreadPriority.Highest;
+            _workerCheckThread.IsBackground = true;
+            _workerCheckThread.Start();
         }
         #endregion
 
@@ -244,10 +251,22 @@ namespace NewTake.view.renderers
 
             _tod = _world.tod;
 
+            if (_world.dayMode)
+            {
+                _tod = 12;
+                _world.nightMode = false;
+            }
+            else if (_world.nightMode)
+            {
+                _tod = 0;
+                _world.dayMode = false;
+            }
+
             _solidBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _solidBlockEffect.Parameters["View"].SetValue(_camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
             _solidBlockEffect.Parameters["CameraPosition"].SetValue(_camera.Position);
+            //_solidBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
             _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
@@ -262,8 +281,6 @@ namespace NewTake.view.renderers
             _solidBlockEffect.Parameters["timeOfDay"].SetValue(_tod);
 
             BoundingFrustum viewFrustum = new BoundingFrustum(_camera.View * _camera.Projection);
-
-            _graphicsDevice.RasterizerState = !_world._wireframed ? _world._normalRaster : _world._wireframedRaster;
 
             _graphicsDevice.BlendState = BlendState.Opaque;
             _graphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -301,10 +318,22 @@ namespace NewTake.view.renderers
 
             _tod = _world.tod;
 
+            if (_world.dayMode)
+            {
+                _tod = 12;
+                _world.nightMode = false;
+            }
+            else if (_world.nightMode)
+            {
+                _tod = 0;
+                _world.dayMode = false;
+            }
+
             _waterBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _waterBlockEffect.Parameters["View"].SetValue(_camera.View);
             _waterBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
             _waterBlockEffect.Parameters["CameraPosition"].SetValue(_camera.Position);
+            //_waterBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
             _waterBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _waterBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _waterBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
@@ -320,8 +349,6 @@ namespace NewTake.view.renderers
             _waterBlockEffect.Parameters["RippleTime"].SetValue(rippleTime);
 
             BoundingFrustum viewFrustum = new BoundingFrustum(_camera.View * _camera.Projection);
-
-            _graphicsDevice.RasterizerState = !_world._wireframed ? _world._normalRaster : _world._wireframedRaster;
 
             _graphicsDevice.BlendState = BlendState.NonPremultiplied;
             _graphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -351,118 +378,316 @@ namespace NewTake.view.renderers
         }
         #endregion
 
+        #region WorkerCheckThread
+        public void WorkerCheckThread()
+        {
+            while (_running)
+            {
+                //Debug.WriteLine("M:" + GC.GetTotalMemory(false));
+
+                uint cameraX = (uint)(_camera.Position.X / Chunk.SIZE.X);
+                uint cameraZ = (uint)(_camera.Position.Z / Chunk.SIZE.Z);
+
+                Vector3i currentChunkIndex = new Vector3i(cameraX, 0, cameraZ);
+
+                //if (_previousChunkIndex != currentChunkIndex)
+                //{
+                //_previousChunkIndex = currentChunkIndex;
+
+                for (uint ix = cameraX - REMOVE_RANGE; ix < cameraX + REMOVE_RANGE; ix++)
+                {
+                    for (uint iz = cameraZ - REMOVE_RANGE; iz < cameraZ + REMOVE_RANGE; iz++)
+                    {
+                        int distX = (int)(ix - cameraX);
+                        int distZ = (int)(iz - cameraZ);
+                        int xdir = 1, zdir = 1;
+                        if (distX < 0)
+                        {
+                            distX = 0 - distX;
+                            xdir = -1;
+                        }
+                        if (distZ < 0)
+                        {
+                            distZ = 0 - distZ;
+                            zdir = -1;
+                        }
+                        Vector3i chunkIndex = new Vector3i(ix, 0, iz);
+
+                        #region Remove
+                        if (distX > GENERATE_RANGE || distZ > GENERATE_RANGE)
+                        {
+                            if (_world.viewableChunks[ix, iz] != null)
+                            {
+                                Debug.WriteLine("Remove({0},{1}) ChunkCount = {2}", ix, iz, _world.viewableChunks.Count);
+                                _world.viewableChunks.Remove(ix, iz);
+                            }
+                            continue;
+                        }
+                        #endregion
+                        #region Generate
+                        if (distX > LIGHT_RANGE || distZ > LIGHT_RANGE)
+                        {
+                            if (_world.viewableChunks[ix, iz] == null)
+                            {
+                                uint removeX = ix, removeZ = iz;
+
+                                // find the opposite chunk
+                                if (distX > LIGHT_RANGE) removeX = (uint)(ix - distX * xdir * 2);
+                                if (distZ > LIGHT_RANGE) removeZ = (uint)(iz - distZ * zdir * 2);
+
+                                // now that we have the opposite chunk, we can check if it is in a Ready state.
+                                // any previously showing chunks, would have that state. If so, we only attempt to regenerate showing chunks
+                                Chunk chunkRemove = _world.viewableChunks[removeX, removeZ];
+
+                                if (chunkRemove != null)
+                                {
+                                    if (chunkRemove.State == ChunkState.Ready)
+                                    {
+                                        Debug.WriteLine("Remove({0},{1}), Assign ({2},{3}), Dist ({4},{5}), Dir ({6},{7}) ChunkCount = {8}", removeX, removeZ, ix, iz, distX, distZ, xdir, zdir, _world.viewableChunks.Count);
+
+                                        // remove chunk is in a ready state, so we can remove it
+                                        //_world.viewableChunks.Remove(removeX, removeZ);
+
+                                        // now we can add the front facing chunk to the generate queue, once only.
+                                        //Chunk chunkGenerate = new Chunk(_world, chunkIndex);
+                                        //chunkGenerate.State = ChunkState.AwaitingGenerate;
+                                        //_world.viewableChunks[ix, iz] = chunkGenerate;
+
+                                        QueueGenerate(chunkIndex);
+
+                                        /*when it works, replace by toReAssign next commented block*/
+                                        Chunk toReAssign = _world.viewableChunks[removeX, removeZ];
+                                        if (toReAssign != null)
+                                        {
+                                            toReAssign.Assign(chunkIndex);
+                                            toReAssign.State = ChunkState.AwaitingGenerate;
+                                        }
+                                    }
+                                    else if (chunkRemove.State != ChunkState.AwaitingLighting)
+                                    {
+                                        Debug.WriteLine("chunkGenerate at {0}, state = {1}", chunkIndex, chunkRemove.State);
+                                    }
+                                }
+                                //else if (chunkRemove == null)
+                                //{
+                                //    Debug.WriteLine("NULL Remove found at ({0},{1}), ChunkCount = {2}", removeX, removeZ, _world.viewableChunks.Count);
+                                //}
+
+                            }
+                            continue;
+                        }
+                        /*
+                        if (distX >= GENERATE_RANGE || distZ >= GENERATE_RANGE)
+                        {
+                            if (_world.viewableChunks[ix, iz] == null)
+                            {
+                                Debug.WriteLine("Add({0},{1})", ix, iz);
+
+                                Chunk chunk = new Chunk(_world, chunkIndex);
+                                chunk.State = ChunkState.AwaitingGenerate;
+                                _world.viewableChunks[ix, iz] = chunk;
+                                QueueGenerate(chunkIndex);
+                            }
+                            continue;
+                        }*/
+                        #endregion
+                        #region Light
+                        if (distX <= LIGHT_RANGE || distZ <= LIGHT_RANGE)
+                        {
+                            Chunk chunk = _world.viewableChunks[ix, iz];
+                            if (chunk != null && chunk.State == ChunkState.AwaitingLighting)
+                            {
+                                QueueLighting(chunkIndex);
+                            }
+
+                            if (chunk != null && chunk.State == ChunkState.AwaitingRelighting)
+                            //if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRelighting)
+                            {
+                                QueueLighting(chunkIndex);
+                            }
+
+                            if (chunk != null && (chunk.State == ChunkState.AwaitingRebuild || chunk.State == ChunkState.AwaitingBuild))
+                            //if (rebuildChunk != null && (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild))
+                            {
+                                QueueBuild(chunkIndex);
+                            }
+
+                            continue;
+                        }
+                        #endregion
+                        //#region Rebuild
+                        //Chunk rebuildChunk = _world.viewableChunks[ix, iz];
+
+                        //if (rebuildChunk.State == ChunkState.AwaitingRelighting)
+                        ////if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRelighting)
+                        //{
+                        //    QueueLighting(chunkIndex);
+                        //}
+
+                        //if (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild)
+                        ////if (rebuildChunk != null && (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild))
+                        //{
+                        //    QueueBuild(chunkIndex);
+                        //}
+                        //#endregion
+                    }
+                }
+                Thread.Sleep(10);
+            }
+        }
+        #endregion
+
         #region Update
         public void Update(GameTime gameTime)
         {
-            //Debug.WriteLine("M:" + GC.GetTotalMemory(false));
+            ////Debug.WriteLine("M:" + GC.GetTotalMemory(false));
 
-            uint cameraX = (uint)(_camera.Position.X / Chunk.SIZE.X);
-            uint cameraZ = (uint)(_camera.Position.Z / Chunk.SIZE.Z);
+            //uint cameraX = (uint)(_camera.Position.X / Chunk.SIZE.X);
+            //uint cameraZ = (uint)(_camera.Position.Z / Chunk.SIZE.Z);
 
-            Vector3i currentChunkIndex = new Vector3i(cameraX, 0, cameraZ);
-            //if (_previousChunkIndex != currentChunkIndex)
+            //Vector3i currentChunkIndex = new Vector3i(cameraX, 0, cameraZ);
+
+            ////if (_previousChunkIndex != currentChunkIndex)
+            ////{
+            ////_previousChunkIndex = currentChunkIndex;
+
+            //for (uint ix = cameraX - REMOVE_RANGE; ix < cameraX + REMOVE_RANGE; ix++)
             //{
-            //_previousChunkIndex = currentChunkIndex;
-            for (uint ix = cameraX - REMOVE_RANGE; ix < cameraX + REMOVE_RANGE; ix++)
-            {
-                for (uint iz = cameraZ - REMOVE_RANGE; iz < cameraZ + REMOVE_RANGE; iz++)
-                {
-                    int distX = (int)(ix - cameraX);
-                    int distZ = (int)(iz - cameraZ);
-                    int xdir = 1, zdir = 1;
-                    if (distX < 0)
-                    {
-                        distX = 0 - distX;
-                        xdir = -1;
-                    }
-                    if (distZ < 0)
-                    {
-                        distZ = 0 - distZ;
-                        zdir = -1;
-                    }
-                    Vector3i chunkIndex = new Vector3i(ix, 0, iz);
+            //    for (uint iz = cameraZ - REMOVE_RANGE; iz < cameraZ + REMOVE_RANGE; iz++)
+            //    {
+            //        int distX = (int)(ix - cameraX);
+            //        int distZ = (int)(iz - cameraZ);
+            //        int xdir = 1, zdir = 1;
+            //        if (distX < 0)
+            //        {
+            //            distX = 0 - distX;
+            //            xdir = -1;
+            //        }
+            //        if (distZ < 0)
+            //        {
+            //            distZ = 0 - distZ;
+            //            zdir = -1;
+            //        }
+            //        Vector3i chunkIndex = new Vector3i(ix, 0, iz);
 
-                    if (distX >= REMOVE_RANGE || distZ >= REMOVE_RANGE)
-                    {
-                        if (_world.viewableChunks[ix, iz] != null)
-                        {
-                            Debug.WriteLine("Remove({0},{1})", ix, iz);
-                            _world.viewableChunks.Remove(ix, iz);
-                        }
-                        continue;
-                    }
+            //        #region Remove
+            //        if (distX > GENERATE_RANGE || distZ > GENERATE_RANGE)
+            //        {
+            //            if (_world.viewableChunks[ix, iz] != null)
+            //            {
+            //                Debug.WriteLine("Remove({0},{1}) ChunkCount = {2}", ix, iz, _world.viewableChunks.Count);
+            //                _world.viewableChunks.Remove(ix, iz);
+            //            }
+            //            continue;
+            //        }
+            //        #endregion
+            //        #region Generate
+            //        if (distX > LIGHT_RANGE || distZ > LIGHT_RANGE)
+            //        {
+            //            if (_world.viewableChunks[ix, iz] == null)
+            //            {
+            //                uint removeX = ix, removeZ = iz;
 
-                    /*if (distX >= GENERATE_RANGE || distZ >= GENERATE_RANGE)
-                    {
-                        if (_world.viewableChunks[ix, iz] == null)
-                        {
-                            uint removeX = ix, removeZ = iz;
+            //                // find the opposite chunk
+            //                if (distX > LIGHT_RANGE) removeX = (uint)(ix - distX * xdir * 2);
+            //                if (distZ > LIGHT_RANGE) removeZ = (uint)(iz - distZ * zdir * 2);
 
-                            //find the opposite chunk
-                            if (distX >= GENERATE_RANGE)
-                                removeX = (uint)(ix - distX * xdir * 2);  
+            //                // now that we have the opposite chunk, we can check if it is in a Ready state.
+            //                // any previously showing chunks, would have that state. If so, we only attempt to regenerate showing chunks
+            //                Chunk chunkRemove = _world.viewableChunks[removeX, removeZ];
 
-                            if (distZ >= GENERATE_RANGE)
-                                removeZ = (uint)(iz - distZ * zdir * 2);
+            //                if (chunkRemove != null)
+            //                {
+            //                    if (chunkRemove.State == ChunkState.Ready)
+            //                    {
+            //                        Debug.WriteLine("Remove({0},{1}), Assign ({2},{3}), Dist ({4},{5}), Dir ({6},{7}) ChunkCount = {8}", removeX, removeZ, ix, iz, distX, distZ, xdir, zdir, _world.viewableChunks.Count);
 
-                            Debug.WriteLine("Remove({0},{1}) , Assign ({2},{3})", removeX, removeZ, ix, iz);
+            //                        // remove chunk is in a ready state, so we can remove it
+            //                        _world.viewableChunks.Remove(removeX, removeZ);
 
-                            //when it works, replace by toReAssign next commented block
-                            _world.viewableChunks.Remove(removeX, removeZ);
-                            Chunk chunk = new Chunk(_world, chunkIndex);
-                            chunk.State = ChunkState.AwaitingGenerate;
-                            _world.viewableChunks[ix, iz] = chunk;
+            //                        // now we can add the front facing chunk to the generate queue, once only.
+            //                        Chunk chunkGenerate = new Chunk(_world, chunkIndex);
+            //                        chunkGenerate.State = ChunkState.AwaitingGenerate;
+            //                        _world.viewableChunks[ix, iz] = chunkGenerate;
 
+            //                        //Debug.WriteLine("chunkGenerate at {0}", chunkIndex);
+            //                        QueueGenerate(chunkIndex);
 
-                            // Chunk toReAssign = _world.viewableChunks[removeX, removeZ];
-                            //if(toReAssign!=null) toReAssign.Assign(chunkIndex);
-                            //toReAssign.State = ChunkState.AwaitingGenerate; 
-                            //
+            //                        /*when it works, replace by toReAssign next commented block*/
+            //                        /* Chunk toReAssign = _world.viewableChunks[removeX, removeZ];
+            //                        if(toReAssign!=null) toReAssign.Assign(chunkIndex);
+            //                        toReAssign.State = ChunkState.AwaitingGenerate; 
+            //                        */
+            //                    }
+            //                    else if (chunkRemove.State != ChunkState.AwaitingLighting)
+            //                    {
+            //                        Debug.WriteLine("chunkGenerate at {0}, state = {1}", chunkIndex, chunkRemove.State);
+            //                    }
+            //                }
+            //                //else if (chunkRemove == null)
+            //                //{
+            //                //    Debug.WriteLine("NULL Remove found at ({0},{1}), ChunkCount = {2}", removeX, removeZ, _world.viewableChunks.Count);
+            //                //}
 
-                            QueueGenerate(chunkIndex);
+            //            }
+            //            continue;
+            //        }
+            //        /*
+            //        if (distX >= GENERATE_RANGE || distZ >= GENERATE_RANGE)
+            //        {
+            //            if (_world.viewableChunks[ix, iz] == null)
+            //            {
+            //                Debug.WriteLine("Add({0},{1})", ix, iz);
 
-                        }
-                        continue;
-                    }*/
-                    
-                    if (distX >= GENERATE_RANGE || distZ >= GENERATE_RANGE)
-                    {
-                        if (_world.viewableChunks[ix, iz] == null)
-                        {
-                            Debug.WriteLine("Add({0},{1})", ix, iz);
+            //                Chunk chunk = new Chunk(_world, chunkIndex);
+            //                chunk.State = ChunkState.AwaitingGenerate;
+            //                _world.viewableChunks[ix, iz] = chunk;
+            //                QueueGenerate(chunkIndex);
+            //            }
+            //            continue;
+            //        }*/
+            //        #endregion
+            //        #region Light
+            //        if (distX <= LIGHT_RANGE || distZ <= LIGHT_RANGE)
+            //        {
+            //            Chunk chunk = _world.viewableChunks[ix, iz];
+            //            if (chunk != null && chunk.State == ChunkState.AwaitingLighting)
+            //            {
+            //                QueueLighting(chunkIndex);
+            //            }
 
-                            Chunk chunk = new Chunk(_world, chunkIndex);
-                            chunk.State = ChunkState.AwaitingGenerate;
-                            _world.viewableChunks[ix, iz] = chunk;
-                            QueueGenerate(chunkIndex);
-                        }
-                        continue;
-                    }
+            //            if (chunk != null && chunk.State == ChunkState.AwaitingRelighting)
+            //            //if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRelighting)
+            //            {
+            //                QueueLighting(chunkIndex);
+            //            }
 
-                    if (distX >= LIGHT_RANGE || distZ >= LIGHT_RANGE)
-                    {
-                        Chunk chunk = _world.viewableChunks[ix, iz];
-                        if (chunk != null && chunk.State == ChunkState.AwaitingLighting)
-                        {
-                            QueueLighting(chunkIndex);
-                        }
-                        continue;
-                    }
+            //            if (chunk != null && (chunk.State == ChunkState.AwaitingRebuild || chunk.State == ChunkState.AwaitingBuild))
+            //            //if (rebuildChunk != null && (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild))
+            //            {
+            //                QueueBuild(chunkIndex);
+            //            }
 
+            //            continue;
+            //        }
+            //        #endregion
+            //        //#region Rebuild
+            //        //Chunk rebuildChunk = _world.viewableChunks[ix, iz];
 
-                    Chunk rebuildChunk = _world.viewableChunks[ix, iz];
-                    
-                    if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRelighting)
-                    {
-                        QueueLighting(chunkIndex);
-                    }
-                    
-                    if (rebuildChunk != null && (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild))
-                    {
-                        QueueBuild(chunkIndex);
-                    }
-                }
-            }
+            //        //if (rebuildChunk.State == ChunkState.AwaitingRelighting)
+            //        ////if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRelighting)
+            //        //{
+            //        //    QueueLighting(chunkIndex);
+            //        //}
+
+            //        //if (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild)
+            //        ////if (rebuildChunk != null && (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild))
+            //        //{
+            //        //    QueueBuild(chunkIndex);
+            //        //}
+            //        //#endregion
+            //    }
+            //}
         }
         #endregion
 
@@ -479,7 +704,9 @@ namespace NewTake.view.renderers
 
             while (_running)
             {
-                foundGenerate = false; foundLighting = false; foundBuild = false;
+                foundGenerate = false;
+                foundLighting = false;
+                foundBuild = false;
 
                 // LOOK FOR CHUNKS REQUIRING GENERATION
                 lock (_generateQueue)
@@ -525,7 +752,7 @@ namespace NewTake.view.renderers
                     DoBuild(target);
                     continue;
                 }
-                Thread.Sleep(10);
+                Thread.Sleep(20);
             }
         }
         #endregion
