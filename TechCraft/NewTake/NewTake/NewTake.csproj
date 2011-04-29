@@ -167,13 +167,10 @@
     <Compile Include="view\processors\IChunkProcessor.cs" />
     <Compile Include="view\processors\LightingChunkProcessor.cs" />
     <Compile Include="view\processors\VertexBuildChunkProcessor.cs" />
-    <Compile Include="view\renderers\deprecated\multithreadLighting\MultiThreadLightingWorldRenderer.cs" />
-    <Compile Include="view\renderers\deprecated\singlethreadLighting\SingleThreadLightingWorldRenderer.cs" />
     <Compile Include="view\renderers\DiagnosticWorldRenderer.cs" />
     <Compile Include="view\renderers\IRenderer.cs" />
     <Compile Include="view\renderers\SkyDomeRenderer.cs" />
     <Compile Include="view\renderers\ThreadedWorldRenderer.cs" />
-    <Compile Include="view\renderers\deprecated\WorldRenderer.cs" />
     <Compile Include="view\blocks\VertexPositionTextureShade.cs" />
     <Compile Include="model\types\Vector3i.cs" />
   </ItemGroup>

@@ -41,22 +41,21 @@ namespace NewTake.model.types
 
     public class ChunkManager : Dictionary2<Chunk>
     {
-       
+
         private IChunkPersistence persistence;
-   
+
         public ChunkManager(IChunkPersistence persistence)
         {
-            this.persistence=persistence;
+            this.persistence = persistence;
         }
-        
+
+
         public override void Remove(uint x, uint z)
         {
             Chunk chunk = this[x, z];
             if (chunk == null) return;
 
             beforeRemove(chunk);
-
-            //Remove(KeyFromCoords(x, z));
 
             Chunk removed;
             TryRemove(KeyFromCoords(x, z), out removed);
@@ -68,38 +67,45 @@ namespace NewTake.model.types
             persistence.save(chunk);
         }
 
+        public Chunk get(Vector3i index)
+        {
+            return this[index.X, index.Z];
+        }
+
+        /* public override Chunk this[uint x, uint z]
+         {
+             get
+             {
+                 Chunk chunk = base[x, z];
+                 if (chunk == null)
+                 {
+                     Vector3i index = new Vector3i(x, 0, z);
+
+                     chunk = whenNull(index);
+                     base[x, z] = chunk; 
+                 }
+                 return chunk;
+             }
+             set
+             {
+                 base[x, z] = value;
+
+             }
+         }*/
+
         /*
-         * The idea of loading directly whenever accessing a null chunk was cool but theres much more to do in the worldrenderer.generate method
-         * 
-         * Needs more thinking and surely some major refactoring. 
-         * 
-         * For now the load method from this chunkmanager class is called from worldrenderer.generate
-         * 
-         * public override Chunk this[uint x, uint z]
-          {
-              get
-              {
-                  Chunk chunk = base[x, z];
-                  if (chunk == null )
-                  {
-                      Vector3i index = new Vector3i(x,0,z);
+ * The idea of loading directly whenever accessing a null chunk was cool but theres much more to do in the worldrenderer.generate method
+ * 
+ * Needs more thinking and surely some major refactoring. 
+ * 
+ */
 
-                      chunk = whenNull(index);
-                      base[x, z] = chunk; //Note for jacoo : this was missing , causing some sort of infinite loop
-                  }
-                  return chunk;
-              }
-              set
-              {
-                  base[x, z] = value;
-              }
-          }
+        private Chunk whenNull(Vector3i index)
+        {
+            //return persistence.load(index);
+            return null;
+        }
 
-          private Chunk whenNull(Vector3i index)
-          {
-              return persistence.load(index);
-          }
-         */
 
         public Chunk load(Vector3i index)
         {

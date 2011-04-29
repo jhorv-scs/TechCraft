@@ -49,6 +49,10 @@ namespace NewTake.view.renderers
         private World _world;
 
         #region Atmospheric settings
+        
+        
+        //TODO accord with ThreadedWorldRenderer fog constants
+
         public const float FARPLANE = 220 * 4;
         public const int FOGNEAR = 200 * 4;
         public const int FOGFAR = 220 * 4;

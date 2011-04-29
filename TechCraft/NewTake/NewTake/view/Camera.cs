@@ -54,7 +54,7 @@ namespace NewTake.view
 
         private float _viewAngle = MathHelper.PiOver4;
         private float _nearPlane = 0.01f;
-        private float _farPlane = WorldRenderer.FARPLANE;
+        private float _farPlane = 220 * 4;
 
         public readonly Viewport viewport;
 
