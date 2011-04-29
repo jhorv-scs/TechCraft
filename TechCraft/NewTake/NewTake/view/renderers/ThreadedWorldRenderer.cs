@@ -394,9 +394,9 @@ namespace NewTake.view.renderers
                 //{
                 //    _previousChunkIndex = currentChunkIndex;
 
-                for (uint ix = cameraX - REMOVE_RANGE; ix < cameraX + REMOVE_RANGE; ix++)
+                for (uint ix = cameraX - REMOVE_RANGE * 2; ix < cameraX + REMOVE_RANGE * 2; ix++)
                 {
-                    for (uint iz = cameraZ - REMOVE_RANGE; iz < cameraZ + REMOVE_RANGE; iz++)
+                    for (uint iz = cameraZ - REMOVE_RANGE * 2; iz < cameraZ + REMOVE_RANGE * 2; iz++)
                     {
                         int distX = (int)(ix - cameraX);
                         int distZ = (int)(iz - cameraZ);
@@ -420,7 +420,7 @@ namespace NewTake.view.renderers
                         {
                             if (_world.viewableChunks[ix, iz] != null)
                             {
-                                Debug.WriteLine("Remove({0},{1}) ChunkCount = {2}", ix, iz, _world.viewableChunks.Count);
+                                //Debug.WriteLine("Remove({0},{1}) ChunkCount = {2}", ix, iz, _world.viewableChunks.Count);
                                 _world.viewableChunks.Remove(ix, iz);
                             }
                             continue;
@@ -711,8 +711,8 @@ namespace NewTake.view.renderers
                 foundLighting = false;
                 foundBuild = false;
 
-                if (_generateQueue.Count != 0 || _lightingQueue.Count != 0 || _buildQueue.Count != 0)
-                    Debug.WriteLine("_gQ = {0}, _lQ = {1}, _bQ = {2}", _generateQueue.Count, _lightingQueue.Count, _buildQueue.Count);
+                //if (_generateQueue.Count != 0 || _lightingQueue.Count != 0 || _buildQueue.Count != 0)
+                //    Debug.WriteLine("_gQ = {0}, _lQ = {1}, _bQ = {2}", _generateQueue.Count, _lightingQueue.Count, _buildQueue.Count);
 
                 // LOOK FOR CHUNKS REQUIRING GENERATION
                 lock (_generateQueue)
@@ -725,7 +725,12 @@ namespace NewTake.view.renderers
                 }
                 if (foundGenerate)
                 {
-                    DoGenerate(target);
+                    Chunk chunkGenerate = _world.viewableChunks[target.X, target.Z];
+                    if (chunkGenerate.State == ChunkState.AwaitingGenerate)
+                    {
+                        //Debug.WriteLine("DoGenerate target = {0}, state = {1}", target, chunkGenerate.State);
+                        DoGenerate(target);
+                    }
                     continue;
                 }
 
@@ -740,7 +745,12 @@ namespace NewTake.view.renderers
                 }
                 if (foundLighting)
                 {
-                    DoLighting(target);
+                    Chunk chunkLighting = _world.viewableChunks[target.X, target.Z];
+                    if (chunkLighting.State == ChunkState.AwaitingLighting || chunkLighting.State == ChunkState.AwaitingRelighting)
+                    {
+                        //Debug.WriteLine("DoLighting target = {0}, state = {1}", target, chunkLighting.State);
+                        DoLighting(target);
+                    }
                     continue;
                 }
 
@@ -755,8 +765,14 @@ namespace NewTake.view.renderers
                 }
                 if (foundBuild)
                 {
-                    DoBuild(target);
+                    Chunk chunkBuild = _world.viewableChunks[target.X,target.Z];
+                    if (chunkBuild.State == ChunkState.AwaitingBuild || chunkBuild.State == ChunkState.AwaitingRebuild)
+                    {
+                        //Debug.WriteLine("DoBuild target = {0}, state = {1}", target, chunkBuild.State);
+                        DoBuild(target);
+                    }
                     continue;
+                    //}
                 }
                 Thread.Sleep(20);
             }
