@@ -39,6 +39,9 @@ namespace NewTake.model.terrain
     class DualLayerTerrainWithMediumValleysForRivers : SimpleTerrain
     {
 
+        private float lowerGroundHeight;
+        private int upperGroundHeight;
+
         public override void Generate(Chunk chunk)
         {
             base.Generate(chunk);
@@ -50,8 +53,8 @@ namespace NewTake.model.terrain
         #region generateTerrain
         protected sealed override void generateTerrain(Chunk chunk, byte blockXInChunk, byte blockZInChunk, uint worldX, uint worldZ)
         {
-            float lowerGroundHeight = GetLowerGroundHeight(chunk, worldX, worldZ);
-            int upperGroundHeight = GetUpperGroundHeight(chunk, worldX, worldZ, lowerGroundHeight);
+            lowerGroundHeight = GetLowerGroundHeight(chunk, worldX, worldZ);
+            upperGroundHeight = GetUpperGroundHeight(chunk, worldX, worldZ, lowerGroundHeight);
 
             bool sunlit = true;
 
@@ -111,13 +114,13 @@ namespace NewTake.model.terrain
                     }
                 }
 
-                if (blockType == BlockType.None)
+                if (blockType == BlockType.None && y <= WATERLEVEL)
                 {
-                    if (y <= WATERLEVEL)
-                    {
+                    //if (y <= WATERLEVEL)
+                    //{
                         blockType = BlockType.Lava;
                         sunlit = false;
-                    }
+                    //}
                 }
                 chunk.setBlock(blockXInChunk, (byte)y, blockZInChunk, new Block(blockType));
             }
@@ -129,7 +132,7 @@ namespace NewTake.model.terrain
         #region GenerateWaterSandLayer
         private void GenerateWaterSandLayer(Chunk chunk)
         {
-            BlockType blockType;
+            //BlockType blockType;
             //bool sunlit = true;
 
             for (byte x = 0; x < Chunk.SIZE.X; x++)
@@ -137,12 +140,14 @@ namespace NewTake.model.terrain
                 for (byte z = 0; z < Chunk.SIZE.Z; z++)
                 {
                     int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y;
-                    for (byte y = WATERLEVEL + 9; y >= MINIMUMGROUNDHEIGHT; y--)
+                    //for (byte y = WATERLEVEL + 9; y >= MINIMUMGROUNDHEIGHT; y--)
+                    for (byte y = WATERLEVEL + 9; y >= (byte)lowerGroundHeight; y--)
                     {
-                        blockType = chunk.Blocks[offset + y].Type;
-                        if (blockType == BlockType.None)
+                        //blockType = chunk.Blocks[offset + y].Type;
+                        if (chunk.Blocks[offset + y].Type == BlockType.None)
                         {
-                            blockType = BlockType.Water;
+                            chunk.setBlock(x, y, z, new Block(BlockType.Water));
+                            //blockType = BlockType.Water;
                         }
                         //else
                         //{
@@ -156,7 +161,7 @@ namespace NewTake.model.terrain
                         //    }
                         //    break;
                         //}
-                        chunk.setBlock(x, y, z, new Block(blockType));
+                        //chunk.setBlock(x, y, z, new Block(blockType));
                     }
                     for (byte y = WATERLEVEL + 11; y >= WATERLEVEL; y--)
                     {
@@ -178,18 +183,18 @@ namespace NewTake.model.terrain
                 for (byte z = 0; z < Chunk.SIZE.Z; z++)
                 {
                     int offset = x * Chunk.FlattenOffset + z * Chunk.SIZE.Y;
-                    for (byte y = Chunk.MAX.Y; y >= WATERLEVEL + 9; y--)
+                    for (int y = upperGroundHeight+1; y >= WATERLEVEL + 9; y--)
                     {
                         if (chunk.Blocks[offset + y].Type == BlockType.Grass)
                         {
                             if (r.Next(700) == 1)
                             {
-                                base.BuildTree(chunk, x, y, z);
+                                base.BuildTree(chunk, x, (byte)y, z);
                             }
                             else if (r.Next(50) == 1)
                             {
                                 y++;
-                                chunk.setBlock(x, y, z, new Block(BlockType.RedFlower));
+                                chunk.setBlock(x, (byte)y, z, new Block(BlockType.RedFlower));
                             }
                             //else if (r.Next(2) == 1)
                             //{
