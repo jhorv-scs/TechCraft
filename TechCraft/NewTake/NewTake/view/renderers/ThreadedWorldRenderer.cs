@@ -67,8 +67,6 @@ namespace NewTake.view.renderers
 
         private Vector3i _previousChunkIndex;
 
-
-
         protected Vector4 NIGHTCOLOR = Color.Black.ToVector4();
         public Vector4 SUNCOLOR = Color.White.ToVector4();
         protected Vector4 HORIZONCOLOR = Color.White.ToVector4();
@@ -82,13 +80,13 @@ namespace NewTake.view.renderers
         public bool dayMode = false;
         public bool nightMode = false;
 
-        private const byte REMOVE_RANGE = 18;
-        private const byte GENERATE_RANGE = 17;
-        private const byte LIGHT_RANGE = 16;
-        private const byte BUILD_RANGE = 15;
+        private const byte BUILD_RANGE = 1;
+        private const byte LIGHT_RANGE = BUILD_RANGE + 1;
+        private const byte GENERATE_RANGE = LIGHT_RANGE + 1;
+        private const byte REMOVE_RANGE = GENERATE_RANGE + 1;
 
-        public const int FOGNEAR = (BUILD_RANGE-1) * 16;
-        public const float FOGFAR = (BUILD_RANGE+1) * 16;
+        public const int FOGNEAR = 14 * 16;//(BUILD_RANGE - 1) * 16;
+        public const float FOGFAR = 16 * 16;//(BUILD_RANGE + 1) * 16;
 
         #endregion
 
@@ -391,31 +389,76 @@ namespace NewTake.view.renderers
                 {
                     int distX = (int)(ix - cameraX);
                     int distZ = (int)(iz - cameraZ);
-
-                    if (distX < 0) distX = 0 - distX;
-                    if (distZ < 0) distZ = 0 - distZ;
-
+                    int xdir = 1, zdir = 1;
+                    if (distX < 0)
+                    {
+                        distX = 0 - distX;
+                        xdir = -1;
+                    }
+                    if (distZ < 0)
+                    {
+                        distZ = 0 - distZ;
+                        zdir = -1;
+                    }
                     Vector3i chunkIndex = new Vector3i(ix, 0, iz);
 
                     if (distX >= REMOVE_RANGE || distZ >= REMOVE_RANGE)
                     {
                         if (_world.viewableChunks[ix, iz] != null)
                         {
+                            Debug.WriteLine("Remove({0},{1})", ix, iz);
                             _world.viewableChunks.Remove(ix, iz);
                         }
                         continue;
                     }
+
                     if (distX >= GENERATE_RANGE || distZ >= GENERATE_RANGE)
                     {
                         if (_world.viewableChunks[ix, iz] == null)
                         {
+                            uint removeX = ix, removeZ = iz;
+
+                            //find the opposite chunk
+                            if (distX >= GENERATE_RANGE)
+                                removeX = (uint)(ix - distX * xdir * 2);  
+
+                            if (distZ >= GENERATE_RANGE)
+                                removeZ = (uint)(iz - distZ * zdir * 2);
+
+                            Debug.WriteLine("Remove({0},{1}) , Assign ({2},{3})", removeX, removeZ, ix, iz);
+
+                            /*when it works, replace by toReAssign next commented block*/
+                            _world.viewableChunks.Remove(removeX, removeZ);
+                            Chunk chunk = new Chunk(_world, chunkIndex);
+                            chunk.State = ChunkState.AwaitingGenerate;
+                            _world.viewableChunks[ix, iz] = chunk;
+
+
+                            /* Chunk toReAssign = _world.viewableChunks[removeX, removeZ];
+                            if(toReAssign!=null) toReAssign.Assign(chunkIndex);
+                            toReAssign.State = ChunkState.AwaitingGenerate; 
+                            */
+
+                            QueueGenerate(chunkIndex);
+
+                        }
+                        continue;
+                    }
+                    /*
+                    if (distX >= GENERATE_RANGE || distZ >= GENERATE_RANGE)
+                    {
+                        if (_world.viewableChunks[ix, iz] == null)
+                        {
+                            Debug.WriteLine("Add({0},{1})", ix, iz);
+
                             Chunk chunk = new Chunk(_world, chunkIndex);
                             chunk.State = ChunkState.AwaitingGenerate;
                             _world.viewableChunks[ix, iz] = chunk;
                             QueueGenerate(chunkIndex);
                         }
                         continue;
-                    }
+                    }*/
+
                     if (distX >= LIGHT_RANGE || distZ >= LIGHT_RANGE)
                     {
                         Chunk chunk = _world.viewableChunks[ix, iz];
@@ -425,11 +468,15 @@ namespace NewTake.view.renderers
                         }
                         continue;
                     }
+
+
                     Chunk rebuildChunk = _world.viewableChunks[ix, iz];
+                    
                     if (rebuildChunk != null && rebuildChunk.State == ChunkState.AwaitingRelighting)
                     {
                         QueueLighting(chunkIndex);
                     }
+                    
                     if (rebuildChunk != null && (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild))
                     {
                         QueueBuild(chunkIndex);

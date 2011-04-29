@@ -48,17 +48,17 @@ namespace NewTake.model
         //too experimental for now 
         public ChunkManager viewableChunks;
 
-        public const byte VIEW_CHUNKS_X = 8;
-        public const byte VIEW_CHUNKS_Y = 1;
-        public const byte VIEW_CHUNKS_Z = 8;
+        //public const byte VIEW_CHUNKS_X = 8;
+        //public const byte VIEW_CHUNKS_Y = 1;
+        //public const byte VIEW_CHUNKS_Z = 8;
 
         public static int SEED = 54321;
 
-        public const byte VIEW_DISTANCE_NEAR_X = VIEW_CHUNKS_X * 2;
-        public const byte VIEW_DISTANCE_NEAR_Z = VIEW_CHUNKS_Z * 2;
+        //public const byte VIEW_DISTANCE_NEAR_X = VIEW_CHUNKS_X * 2;
+       // public const byte VIEW_DISTANCE_NEAR_Z = VIEW_CHUNKS_Z * 2;
 
-        public const byte VIEW_DISTANCE_FAR_X = VIEW_CHUNKS_X * 4;
-        public const byte VIEW_DISTANCE_FAR_Z = VIEW_CHUNKS_Z * 4;
+        //public const byte VIEW_DISTANCE_FAR_X = VIEW_CHUNKS_X * 4;
+        //public const byte VIEW_DISTANCE_FAR_Z = VIEW_CHUNKS_Z * 4;
 
         // Day/Night
         public float tod = 12; // Midday
@@ -71,9 +71,9 @@ namespace NewTake.model
 
         #region choose terrain generation
         //public IChunkGenerator Generator = new SimpleTerrain();
-        //public IChunkGenerator Generator = new FlatReferenceTerrain();
+        public IChunkGenerator Generator = new FlatReferenceTerrain();
         //public IChunkGenerator Generator = new TerrainWithCaves();
-        public IChunkGenerator Generator = new DualLayerTerrainWithMediumValleysForRivers();
+        //public IChunkGenerator Generator = new DualLayerTerrainWithMediumValleysForRivers();
 
         // Biomes
         //public IChunkGenerator Generator = new Tundra_Alpine();

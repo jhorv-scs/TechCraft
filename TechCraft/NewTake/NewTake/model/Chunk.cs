@@ -121,23 +121,23 @@ namespace NewTake.model
             watervertexList = new List<VertexPositionTextureLight>();
             indexList = new List<short>();
             waterindexList = new List<short>();
-            
-            //Assign(index);
-            world.viewableChunks[index.X, index.Z] = this;
-            dirty = true;
-            this.Index = index;
-            this.Position = new Vector3i(index.X * SIZE.X, index.Y * SIZE.Y, index.Z * SIZE.Z);
-            this._boundingBox = new BoundingBox(new Vector3(Position.X, Position.Y, Position.Z), new Vector3(Position.X + SIZE.X, Position.Y + SIZE.Y, Position.Z + SIZE.Z));
 
+            Assign(index);
+            /* world.viewableChunks[index.X, index.Z] = this;
+             dirty = true;
+             this.Index = index;
+             this.Position = new Vector3i(index.X * SIZE.X, index.Y * SIZE.Y, index.Z * SIZE.Z);
+             this._boundingBox = new BoundingBox(new Vector3(Position.X, Position.Y, Position.Z), new Vector3(Position.X + SIZE.X, Position.Y + SIZE.Y, Position.Z + SIZE.Z));
+             */
         }
 
-        /*TODO re assign chunk instead of new + remove
-         public void Assign(Vector3i index) {
+        public void Assign(Vector3i index)
+        {
             //ensure world is set directly in here to have access to N S E W as soon as possible
-            
-            world.viewableChunks.Remove(this.Index.X, this.Index.Z); 
+
+            world.viewableChunks.Remove(this.Index.X, this.Index.Z);
             world.viewableChunks[index.X, index.Z] = this;
-            
+
             dirty = true;
             //Array.Clear(Blocks, 0, Blocks.Length);
             this.Index = index;
@@ -147,8 +147,8 @@ namespace NewTake.model
             //TODO next optimization step would be reusing the vertexbuffer
             //vertexList.Clear(); 
             //indexList.Clear();
-            
-        } */
+
+        }
 
         public void Clear()
         {
@@ -165,15 +165,16 @@ namespace NewTake.model
         #region setBlock
         public void setBlock(byte x, byte y, byte z, Block b)
         {
-            if (b.Type == BlockType.Water) {
-                
+            if (b.Type == BlockType.Water)
+            {
+
                 if (lowestNoneBlock.Y > y)
                 {
                     lowestNoneBlock = new Vector3b(x, y, z);
                 }
             }
 
-            if (b.Type == BlockType.None  )
+            if (b.Type == BlockType.None)
             {
                 if (lowestNoneBlock.Y > y)
                 {
