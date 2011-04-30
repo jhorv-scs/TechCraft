@@ -80,9 +80,9 @@ namespace NewTake.model
 
         #region choose terrain generation
         //public IChunkGenerator Generator = new SimpleTerrain();
-        public IChunkGenerator Generator = new FlatReferenceTerrain();
+        //public IChunkGenerator Generator = new FlatReferenceTerrain();
         //public IChunkGenerator Generator = new TerrainWithCaves();
-        //public IChunkGenerator Generator = new DualLayerTerrainWithMediumValleysForRivers();
+        public IChunkGenerator Generator = new DualLayerTerrainWithMediumValleysForRivers();
 
         // Biomes
         //public IChunkGenerator Generator = new Tundra_Alpine();
