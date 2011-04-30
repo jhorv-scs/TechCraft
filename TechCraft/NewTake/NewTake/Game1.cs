@@ -124,15 +124,13 @@ namespace NewTake
             hud.Initialize();
 
             #region choose renderer
-            //renderer = new SingleThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
-            //renderer = new MultiThreadLightingWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
 
             renderer = new ThreadedWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             diagnosticWorldRenderer = new DiagnosticWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
-            skyDomeRenderer = new SkyDomeRenderer(GraphicsDevice, player1Renderer.camera, world);
+            //skyDomeRenderer = new SkyDomeRenderer(GraphicsDevice, player1Renderer.camera, world);
             renderer.Initialize();
             diagnosticWorldRenderer.Initialize();
-            skyDomeRenderer.Initialize();
+            //skyDomeRenderer.Initialize();
             #endregion
 
             //TODO refactor WorldRenderer needs player position + view frustum 
@@ -156,7 +154,7 @@ namespace NewTake
         {
             renderer.LoadContent(Content);
             diagnosticWorldRenderer.LoadContent(Content);
-            skyDomeRenderer.LoadContent(Content);
+            //skyDomeRenderer.LoadContent(Content);
             player1Renderer.LoadContent(Content);
             hud.LoadContent(Content);
         }
