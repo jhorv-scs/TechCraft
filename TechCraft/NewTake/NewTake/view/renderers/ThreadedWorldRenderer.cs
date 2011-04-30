@@ -64,6 +64,8 @@ namespace NewTake.view.renderers
         private Thread _workerQueueThread;
         private Thread _workerCheckThread;
 
+        private Thread _workerRemoveThread;
+
         //private Thread _workerGenerateQueueThread;
         //private Thread _workerLightingQueueThread;
         //private Thread _workerBuildQueueThread;
@@ -158,6 +160,11 @@ namespace NewTake.view.renderers
             _workerQueueThread.IsBackground = true;
             _workerQueueThread.Start();
 
+            _workerRemoveThread = new Thread(new ThreadStart(WorkerRemoveThread));
+            _workerRemoveThread.Priority = ThreadPriority.Highest;
+            _workerRemoveThread.IsBackground = true;
+            _workerRemoveThread.Start();
+
             //_workerGenerateQueueThread = new Thread(new ThreadStart(WorkerGenerateQueueThread));
             //_workerGenerateQueueThread.Priority = ThreadPriority.AboveNormal;
             //_workerGenerateQueueThread.IsBackground = true;
@@ -192,7 +199,7 @@ namespace NewTake.view.renderers
             _waterBlockEffect = content.Load<Effect>("Effects\\WaterBlockEffect");
 
             debugSpriteBatch = new SpriteBatch(_graphicsDevice);
-            debugFont = content.Load<SpriteFont>("Fonts\\debug");
+            debugFont = content.Load<SpriteFont>("Fonts\\OSDdisplay");
         }
 
         #region DoInitialGenerate
@@ -229,7 +236,7 @@ namespace NewTake.view.renderers
         {
             lock (this)
             {
-                Debug.WriteLine("DoGenerate " + chunk);
+                //Debug.WriteLine("DoGenerate " + chunk);
                 
                 if (chunk == null)
                 {
@@ -271,7 +278,7 @@ namespace NewTake.view.renderers
         {
             lock (this)
             {
-                Debug.WriteLine("DoLighting " + chunk);
+                //Debug.WriteLine("DoLighting " + chunk);
                 
                 //TODO chunk happens to be null here sometime : it was not null when enqueued , it became null after
                 // => cancel this lighting
@@ -312,7 +319,7 @@ namespace NewTake.view.renderers
         {
             lock (this)
             {
-                Debug.WriteLine("DoBuild " + chunk);              
+                //Debug.WriteLine("DoBuild " + chunk);              
                 if (chunk == null) return null;
                 if (chunk.State == ChunkState.AwaitingBuild || chunk.State == ChunkState.AwaitingRebuild)
                 {
@@ -718,6 +725,51 @@ namespace NewTake.view.renderers
             }
         }
         #endregion
+
+        #region WorkerRemoveThread
+        private void WorkerRemoveThread()
+        {
+            while (_running)
+            {
+                uint cameraX = (uint)(_camera.Position.X / Chunk.SIZE.X);
+                uint cameraZ = (uint)(_camera.Position.Z / Chunk.SIZE.Z);
+
+                for (uint ix = cameraX - REMOVE_RANGE*4; ix < cameraX + REMOVE_RANGE*4; ix++)
+                {
+                    for (uint iz = cameraZ - REMOVE_RANGE*4; iz < cameraZ + REMOVE_RANGE*4; iz++)
+                    {
+                        int distX = (int)(ix - cameraX);
+                        int distZ = (int)(iz - cameraZ);
+
+                        if (distX < 0)
+                        {
+                            distX = 0 - distX;
+                        }
+                        if (distZ < 0)
+                        {
+                            distZ = 0 - distZ;
+                        }
+
+                        Vector3i chunkIndex = new Vector3i(ix, 0, iz); // GC.GetGeneration(0)
+                        #region Remove
+                        if (distX > GENERATE_RANGE || distZ > GENERATE_RANGE)
+                        {
+                            if (_world.Chunks[ix, iz] != null)
+                            {
+                                //Debug.WriteLine("Remove({0},{1}) ChunkCount = {2}", ix, iz, _world.Chunks.Count);
+                                _world.Chunks.Remove(ix, iz);
+                            }
+                            continue;
+                        }
+                        #endregion
+                    }
+                }
+                GC.Collect(9);
+                Thread.Sleep(20);
+            }
+        }
+        #endregion
+
 
         #region DrawSolid
         private void DrawSolid(GameTime gameTime)

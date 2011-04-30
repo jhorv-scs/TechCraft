@@ -133,8 +133,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Fonts\debug.spritefont">
-      <Name>debug</Name>
+    <Compile Include="Fonts\OSDdisplay.spritefont">
+      <Name>OSDdisplay</Name>
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
     </Compile>
