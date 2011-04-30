@@ -51,6 +51,14 @@ namespace NewTake.view.renderers
         private GraphicsDevice _graphicsDevice;
         private FirstPersonCamera _camera;
         private World _world;
+
+        #region debugFont
+        SpriteBatch debugSpriteBatch;
+        SpriteFont debugFont;
+        Texture2D debugRectTexture;
+        bool debugRectangle = true;
+        #endregion
+
         #endregion
 
         public DiagnosticWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world)
@@ -63,6 +71,20 @@ namespace NewTake.view.renderers
         public void Initialize()
         {
             _effect = new BasicEffect(_graphicsDevice);
+
+            #region debugFont Rectangle
+            debugRectTexture = new Texture2D(_graphicsDevice, 1, 1);
+            Color[] texcol = new Color[1];
+            debugRectTexture.GetData(texcol);
+            texcol[0] = Color.Black;
+            debugRectTexture.SetData(texcol);
+            #endregion
+        }
+
+        public void LoadContent(ContentManager content)
+        {
+            debugSpriteBatch = new SpriteBatch(_graphicsDevice);
+            debugFont = content.Load<SpriteFont>("Fonts\\debug");
         }
 
         public void Update(GameTime gameTime)
@@ -75,52 +97,88 @@ namespace NewTake.view.renderers
         {
             BoundingFrustum viewFrustum = new BoundingFrustum(_camera.View * _camera.Projection);
 
-            foreach (Chunk chunk in _world.viewableChunks.Values)
+            int totalChunksCounter = 0;
+            int awaitingGenerateCounter = 0;
+            int generatingCounter = 0;
+            int awaitingLightingCounter = 0;
+            int lightingCounter = 0;
+            int awaitingBuildCounter = 0;
+            int awaitingRebuildCounter = 0;
+            int buildingCounter = 0;
+            int awaitingRelightingCounter = 0;
+            int readyCounter = 0;
+
+            foreach (Chunk chunk in _world.Chunks.Values)
             {
-                if (chunk.BoundingBox.Intersects(viewFrustum))
-                {
+                //if (chunk.BoundingBox.Intersects(viewFrustum))
+                //{
                     switch (chunk.State)
                     {
                         case ChunkState.AwaitingGenerate:
                             Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Red);
+                            awaitingGenerateCounter++;
                             break;
-                        //case ChunkState.Generating:
-                        //    Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Pink);
-                        //    break;
+                        case ChunkState.Generating:
+                            Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Pink);
+                            generatingCounter++;
+                            break;
                         case ChunkState.AwaitingLighting:
                             Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Orange);
+                            awaitingLightingCounter++;
                             break;
                         case ChunkState.Lighting:
                             Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Yellow);
+                            lightingCounter++;
                             break;
                         case ChunkState.AwaitingBuild:
                             Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Green);
+                            awaitingBuildCounter++;
                             break;
                         case ChunkState.AwaitingRebuild:
                             Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Green);
+                            awaitingRebuildCounter++;
                             break;
                         case ChunkState.Building:
                             Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.LightGreen);
+                            buildingCounter++;
                             break;
-                        //case ChunkState.AwaitingRelighting:
-                        //    Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Black);
-                        //    break;
+                        case ChunkState.AwaitingRelighting:
+                            Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Black);
+                            awaitingRelightingCounter++;
+                            break;
                         case ChunkState.Ready:
+                            readyCounter++;
                             break;
                         default:
-                            //Debug.WriteLine("State: {0}", chunk.State);
+                            Debug.WriteLine("Unchecked State: {0}", chunk.State);
                             Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Blue);
                             break;
                     }
-                }
+                //}
+                totalChunksCounter++;
             }
+
+            #region OSD debug texts
+            debugSpriteBatch.Begin();
+
+            if (debugRectangle)
+            {
+                Rectangle r = new Rectangle(680, 0, 120, 144);
+                debugSpriteBatch.Draw(debugRectTexture, r, Color.Black);
+            }
+            debugSpriteBatch.DrawString(debugFont, "Chunks: " + totalChunksCounter.ToString(), new Vector2(680, 0), Color.White);
+            debugSpriteBatch.DrawString(debugFont, "A.Generate: " + awaitingGenerateCounter.ToString(), new Vector2(680, 16), Color.White);
+            debugSpriteBatch.DrawString(debugFont, "Generating: " + generatingCounter.ToString(), new Vector2(680, 32), Color.White);
+            debugSpriteBatch.DrawString(debugFont, "A.Lighting: " + awaitingLightingCounter.ToString(), new Vector2(680, 48), Color.White);
+            debugSpriteBatch.DrawString(debugFont, "Lighting: " + lightingCounter.ToString(), new Vector2(680, 64), Color.White);
+            debugSpriteBatch.DrawString(debugFont, "A.Build: " + awaitingBuildCounter.ToString(), new Vector2(680, 80), Color.White);
+            debugSpriteBatch.DrawString(debugFont, "A.Rebuild: " + awaitingRebuildCounter.ToString(), new Vector2(680, 96), Color.White);
+            debugSpriteBatch.DrawString(debugFont, "A.Relighting: " + awaitingRelightingCounter.ToString(), new Vector2(680, 112), Color.White);
+            debugSpriteBatch.DrawString(debugFont, "Ready: " + readyCounter.ToString(), new Vector2(680, 128), Color.White); 
+            debugSpriteBatch.End();
+            #endregion
         }
         #endregion
-
-        public void LoadContent(ContentManager content)
-        {
-            throw new NotImplementedException();
-        }
 
         public void Stop()
         {

@@ -109,7 +109,7 @@ namespace NewTake.view
             uint cx = x / Chunk.SIZE.X;
             uint cz = z / Chunk.SIZE.Z;
 
-            Chunk chunk = world.viewableChunks[cx, cz];
+            Chunk chunk = world.Chunks[cx, cz];
 
             for (int xx = 0; xx < Chunk.SIZE.X; xx++)
             {

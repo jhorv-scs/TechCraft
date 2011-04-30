@@ -135,8 +135,8 @@ namespace NewTake.model
         {
             //ensure world is set directly in here to have access to N S E W as soon as possible
 
-            world.viewableChunks.Remove(this.Index.X, this.Index.Z);
-            world.viewableChunks[index.X, index.Z] = this;
+            world.Chunks.Remove(this.Index.X, this.Index.Z);
+            world.Chunks[index.X, index.Z] = this;
 
             dirty = true;
             //Array.Clear(Blocks, 0, Blocks.Length);
@@ -275,7 +275,7 @@ namespace NewTake.model
         {
             get
             {
-                if (_N == null) _N = world.viewableChunks[Index.X, Index.Z + 1];
+                if (_N == null) _N = world.Chunks[Index.X, Index.Z + 1];
                 if (_N != null) _N._S = this;
                 return _N;
             }
@@ -284,7 +284,7 @@ namespace NewTake.model
         {
             get
             {
-                if (_S == null) _S = world.viewableChunks[Index.X, Index.Z - 1];
+                if (_S == null) _S = world.Chunks[Index.X, Index.Z - 1];
                 if (_S != null) _S._N = this;
                 return _S;
             }
@@ -293,7 +293,7 @@ namespace NewTake.model
         {
             get
             {
-                if (_E == null) _E = world.viewableChunks[Index.X - 1, Index.Z];
+                if (_E == null) _E = world.Chunks[Index.X - 1, Index.Z];
                 if (_E != null) _E._W = this;
                 return _E;
             }
@@ -303,16 +303,16 @@ namespace NewTake.model
         {
             get
             {
-                if (_W == null) _W = world.viewableChunks[Index.X + 1, Index.Z];
+                if (_W == null) _W = world.Chunks[Index.X + 1, Index.Z];
                 if (_W != null) _W._E = this;
                 return _W;
             }
         }
 
-        public Chunk NW { get { return _NW != null ? _NW : _NW = world.viewableChunks[Index.X + 1, Index.Z + 1]; } }
-        public Chunk NE { get { return _NE != null ? _NE : _NE = world.viewableChunks[Index.X - 1, Index.Z + 1]; } }
-        public Chunk SW { get { return _SW != null ? _SW : _SW = world.viewableChunks[Index.X + 1, Index.Z - 1]; } }
-        public Chunk SE { get { return _SE != null ? _SE : _SE = world.viewableChunks[Index.X - 1, Index.Z - 1]; } }
+        public Chunk NW { get { return _NW != null ? _NW : _NW = world.Chunks[Index.X + 1, Index.Z + 1]; } }
+        public Chunk NE { get { return _NE != null ? _NE : _NE = world.Chunks[Index.X - 1, Index.Z + 1]; } }
+        public Chunk SW { get { return _SW != null ? _SW : _SW = world.Chunks[Index.X + 1, Index.Z - 1]; } }
+        public Chunk SE { get { return _SE != null ? _SE : _SE = world.Chunks[Index.X - 1, Index.Z - 1]; } }
 
         public Chunk GetNeighbour(Cardinal c)
         {

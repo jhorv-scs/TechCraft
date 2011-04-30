@@ -48,7 +48,7 @@ namespace NewTake.model
 
         //public Dictionary2<Chunk> viewableChunks;
         //too experimental for now 
-        public ChunkManager viewableChunks;
+        public ChunkManager Chunks;
 
         //public const byte VIEW_CHUNKS_X = 8;
         //public const byte VIEW_CHUNKS_Y = 1;
@@ -98,7 +98,7 @@ namespace NewTake.model
         public World()
         {
             //viewableChunks = new Dictionary2<Chunk>();//
-            viewableChunks = new ChunkManager(new MockChunkPersistence(this));
+            Chunks = new ChunkManager(new MockChunkPersistence(this));
         }
 
         #region visitChunks
@@ -130,7 +130,7 @@ namespace NewTake.model
             uint cx = x / Chunk.SIZE.X;
             uint cz = z / Chunk.SIZE.Z;
 
-            Chunk at = viewableChunks[cx,cz];
+            Chunk at = Chunks[cx,cz];
 
             return at;
         }
@@ -139,7 +139,7 @@ namespace NewTake.model
         {
             if (InView(x, y, z))
             {
-                Chunk chunk = viewableChunks[x / Chunk.SIZE.X, z / Chunk.SIZE.Z];
+                Chunk chunk = Chunks[x / Chunk.SIZE.X, z / Chunk.SIZE.Z];
                 return chunk.Blocks[(x % Chunk.SIZE.X) * Chunk.FlattenOffset + (z % Chunk.SIZE.Z) * Chunk.SIZE.Y + (y % Chunk.SIZE.Y)];
             }
             else
@@ -160,7 +160,7 @@ namespace NewTake.model
         {
             if (InView(x, y, z))
             {
-                Chunk chunk = viewableChunks[x / Chunk.SIZE.X, z / Chunk.SIZE.Z];
+                Chunk chunk = Chunks[x / Chunk.SIZE.X, z / Chunk.SIZE.Z];
 
                 byte localX = (byte)(x % Chunk.SIZE.X);
                 byte localY = (byte)(y % Chunk.SIZE.Y);
@@ -207,7 +207,7 @@ namespace NewTake.model
         #region InView
         public bool InView(uint x, uint y, uint z)
         {
-            if (viewableChunks[x / Chunk.SIZE.X, z / Chunk.SIZE.Z] == null)
+            if (Chunks[x / Chunk.SIZE.X, z / Chunk.SIZE.Z] == null)
                 return false;
 
             uint lx = x % Chunk.SIZE.X;

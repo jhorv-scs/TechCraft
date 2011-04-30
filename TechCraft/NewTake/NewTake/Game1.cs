@@ -155,6 +155,7 @@ namespace NewTake
         protected override void LoadContent()
         {
             renderer.LoadContent(Content);
+            diagnosticWorldRenderer.LoadContent(Content);
             skyDomeRenderer.LoadContent(Content);
             player1Renderer.LoadContent(Content);
             hud.LoadContent(Content);
