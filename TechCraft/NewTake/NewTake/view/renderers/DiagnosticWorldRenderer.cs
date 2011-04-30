@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
@@ -80,12 +81,12 @@ namespace NewTake.view.renderers
                 {
                     switch (chunk.State)
                     {
-                        case ChunkState.AwaitingGenerate :
+                        case ChunkState.AwaitingGenerate:
                             Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Red);
                             break;
-                        case ChunkState.Generating:
-                            Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Pink);
-                            break;
+                        //case ChunkState.Generating:
+                        //    Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Pink);
+                        //    break;
                         case ChunkState.AwaitingLighting:
                             Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Orange);
                             break;
@@ -95,11 +96,20 @@ namespace NewTake.view.renderers
                         case ChunkState.AwaitingBuild:
                             Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Green);
                             break;
-                        case ChunkState.Building    :
+                        case ChunkState.AwaitingRebuild:
+                            Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Green);
+                            break;
+                        case ChunkState.Building:
                             Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.LightGreen);
                             break;
-                        case ChunkState.AwaitingRelighting:
-                            Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Black);
+                        //case ChunkState.AwaitingRelighting:
+                        //    Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Black);
+                        //    break;
+                        case ChunkState.Ready:
+                            break;
+                        default:
+                            //Debug.WriteLine("State: {0}", chunk.State);
+                            Utility.DrawBoundingBox(chunk.BoundingBox, _graphicsDevice, _effect, Matrix.Identity, _camera.View, _camera.Projection, Color.Blue);
                             break;
                     }
                 }
