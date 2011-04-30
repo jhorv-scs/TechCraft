@@ -37,6 +37,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
+using NewTake;
 using NewTake.model;
 using NewTake.profiling;
 using NewTake.view.blocks;
@@ -99,6 +100,13 @@ namespace NewTake.view.renderers
         private const byte REMOVE_RANGE = GENERATE_RANGE + 1;
         #endregion
 
+        #region debugFont
+        SpriteBatch debugSpriteBatch;
+        SpriteFont debugFont;
+        Texture2D debugRectTexture;
+        bool debugRectangle = true;
+        #endregion
+
         #endregion
 
         public ThreadedWorldRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world)
@@ -125,6 +133,14 @@ namespace NewTake.view.renderers
             _world.visitChunks(DoLighting, LIGHT_RANGE);
             Debug.WriteLine("Build initial chunks");
             _world.visitChunks(DoBuild, BUILD_RANGE);
+
+            #region debugFont Rectangle
+            debugRectTexture = new Texture2D(_graphicsDevice, 1, 1);
+            Color[] texcol = new Color[1];
+            debugRectTexture.GetData(texcol);
+            texcol[0] = Color.Black;
+            debugRectTexture.SetData(texcol);
+            #endregion
 
             #region Thread creation
             _workerQueueThread = new Thread(new ThreadStart(WorkerThread));
@@ -164,6 +180,9 @@ namespace NewTake.view.renderers
             _textureAtlas = content.Load<Texture2D>("Textures\\blocks_APR28_3");
             _solidBlockEffect = content.Load<Effect>("Effects\\SolidBlockEffect");
             _waterBlockEffect = content.Load<Effect>("Effects\\WaterBlockEffect");
+
+            debugSpriteBatch = new SpriteBatch(_graphicsDevice);
+            debugFont = content.Load<SpriteFont>("Fonts\\debug");
         }
 
         #region DoInitialGenerate
@@ -171,7 +190,7 @@ namespace NewTake.view.renderers
         {
             //Debug.WriteLine("DoGenerate " + chunkIndex);
             Chunk chunk = new Chunk(_world, chunkIndex);
-            _world.viewableChunks[chunkIndex.X, chunkIndex.Z] = chunk;
+            _world.Chunks[chunkIndex.X, chunkIndex.Z] = chunk;
             if (chunk.State == ChunkState.AwaitingGenerate)
             {
                 chunk.State = ChunkState.Generating;
@@ -193,7 +212,7 @@ namespace NewTake.view.renderers
         
         //TODO try to avoid using this method in favor of the method taking a chunk in param
         private Chunk DoGenerate(Vector3i target) { 
-           return DoGenerate(_world.viewableChunks.get(target)); 
+           return DoGenerate(_world.Chunks.get(target)); 
         }
         
         private Chunk DoGenerate(Chunk chunk)
@@ -221,7 +240,7 @@ namespace NewTake.view.renderers
 
         public void QueueLighting(Vector3i chunkIndex)
         {
-            if (_world.viewableChunks[chunkIndex.X, chunkIndex.Z] == null)
+            if (_world.Chunks[chunkIndex.X, chunkIndex.Z] == null)
             {
                 throw new ArgumentNullException("queuing lighting for a null chunk");
             }
@@ -235,7 +254,7 @@ namespace NewTake.view.renderers
         //TODO try to avoid using this method in favor of the method taking a chunk in param
         private Chunk DoLighting(Vector3i target)
         {
-            return DoLighting(_world.viewableChunks.get(target));
+            return DoLighting(_world.Chunks.get(target));
         }
 
         private Chunk DoLighting(Chunk chunk)
@@ -277,7 +296,7 @@ namespace NewTake.view.renderers
         //TODO try to avoid using this method in favor of the method taking a chunk in param
         private Chunk DoBuild(Vector3i target)
         {
-            return DoBuild(_world.viewableChunks.get(target));
+            return DoBuild(_world.Chunks.get(target));
         }
         private Chunk DoBuild(Chunk chunk)
         {
@@ -301,8 +320,6 @@ namespace NewTake.view.renderers
         {
             while (_running)
             {
-                //Debug.WriteLine("M:" + GC.GetTotalMemory(false));
-
                 uint cameraX = (uint)(_camera.Position.X / Chunk.SIZE.X);
                 uint cameraZ = (uint)(_camera.Position.Z / Chunk.SIZE.Z);
 
@@ -336,10 +353,10 @@ namespace NewTake.view.renderers
                         #region Remove
                         if (distX > GENERATE_RANGE || distZ > GENERATE_RANGE)
                         {
-                            if (_world.viewableChunks[ix, iz] != null)
+                            if (_world.Chunks[ix, iz] != null)
                             {
                                 //Debug.WriteLine("Remove({0},{1}) ChunkCount = {2}", ix, iz, _world.viewableChunks.Count);
-                                _world.viewableChunks.Remove(ix, iz);
+                                _world.Chunks.Remove(ix, iz);
                             }
                             continue;
                         }
@@ -347,14 +364,14 @@ namespace NewTake.view.renderers
                         #region Generate
                         if ((distX > LIGHT_RANGE || distZ > LIGHT_RANGE) && (distX < REMOVE_RANGE || distZ < REMOVE_RANGE)) 
                         {
-                            if (_world.viewableChunks[ix, iz] == null)
+                            if (_world.Chunks[ix, iz] == null)
                             {
                                 uint removeX = ix, removeZ = iz;
 
                                 if (distX > LIGHT_RANGE) removeX = (uint)(ix - distX * xdir * 2);
                                 if (distZ > LIGHT_RANGE) removeZ = (uint)(iz - distZ * zdir * 2);
 
-                                Chunk toReAssign = _world.viewableChunks[removeX, removeZ];
+                                Chunk toReAssign = _world.Chunks[removeX, removeZ];
                                 if (toReAssign != null)
                                 {
                                     switch (toReAssign.State)
@@ -364,7 +381,7 @@ namespace NewTake.view.renderers
                                             {
                                                 Chunk chunkGenerate = new Chunk(_world, chunkIndex);
                                                 chunkGenerate.State = ChunkState.AwaitingGenerate;
-                                                _world.viewableChunks[ix, iz] = chunkGenerate;
+                                                _world.Chunks[ix, iz] = chunkGenerate;
                                                 QueueGenerate(chunkIndex);
                                                 //toReAssign.Assign(chunkIndex);
                                                 //toReAssign.State = ChunkState.AwaitingGenerate;
@@ -382,13 +399,13 @@ namespace NewTake.view.renderers
                                         case ChunkState.AwaitingBuild:
                                             lock (this)
                                             {
-                                                DoBuild(chunkIndex);
+                                                DoBuild(toReAssign);
                                             }
                                             break;
                                         case ChunkState.AwaitingRebuild:
                                             lock (this)
                                             {
-                                                DoBuild(chunkIndex);
+                                                DoBuild(toReAssign);
                                             }
                                             break;
                                         default:
@@ -403,77 +420,36 @@ namespace NewTake.view.renderers
                                     {
                                         Chunk chunkGenerate = new Chunk(_world, chunkIndex);
                                         chunkGenerate.State = ChunkState.AwaitingGenerate;
-                                        _world.viewableChunks[ix, iz] = chunkGenerate;
+                                        _world.Chunks[ix, iz] = chunkGenerate;
                                         QueueGenerate(chunkIndex);
                                     }
                                 }
                             }
-                            //else
-                            //{
-                            //    Chunk toReAssign = _world.viewableChunks[ix, iz];
-                            //    switch (toReAssign.State)
-                            //    {
-                            //            case ChunkState.Ready:
-                            //                lock (this)
-                            //                {
-                            //                    //toReAssign.Assign(chunkIndex);
-                            //                    //toReAssign.State = ChunkState.AwaitingGenerate;
-                            //                    QueueGenerate(chunkIndex);
-                            //                }
-                            //                break;
-                            //            case ChunkState.AwaitingGenerate:
-                            //                lock (this)
-                            //                {
-                            //                    QueueGenerate(chunkIndex);
-                            //                }
-                            //                break;
-                            //            case ChunkState.AwaitingLighting:
-                            //                break;
-                            //            case ChunkState.AwaitingBuild:
-                            //                lock (this)
-                            //                {
-                            //                    DoBuild(chunkIndex);
-                            //                }
-                            //                break;
-                            //            case ChunkState.AwaitingRebuild:
-                            //                lock (this)
-                            //                {
-                            //                    DoBuild(chunkIndex);
-                            //                }
-                            //                break;
-                            //            default:
-                            //                Debug.WriteLine("Generate: State = {0}", toReAssign.State);
-                            //                break;
-                            //    }
-                            //}
                             continue;
                         }
                         #endregion
                         #region Light
                         if (distX >= LIGHT_RANGE || distZ >= LIGHT_RANGE)
                         {
-                            Chunk chunk = _world.viewableChunks[ix, iz];
+                            Chunk chunk = _world.Chunks[ix, iz];
                             if (chunk != null && chunk.State == ChunkState.AwaitingLighting)
                             {
                                 QueueLighting(chunkIndex);
-                                //chunk.State = ChunkState.AwaitingLighting;
                             }
                             continue;
                         }
                         #endregion
                         #region Rebuild
-                        Chunk rebuildChunk = _world.viewableChunks[ix, iz];
+                        Chunk rebuildChunk = _world.Chunks[ix, iz];
                         if (rebuildChunk != null)
                         {
                             if (rebuildChunk.State == ChunkState.AwaitingRelighting)
                             {
                                 QueueLighting(chunkIndex);
-                                //rebuildChunk.State = ChunkState.AwaitingRelighting;
                             }
                             if (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild)
                             {
                                 QueueBuild(chunkIndex);
-                                //rebuildChunk.State = ChunkState.AwaitingBuild;
                             }
                         }
                         #endregion
@@ -512,11 +488,11 @@ namespace NewTake.view.renderers
                 {
                     try
                     {
-                        Chunk chunkGenerate = _world.viewableChunks[target.X, target.Z];
+                        Chunk chunkGenerate = _world.Chunks[target.X, target.Z];
                         if (chunkGenerate != null && chunkGenerate.State == ChunkState.AwaitingGenerate)
                         {
                             //Debug.WriteLine("DoGenerate target = {0}, state = {1}", target, chunkGenerate.State);
-                            DoGenerate(target);
+                            DoGenerate(chunkGenerate);
                         }
                     }
                     catch (NullReferenceException e)
@@ -541,11 +517,11 @@ namespace NewTake.view.renderers
                 {
                     try
                     {
-                        Chunk chunkLighting = _world.viewableChunks[target.X, target.Z];
+                        Chunk chunkLighting = _world.Chunks[target.X, target.Z];
                         if (chunkLighting.State == ChunkState.AwaitingLighting || chunkLighting.State == ChunkState.AwaitingRelighting)
                         {
                             //Debug.WriteLine("DoLighting target = {0}, state = {1}", target, chunkLighting.State);
-                            DoLighting(target);
+                            DoLighting(chunkLighting);
                         }
                     }
                     catch (NullReferenceException e)
@@ -570,11 +546,11 @@ namespace NewTake.view.renderers
                 {
                     try
                     {
-                        Chunk chunkBuild = _world.viewableChunks[target.X, target.Z];
+                        Chunk chunkBuild = _world.Chunks[target.X, target.Z];
                         if (chunkBuild.State == ChunkState.AwaitingBuild || chunkBuild.State == ChunkState.AwaitingRebuild)
                         {
                             //Debug.WriteLine("DoBuild target = {0}, state = {1}", target, chunkBuild.State);
-                            DoBuild(target);
+                            DoBuild(chunkBuild);
                         }
                     }
                     catch (NullReferenceException e)
@@ -615,7 +591,7 @@ namespace NewTake.view.renderers
                 {
                     try
                     {
-                        Chunk chunkGenerate = _world.viewableChunks[target.X, target.Z];
+                        Chunk chunkGenerate = _world.Chunks[target.X, target.Z];
                         if (chunkGenerate != null && chunkGenerate.State == ChunkState.AwaitingGenerate)
                         {
                             //Debug.WriteLine("DoGenerate target = {0}, state = {1}", target, chunkGenerate.State);
@@ -661,7 +637,7 @@ namespace NewTake.view.renderers
                 {
                     try
                     {
-                        Chunk chunkLighting = _world.viewableChunks[target.X, target.Z];
+                        Chunk chunkLighting = _world.Chunks[target.X, target.Z];
                         if (chunkLighting.State == ChunkState.AwaitingLighting || chunkLighting.State == ChunkState.AwaitingRelighting)
                         {
                             //Debug.WriteLine("DoLighting target = {0}, state = {1}", target, chunkLighting.State);
@@ -708,7 +684,7 @@ namespace NewTake.view.renderers
                 {
                     try
                     {
-                        Chunk chunkBuild = _world.viewableChunks[target.X, target.Z];
+                        Chunk chunkBuild = _world.Chunks[target.X, target.Z];
                         if (chunkBuild.State == ChunkState.AwaitingBuild || chunkBuild.State == ChunkState.AwaitingRebuild)
                         {
                             //Debug.WriteLine("DoBuild target = {0}, state = {1}", target, chunkBuild.State);
@@ -734,22 +710,10 @@ namespace NewTake.view.renderers
 
             _tod = _world.tod;
 
-            if (_world.dayMode)
-            {
-                _tod = 12;
-                _world.nightMode = false;
-            }
-            else if (_world.nightMode)
-            {
-                _tod = 0;
-                _world.dayMode = false;
-            }
-
             _solidBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _solidBlockEffect.Parameters["View"].SetValue(_camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
             _solidBlockEffect.Parameters["CameraPosition"].SetValue(_camera.Position);
-            //_solidBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
             _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
@@ -772,7 +736,7 @@ namespace NewTake.view.renderers
             {
                 pass.Apply();
 
-                foreach (Chunk chunk in _world.viewableChunks.Values)
+                foreach (Chunk chunk in _world.Chunks.Values)
                 {
                     if (chunk == null) continue;
 
@@ -800,22 +764,10 @@ namespace NewTake.view.renderers
 
             _tod = _world.tod;
 
-            if (_world.dayMode)
-            {
-                _tod = 12;
-                _world.nightMode = false;
-            }
-            else if (_world.nightMode)
-            {
-                _tod = 0;
-                _world.dayMode = false;
-            }
-
             _waterBlockEffect.Parameters["World"].SetValue(Matrix.Identity);
             _waterBlockEffect.Parameters["View"].SetValue(_camera.View);
             _waterBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
             _waterBlockEffect.Parameters["CameraPosition"].SetValue(_camera.Position);
-            //_waterBlockEffect.Parameters["FogColor"].SetValue(Color.White.ToVector4());
             _waterBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
             _waterBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
             _waterBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
@@ -839,7 +791,7 @@ namespace NewTake.view.renderers
             {
                 pass.Apply();
 
-                foreach (Chunk chunk in _world.viewableChunks.Values)
+                foreach (Chunk chunk in _world.Chunks.Values)
                 {
                     if (chunk == null) continue;
 
@@ -1018,6 +970,22 @@ namespace NewTake.view.renderers
         {
             DrawSolid(gameTime);
             DrawWater(gameTime);
+
+            #region OSD debug texts
+            debugSpriteBatch.Begin();
+
+            if (debugRectangle)
+            {
+                Rectangle r = new Rectangle(580, 0, 100, 144);
+                debugSpriteBatch.Draw(debugRectTexture, r, Color.Black);
+            }
+            long workingSet = System.Diagnostics.Process.GetCurrentProcess().WorkingSet64;
+            debugSpriteBatch.DrawString(debugFont, "GenQ: " + _generateQueue.Count.ToString(), new Vector2(580, 0), Color.White);
+            debugSpriteBatch.DrawString(debugFont, "LightQ: " + _lightingQueue.Count.ToString(), new Vector2(580, 16), Color.White);
+            debugSpriteBatch.DrawString(debugFont, "BuildQ: " + _buildQueue.Count.ToString(), new Vector2(580, 32), Color.White);
+            debugSpriteBatch.DrawString(debugFont, (GC.GetTotalMemory(false)/(1024*1024)).ToString() + "MB/" + workingSet/(1024*1024) + "MB", new Vector2(580, 48), Color.White);
+            debugSpriteBatch.End();
+            #endregion
         }
 
     }
