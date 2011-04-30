@@ -190,12 +190,18 @@ namespace NewTake.view.renderers
             }
         }
         #region DoGenerate
-        private Chunk DoGenerate(Vector3i chunkIndex)
+        
+        //TODO try to avoid using this method in favor of the method taking a chunk in param
+        private Chunk DoGenerate(Vector3i target) { 
+           return DoGenerate(_world.viewableChunks.get(target)); 
+        }
+        
+        private Chunk DoGenerate(Chunk chunk)
         {
             lock (this)
             {
                 //Debug.WriteLine("DoGenerate " + chunkIndex);
-                Chunk chunk = _world.viewableChunks[chunkIndex.X, chunkIndex.Z];
+                
                 if (chunk == null)
                 {
                     // Thread sync issue - requeue
@@ -225,13 +231,19 @@ namespace NewTake.view.renderers
             }
         }
         #region DoLighting
-        private Chunk DoLighting(Vector3i chunkIndex)
+
+        //TODO try to avoid using this method in favor of the method taking a chunk in param
+        private Chunk DoLighting(Vector3i target)
+        {
+            return DoLighting(_world.viewableChunks.get(target));
+        }
+
+        private Chunk DoLighting(Chunk chunk)
         {
             lock (this)
             {
                 //Debug.WriteLine("DoLighting " + chunkIndex);
-                Chunk chunk = _world.viewableChunks[chunkIndex.X, chunkIndex.Z];
-
+                
                 //TODO chunk happens to be null here sometime : it was not null when enqueued , it became null after
                 // => cancel this lighting
                 if (chunk == null) return null;
@@ -247,7 +259,7 @@ namespace NewTake.view.renderers
                     chunk.State = ChunkState.Lighting;
                     _lightingChunkProcessor.ProcessChunk(chunk);
                     chunk.State = ChunkState.AwaitingBuild;
-                    QueueBuild(chunkIndex);
+                    QueueBuild(chunk.Index);
                 }
                 return chunk;
             }
@@ -262,12 +274,16 @@ namespace NewTake.view.renderers
             }
         }
         #region DoBuild
-        private Chunk DoBuild(Vector3i chunkIndex)
+        //TODO try to avoid using this method in favor of the method taking a chunk in param
+        private Chunk DoBuild(Vector3i target)
+        {
+            return DoBuild(_world.viewableChunks.get(target));
+        }
+        private Chunk DoBuild(Chunk chunk)
         {
             lock (this)
             {
-                //Debug.WriteLine("DoBuild " + chunkIndex);
-                Chunk chunk = _world.viewableChunks[chunkIndex.X, chunkIndex.Z];
+                //Debug.WriteLine("DoBuild " + chunkIndex);              
                 if (chunk == null) return null;
                 if (chunk.State == ChunkState.AwaitingBuild || chunk.State == ChunkState.AwaitingRebuild)
                 {
@@ -503,9 +519,10 @@ namespace NewTake.view.renderers
                             DoGenerate(target);
                         }
                     }
-                    catch (NullReferenceException)
+                    catch (NullReferenceException e)
                     {
                         Debug.WriteLine("NullReferenceException DoGenerate target = {0}", target);
+                        if (Game1.throwExceptions) throw e; 
                         DoGenerate(target);
                     }
                     continue;
@@ -531,9 +548,10 @@ namespace NewTake.view.renderers
                             DoLighting(target);
                         }
                     }
-                    catch (NullReferenceException)
+                    catch (NullReferenceException e)
                     {
                         Debug.WriteLine("NullReferenceException DoLighting target = {0}", target);
+                        if (Game1.throwExceptions) throw e; 
                         DoGenerate(target);
                     }
                     continue;
@@ -559,9 +577,10 @@ namespace NewTake.view.renderers
                             DoBuild(target);
                         }
                     }
-                    catch (NullReferenceException)
+                    catch (NullReferenceException e)
                     {
                         Debug.WriteLine("NullReferenceException DoBuild target = {0}", target);
+                        if (Game1.throwExceptions) throw e; 
                         DoGenerate(target);
                     }
                     continue;
@@ -603,10 +622,12 @@ namespace NewTake.view.renderers
                             DoGenerate(target);
                         }
                     }
-                    catch (NullReferenceException)
+                    catch (NullReferenceException e)
                     {
                         Debug.WriteLine("NullReferenceException DoGenerate target = {0}", target);
+                        if (Game1.throwExceptions) throw e; 
                         DoGenerate(target);
+                        
                     }
                     continue;
                 }
@@ -647,10 +668,12 @@ namespace NewTake.view.renderers
                             DoLighting(target);
                         }
                     }
-                    catch (NullReferenceException)
-                    {
+                    catch (NullReferenceException e)
+                    {                        
                         Debug.WriteLine("NullReferenceException DoLighting target = {0}", target);
+                        if (Game1.throwExceptions) throw e; 
                         DoLighting(target);
+
                     }
                     continue;
                 }
@@ -692,9 +715,10 @@ namespace NewTake.view.renderers
                             DoBuild(target);
                         }
                     }
-                    catch (NullReferenceException)
+                    catch (NullReferenceException e)
                     {
                         Debug.WriteLine("NullReferenceException DoBuild target = {0}", target);
+                        if (Game1.throwExceptions) throw e; 
                         DoBuild(target);
                     }
                     continue;
