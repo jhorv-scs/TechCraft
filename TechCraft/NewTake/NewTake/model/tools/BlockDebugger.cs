@@ -24,52 +24,45 @@
 //  (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement. 
 #endregion
 
-#region Using Statements
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
-using Microsoft.Xna.Framework;
-
-using NewTake.view;
-using NewTake.controllers;
-using NewTake.model.tools;
 using NewTake.model.types;
-#endregion
 
-namespace NewTake.model
+namespace NewTake.model.tools
 {
-    public class Player
+    public class BlockDebugger : Tool
     {
 
-        #region Fields
-        public readonly World world;
+        public BlockDebugger(Player player) : base(player) { }
 
-        public Vector3 position;
-        public Vector3 velocity;        
-        public double headBob;
-
-        public PositionedBlock? currentSelection;
-        public PositionedBlock? currentSelectedAdjacent; // = where a block would be added with the add tool
-
-        public Tool LeftTool;
-        public Tool RightTool;
-
-        public Tool AutoTool;
-
-
-        //keep it stupid simple for now, left hand/mousebutton & right hand/mousebutton
-        #endregion
-
-        public Player(World world)
+        public override void Use()
         {
-            this.world = world;
-            LeftTool = new BlockRemover(this);
-            //LeftTool = new PowerDrill(this);
-            //RightTool = new BlockAdder(this);
-            RightTool = new BlockDebugger(this);
+
+            if (player.currentSelection.HasValue)
+            {
+                PositionedBlock b = player.currentSelection.Value;
+                Vector3i pos = b.position;
+                Chunk c = this.player.world.ChunkAt(pos.asVector3());
+                debug(c, "current");
+                foreach (Cardinal card in Enum.GetValues(typeof(Cardinal)))
+                {
+                    debug(c.GetNeighbour(card), card.ToString());
+                }
+
+
+
+            }
+
         }
+
+        public void debug(Chunk c, String id)
+        {
+            Console.WriteLine("BlockDebugger - {0} {1} , state: {2} ", id, (c == null ? "null" : c.ToString()) , (c == null ? "" : "" + c.State));
+        }
+
+        public override void switchType(int delta) { }
 
     }
 }
