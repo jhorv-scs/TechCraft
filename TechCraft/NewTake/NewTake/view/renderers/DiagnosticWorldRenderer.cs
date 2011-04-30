@@ -57,6 +57,17 @@ namespace NewTake.view.renderers
         SpriteFont debugFont;
         Texture2D debugRectTexture;
         bool debugRectangle = true;
+        Rectangle backgroundRectangle;
+
+        Vector2 chunksVector2;
+        Vector2 awaitingGenerateVector2;
+        Vector2 generatingVector2;
+        Vector2 awaitingLightingVector2;
+        Vector2 lightingVector2;
+        Vector2 awaitingBuildVector2;
+        Vector2 awaitingRebuildVector2;
+        Vector2 awaitingRelightingVector2;
+        Vector2 readyVector2;
         #endregion
 
         #endregion
@@ -78,6 +89,18 @@ namespace NewTake.view.renderers
             debugRectTexture.GetData(texcol);
             texcol[0] = Color.Black;
             debugRectTexture.SetData(texcol);
+
+            backgroundRectangle = new Rectangle(680, 0, 120, 144);
+
+            chunksVector2 = new Vector2(680, 0);
+            awaitingGenerateVector2 = new Vector2(680, 16);
+            generatingVector2 = new Vector2(680, 32);
+            awaitingLightingVector2 = new Vector2(680, 48);
+            lightingVector2 = new Vector2(680, 64);
+            awaitingBuildVector2 = new Vector2(680, 80);
+            awaitingRebuildVector2 = new Vector2(680, 96);
+            awaitingRelightingVector2 = new Vector2(680, 112);
+            readyVector2 = new Vector2(680, 128); 
             #endregion
         }
 
@@ -160,21 +183,19 @@ namespace NewTake.view.renderers
 
             #region OSD debug texts
             debugSpriteBatch.Begin();
-
             if (debugRectangle)
             {
-                Rectangle r = new Rectangle(680, 0, 120, 144);
-                debugSpriteBatch.Draw(debugRectTexture, r, Color.Black);
+                debugSpriteBatch.Draw(debugRectTexture, backgroundRectangle, Color.Black);
             }
-            debugSpriteBatch.DrawString(debugFont, "Chunks: " + totalChunksCounter.ToString(), new Vector2(680, 0), Color.White);
-            debugSpriteBatch.DrawString(debugFont, "A.Generate: " + awaitingGenerateCounter.ToString(), new Vector2(680, 16), Color.White);
-            debugSpriteBatch.DrawString(debugFont, "Generating: " + generatingCounter.ToString(), new Vector2(680, 32), Color.White);
-            debugSpriteBatch.DrawString(debugFont, "A.Lighting: " + awaitingLightingCounter.ToString(), new Vector2(680, 48), Color.White);
-            debugSpriteBatch.DrawString(debugFont, "Lighting: " + lightingCounter.ToString(), new Vector2(680, 64), Color.White);
-            debugSpriteBatch.DrawString(debugFont, "A.Build: " + awaitingBuildCounter.ToString(), new Vector2(680, 80), Color.White);
-            debugSpriteBatch.DrawString(debugFont, "A.Rebuild: " + awaitingRebuildCounter.ToString(), new Vector2(680, 96), Color.White);
-            debugSpriteBatch.DrawString(debugFont, "A.Relighting: " + awaitingRelightingCounter.ToString(), new Vector2(680, 112), Color.White);
-            debugSpriteBatch.DrawString(debugFont, "Ready: " + readyCounter.ToString(), new Vector2(680, 128), Color.White); 
+            debugSpriteBatch.DrawString(debugFont, "Chunks: " + totalChunksCounter.ToString(), chunksVector2, Color.White);
+            debugSpriteBatch.DrawString(debugFont, "A.Generate: " + awaitingGenerateCounter.ToString(), awaitingGenerateVector2, Color.White);
+            debugSpriteBatch.DrawString(debugFont, "Generating: " + generatingCounter.ToString(), generatingVector2, Color.White);
+            debugSpriteBatch.DrawString(debugFont, "A.Lighting: " + awaitingLightingCounter.ToString(), awaitingLightingVector2, Color.White);
+            debugSpriteBatch.DrawString(debugFont, "Lighting: " + lightingCounter.ToString(), lightingVector2, Color.White);
+            debugSpriteBatch.DrawString(debugFont, "A.Build: " + awaitingBuildCounter.ToString(), awaitingBuildVector2, Color.White);
+            debugSpriteBatch.DrawString(debugFont, "A.Rebuild: " + awaitingRebuildCounter.ToString(), awaitingRebuildVector2, Color.White);
+            debugSpriteBatch.DrawString(debugFont, "A.Relighting: " + awaitingRelightingCounter.ToString(), awaitingRelightingVector2, Color.White);
+            debugSpriteBatch.DrawString(debugFont, "Ready: " + readyCounter.ToString(), readyVector2, Color.White); 
             debugSpriteBatch.End();
             #endregion
         }

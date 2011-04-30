@@ -53,7 +53,6 @@ namespace NewTake.view.renderers
         protected Effect _waterBlockEffect;
 
         protected Texture2D _textureAtlas;
-
         private VertexBuildChunkProcessor _vertexBuildChunkProcessor;
         private LightingChunkProcessor _lightingChunkProcessor;
 
@@ -76,7 +75,7 @@ namespace NewTake.view.renderers
         private FirstPersonCamera _camera;
         private World _world;
 
-        //private Vector3i _previousChunkIndex;
+        private Vector3i _previousChunkIndex;
 
         #region Atmospheric settings
         protected Vector4 NIGHTCOLOR = Color.Black.ToVector4();
@@ -105,6 +104,11 @@ namespace NewTake.view.renderers
         SpriteFont debugFont;
         Texture2D debugRectTexture;
         bool debugRectangle = true;
+        Vector2 genQVector2;
+        Vector2 lightQVector2;
+        Vector2 buildQVector2;
+        Vector2 memVector2;
+        Rectangle backgroundRectangle;
         #endregion
 
         #endregion
@@ -140,6 +144,12 @@ namespace NewTake.view.renderers
             debugRectTexture.GetData(texcol);
             texcol[0] = Color.Black;
             debugRectTexture.SetData(texcol);
+
+            genQVector2 = new Vector2(580, 0);
+            lightQVector2 = new Vector2(580, 16);
+            buildQVector2 = new Vector2(580, 32);
+            memVector2 = new Vector2(580, 48);
+            backgroundRectangle = new Rectangle(580, 0, 100, 144);
             #endregion
 
             #region Thread creation
@@ -219,7 +229,7 @@ namespace NewTake.view.renderers
         {
             lock (this)
             {
-                //Debug.WriteLine("DoGenerate " + chunkIndex);
+                Debug.WriteLine("DoGenerate " + chunk);
                 
                 if (chunk == null)
                 {
@@ -261,7 +271,7 @@ namespace NewTake.view.renderers
         {
             lock (this)
             {
-                //Debug.WriteLine("DoLighting " + chunkIndex);
+                Debug.WriteLine("DoLighting " + chunk);
                 
                 //TODO chunk happens to be null here sometime : it was not null when enqueued , it became null after
                 // => cancel this lighting
@@ -302,7 +312,7 @@ namespace NewTake.view.renderers
         {
             lock (this)
             {
-                //Debug.WriteLine("DoBuild " + chunkIndex);              
+                Debug.WriteLine("DoBuild " + chunk);              
                 if (chunk == null) return null;
                 if (chunk.State == ChunkState.AwaitingBuild || chunk.State == ChunkState.AwaitingRebuild)
                 {
@@ -323,158 +333,158 @@ namespace NewTake.view.renderers
                 uint cameraX = (uint)(_camera.Position.X / Chunk.SIZE.X);
                 uint cameraZ = (uint)(_camera.Position.Z / Chunk.SIZE.Z);
 
-                Vector3i currentChunkIndex = new Vector3i(cameraX, 0, cameraZ); // GC.GetGeneration(0)
+                //Vector3i currentChunkIndex = new Vector3i(cameraX, 0, cameraZ); // GC.GetGeneration(0)
 
                 //if (_previousChunkIndex != currentChunkIndex)
                 //{
                 //    _previousChunkIndex = currentChunkIndex;
 
-                for (uint ix = cameraX - REMOVE_RANGE*2; ix < cameraX + REMOVE_RANGE*2; ix++)
-                {
-                    for (uint iz = cameraZ - REMOVE_RANGE*2; iz < cameraZ + REMOVE_RANGE*2; iz++)
+                    for (uint ix = cameraX - REMOVE_RANGE; ix < cameraX + REMOVE_RANGE; ix++)
                     {
-                        int distX = (int)(ix - cameraX);
-                        int distZ = (int)(iz - cameraZ);
-                        int xdir = 1, zdir = 1;
-                        if (distX < 0)
+                        for (uint iz = cameraZ - REMOVE_RANGE; iz < cameraZ + REMOVE_RANGE; iz++)
                         {
-                            distX = 0 - distX;
-                            xdir = -1;
-                        }
-                        if (distZ < 0)
-                        {
-                            distZ = 0 - distZ;
-                            zdir = -1;
-                        }
-
-                        Vector3i chunkIndex = new Vector3i(ix, 0, iz); // GC.GetGeneration(0)
-
-                        //Debug.WriteLine("currentChunkIndex = {0}, chunkIndex = {1}, distX = {2}, distZ = {3}", currentChunkIndex, chunkIndex, distX, distZ);
-                        #region Remove
-                        if (distX > GENERATE_RANGE || distZ > GENERATE_RANGE)
-                        {
-                            if (_world.Chunks[ix, iz] != null)
+                            int distX = (int)(ix - cameraX);
+                            int distZ = (int)(iz - cameraZ);
+                            int xdir = 1, zdir = 1;
+                            if (distX < 0)
                             {
-                                //Debug.WriteLine("Remove({0},{1}) ChunkCount = {2}", ix, iz, _world.viewableChunks.Count);
-                                _world.Chunks.Remove(ix, iz);
+                                distX = 0 - distX;
+                                xdir = -1;
                             }
-                            continue;
-                        }
-                        #endregion
-                        #region Generate
-                        if ((distX > LIGHT_RANGE || distZ > LIGHT_RANGE) && (distX < REMOVE_RANGE || distZ < REMOVE_RANGE)) 
-                        {
-                            if (_world.Chunks[ix, iz] == null)
+                            if (distZ < 0)
                             {
-                                uint removeX = ix, removeZ = iz;
+                                distZ = 0 - distZ;
+                                zdir = -1;
+                            }
 
-                                if (distX > LIGHT_RANGE) removeX = (uint)(ix - distX * xdir * 2);
-                                if (distZ > LIGHT_RANGE) removeZ = (uint)(iz - distZ * zdir * 2);
+                            Vector3i chunkIndex = new Vector3i(ix, 0, iz); // GC.GetGeneration(0)
 
-                                Chunk toReAssign = _world.Chunks[removeX, removeZ];
-                                if (toReAssign != null)
+                            //Debug.WriteLine("currentChunkIndex = {0}, chunkIndex = {1}, distX = {2}, distZ = {3}", currentChunkIndex, chunkIndex, distX, distZ);
+
+                            #region Remove
+                            if (distX > GENERATE_RANGE || distZ > GENERATE_RANGE)
+                            {
+                                if (_world.Chunks[ix, iz] != null)
                                 {
-                                    switch (toReAssign.State)
-                                    {
-                                        case ChunkState.Ready:
-                                            lock (this)
-                                            {
-                                                Chunk chunkGenerate = new Chunk(_world, chunkIndex);
-                                                chunkGenerate.State = ChunkState.AwaitingGenerate;
-                                                _world.Chunks[ix, iz] = chunkGenerate;
-                                                QueueGenerate(chunkIndex);
-                                                //toReAssign.Assign(chunkIndex);
-                                                //toReAssign.State = ChunkState.AwaitingGenerate;
-                                                //QueueGenerate(chunkIndex);
-                                            }
-                                            break;
-                                        case ChunkState.AwaitingGenerate:
-                                            lock (this)
-                                            {
-                                                QueueGenerate(chunkIndex);
-                                            }
-                                            break;
-                                        case ChunkState.AwaitingLighting:
-                                            break;
-                                        case ChunkState.AwaitingBuild:
-                                            lock (this)
-                                            {
-                                                DoBuild(toReAssign);
-                                            }
-                                            break;
-                                        case ChunkState.AwaitingRebuild:
-                                            lock (this)
-                                            {
-                                                DoBuild(toReAssign);
-                                            }
-                                            break;
-                                        default:
-                                            //Debug.WriteLine("Generate: State = {0}", toReAssign.State);
-                                            break;
-                                    }
+                                    //Debug.WriteLine("Remove({0},{1}) ChunkCount = {2}", ix, iz, _world.viewableChunks.Count);
+                                    _world.Chunks.Remove(ix, iz);
                                 }
-                                else
+                                continue;
+                            }
+                            #endregion
+                            #region Generate
+                            if ((distX > LIGHT_RANGE || distZ > LIGHT_RANGE) && (distX < REMOVE_RANGE || distZ < REMOVE_RANGE)) 
+                            {
+                                if (_world.Chunks[ix, iz] == null)
                                 {
-                                    // for some reason we have identified a null chunk, therefore create one temporarily
-                                    lock (this)
+                                    uint removeX = ix, removeZ = iz;
+
+                                    if (distX > LIGHT_RANGE) removeX = (uint)(ix - distX * xdir * 2);
+                                    if (distZ > LIGHT_RANGE) removeZ = (uint)(iz - distZ * zdir * 2);
+
+                                    Chunk toReAssign = _world.Chunks[removeX, removeZ];
+                                    if (toReAssign != null)
                                     {
-                                        Chunk chunkGenerate = new Chunk(_world, chunkIndex);
-                                        chunkGenerate.State = ChunkState.AwaitingGenerate;
-                                        _world.Chunks[ix, iz] = chunkGenerate;
-                                        QueueGenerate(chunkIndex);
+                                        switch (toReAssign.State)
+                                        {
+                                            case ChunkState.Ready:
+                                                lock (this)
+                                                {
+                                                    //Chunk chunkGenerate = new Chunk(_world, chunkIndex);
+                                                    //chunkGenerate.State = ChunkState.AwaitingGenerate;
+                                                    //_world.Chunks[ix, iz] = chunkGenerate;
+                                                    QueueGenerate(chunkIndex);
+                                                    toReAssign.Assign(chunkIndex);
+                                                    toReAssign.State = ChunkState.AwaitingGenerate;
+                                                    QueueGenerate(chunkIndex);
+                                                }
+                                                break;
+                                            case ChunkState.AwaitingGenerate:
+                                                lock (this)
+                                                {
+                                                    QueueGenerate(chunkIndex);
+                                                }
+                                                break;
+                                            case ChunkState.AwaitingLighting:
+                                                break;
+                                            case ChunkState.AwaitingBuild:
+                                                lock (this)
+                                                {
+                                                    DoBuild(toReAssign);
+                                                }
+                                                break;
+                                            case ChunkState.AwaitingRebuild:
+                                                lock (this)
+                                                {
+                                                    DoBuild(toReAssign);
+                                                }
+                                                break;
+                                            default:
+                                                //Debug.WriteLine("Generate: State = {0}", toReAssign.State);
+                                                break;
+                                        }
                                     }
+                                    //else
+                                    //{
+                                    //    // for some reason we have identified a null chunk, therefore create one temporarily
+                                    //    lock (this)
+                                    //    {
+                                    //        Chunk chunkGenerate = new Chunk(_world, chunkIndex);
+                                    //        chunkGenerate.State = ChunkState.AwaitingGenerate;
+                                    //        _world.Chunks[ix, iz] = chunkGenerate;
+                                    //        QueueGenerate(chunkIndex);
+                                    //    }
+                                    //}
+                                }
+                                continue;
+                            }
+                            #endregion
+                            #region Light
+                            if (distX >= LIGHT_RANGE || distZ >= LIGHT_RANGE)
+                            {
+                                Chunk chunk = _world.Chunks[ix, iz];
+                                if (chunk != null && chunk.State == ChunkState.AwaitingLighting)
+                                {
+                                    QueueLighting(chunkIndex);
+                                }
+                                continue;
+                            }
+                            #endregion
+                            #region Rebuild
+                            Chunk rebuildChunk = _world.Chunks[ix, iz];
+                            if (rebuildChunk != null)
+                            {
+                                if (rebuildChunk.State == ChunkState.AwaitingRelighting)
+                                {
+                                    QueueLighting(chunkIndex);
+                                }
+                                if (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild)
+                                {
+                                    QueueBuild(chunkIndex);
                                 }
                             }
-                            continue;
+                            #endregion
                         }
-                        #endregion
-                        #region Light
-                        if (distX >= LIGHT_RANGE || distZ >= LIGHT_RANGE)
-                        {
-                            Chunk chunk = _world.Chunks[ix, iz];
-                            if (chunk != null && chunk.State == ChunkState.AwaitingLighting)
-                            {
-                                QueueLighting(chunkIndex);
-                            }
-                            continue;
-                        }
-                        #endregion
-                        #region Rebuild
-                        Chunk rebuildChunk = _world.Chunks[ix, iz];
-                        if (rebuildChunk != null)
-                        {
-                            if (rebuildChunk.State == ChunkState.AwaitingRelighting)
-                            {
-                                QueueLighting(chunkIndex);
-                            }
-                            if (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild)
-                            {
-                                QueueBuild(chunkIndex);
-                            }
-                        }
-                        #endregion
                     }
-                }
-                Thread.Sleep(1);
+
                 //}
+                Thread.Sleep(1);
             }
         }
         #endregion
         #region WorkerThread
         private void WorkerThread()
         {
-            Vector3i target = new Vector3i(0, 0, 0);
-            bool foundGenerate, foundLighting, foundBuild;
 
+            bool foundGenerate, foundLighting, foundBuild;
+            Vector3i target = new Vector3i(0, 0, 0);
             while (_running)
             {
                 foundGenerate = false;
                 foundLighting = false;
                 foundBuild = false;
 
-                //if (_generateQueue.Count != 0 || _lightingQueue.Count != 0 || _buildQueue.Count != 0)
-                //    Debug.WriteLine("_gQ = {0}, _lQ = {1}, _bQ = {2}", _generateQueue.Count, _lightingQueue.Count, _buildQueue.Count);
-
+                #region Generate
                 // LOOK FOR CHUNKS REQUIRING GENERATION
                 lock (_generateQueue)
                 {
@@ -503,7 +513,8 @@ namespace NewTake.view.renderers
                     }
                     continue;
                 }
-
+                #endregion
+                #region Light
                 // LOOK FOR CHUNKS REQUIRING LIGHTING
                 lock (_lightingQueue)
                 {
@@ -527,12 +538,14 @@ namespace NewTake.view.renderers
                     catch (NullReferenceException e)
                     {
                         Debug.WriteLine("NullReferenceException DoLighting target = {0}", target);
-                        if (Game1.throwExceptions) throw e; 
+                        if (Game1.throwExceptions) throw e;
+
                         DoGenerate(target);
                     }
                     continue;
                 }
-
+                #endregion
+                #region Build
                 // LOOK FOR CHUNKS REQUIRING BUILD
                 lock (_buildQueue)
                 {
@@ -561,7 +574,9 @@ namespace NewTake.view.renderers
                     }
                     continue;
                 }
-                Thread.Sleep(20);
+                #endregion
+
+                Thread.Sleep(10);
             }
         }
         #endregion
@@ -966,6 +981,7 @@ namespace NewTake.view.renderers
         }
         #endregion
 
+        #region Draw
         public void Draw(GameTime gameTime)
         {
             DrawSolid(gameTime);
@@ -976,17 +992,17 @@ namespace NewTake.view.renderers
 
             if (debugRectangle)
             {
-                Rectangle r = new Rectangle(580, 0, 100, 144);
-                debugSpriteBatch.Draw(debugRectTexture, r, Color.Black);
+                debugSpriteBatch.Draw(debugRectTexture, backgroundRectangle, Color.Black);
             }
-            long workingSet = System.Diagnostics.Process.GetCurrentProcess().WorkingSet64;
-            debugSpriteBatch.DrawString(debugFont, "GenQ: " + _generateQueue.Count.ToString(), new Vector2(580, 0), Color.White);
-            debugSpriteBatch.DrawString(debugFont, "LightQ: " + _lightingQueue.Count.ToString(), new Vector2(580, 16), Color.White);
-            debugSpriteBatch.DrawString(debugFont, "BuildQ: " + _buildQueue.Count.ToString(), new Vector2(580, 32), Color.White);
-            debugSpriteBatch.DrawString(debugFont, (GC.GetTotalMemory(false)/(1024*1024)).ToString() + "MB/" + workingSet/(1024*1024) + "MB", new Vector2(580, 48), Color.White);
+            //long workingSet = System.Diagnostics.Process.GetCurrentProcess().WorkingSet64;
+            debugSpriteBatch.DrawString(debugFont, "GenQ: " + _generateQueue.Count.ToString(), genQVector2, Color.White);
+            debugSpriteBatch.DrawString(debugFont, "LightQ: " + _lightingQueue.Count.ToString(), lightQVector2, Color.White);
+            debugSpriteBatch.DrawString(debugFont, "BuildQ: " + _buildQueue.Count.ToString(), buildQVector2, Color.White);
+            //debugSpriteBatch.DrawString(debugFont, (GC.GetTotalMemory(false) / (1024 * 1024)).ToString() + "MB/" + workingSet / (1024 * 1024) + "MB", memVector2, Color.White);
             debugSpriteBatch.End();
             #endregion
         }
+        #endregion
 
     }
 }

@@ -97,7 +97,7 @@ namespace NewTake.model
 
         public World()
         {
-            //viewableChunks = new Dictionary2<Chunk>();//
+            //Chunks = new Dictionary2<Chunk>();//
             Chunks = new ChunkManager(new MockChunkPersistence(this));
         }
 
