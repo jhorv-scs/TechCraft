@@ -268,7 +268,7 @@ namespace NewTake.view
         {
             //TODO draw the player / 3rd person /  tools
 
-            RenderSelectionBlock(gameTime);
+            //RenderSelectionBlock(gameTime);
         }
         #endregion
 

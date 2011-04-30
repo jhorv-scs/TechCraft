@@ -317,17 +317,17 @@ namespace NewTake.view.renderers
                         Vector3i chunkIndex = new Vector3i(ix, 0, iz); // GC.GetGeneration(0)
 
                         //Debug.WriteLine("currentChunkIndex = {0}, chunkIndex = {1}, distX = {2}, distZ = {3}", currentChunkIndex, chunkIndex, distX, distZ);
-                        //#region Remove
-                        //if (distX > GENERATE_RANGE || distZ > GENERATE_RANGE)
-                        //{
-                        //    if (_world.viewableChunks[ix, iz] != null)
-                        //    {
-                        //        //Debug.WriteLine("Remove({0},{1}) ChunkCount = {2}", ix, iz, _world.viewableChunks.Count);
-                        //        //_world.viewableChunks.Remove(ix, iz);
-                        //    }
-                        //    continue;
-                        //}
-                        //#endregion
+                        #region Remove
+                        if (distX > GENERATE_RANGE || distZ > GENERATE_RANGE)
+                        {
+                            if (_world.viewableChunks[ix, iz] != null)
+                            {
+                                //Debug.WriteLine("Remove({0},{1}) ChunkCount = {2}", ix, iz, _world.viewableChunks.Count);
+                                _world.viewableChunks.Remove(ix, iz);
+                            }
+                            continue;
+                        }
+                        #endregion
                         #region Generate
                         if ((distX > LIGHT_RANGE || distZ > LIGHT_RANGE) && (distX < REMOVE_RANGE || distZ < REMOVE_RANGE)) 
                         {
@@ -346,9 +346,13 @@ namespace NewTake.view.renderers
                                         case ChunkState.Ready:
                                             lock (this)
                                             {
-                                                toReAssign.Assign(chunkIndex);
-                                                toReAssign.State = ChunkState.AwaitingGenerate;
+                                                Chunk chunkGenerate = new Chunk(_world, chunkIndex);
+                                                chunkGenerate.State = ChunkState.AwaitingGenerate;
+                                                _world.viewableChunks[ix, iz] = chunkGenerate;
                                                 QueueGenerate(chunkIndex);
+                                                //toReAssign.Assign(chunkIndex);
+                                                //toReAssign.State = ChunkState.AwaitingGenerate;
+                                                //QueueGenerate(chunkIndex);
                                             }
                                             break;
                                         case ChunkState.AwaitingGenerate:
@@ -376,7 +380,56 @@ namespace NewTake.view.renderers
                                             break;
                                     }
                                 }
+                                else
+                                {
+                                    // for some reason we have identified a null chunk, therefore create one temporarily
+                                    lock (this)
+                                    {
+                                        Chunk chunkGenerate = new Chunk(_world, chunkIndex);
+                                        chunkGenerate.State = ChunkState.AwaitingGenerate;
+                                        _world.viewableChunks[ix, iz] = chunkGenerate;
+                                        QueueGenerate(chunkIndex);
+                                    }
+                                }
                             }
+                            //else
+                            //{
+                            //    Chunk toReAssign = _world.viewableChunks[ix, iz];
+                            //    switch (toReAssign.State)
+                            //    {
+                            //            case ChunkState.Ready:
+                            //                lock (this)
+                            //                {
+                            //                    //toReAssign.Assign(chunkIndex);
+                            //                    //toReAssign.State = ChunkState.AwaitingGenerate;
+                            //                    QueueGenerate(chunkIndex);
+                            //                }
+                            //                break;
+                            //            case ChunkState.AwaitingGenerate:
+                            //                lock (this)
+                            //                {
+                            //                    QueueGenerate(chunkIndex);
+                            //                }
+                            //                break;
+                            //            case ChunkState.AwaitingLighting:
+                            //                break;
+                            //            case ChunkState.AwaitingBuild:
+                            //                lock (this)
+                            //                {
+                            //                    DoBuild(chunkIndex);
+                            //                }
+                            //                break;
+                            //            case ChunkState.AwaitingRebuild:
+                            //                lock (this)
+                            //                {
+                            //                    DoBuild(chunkIndex);
+                            //                }
+                            //                break;
+                            //            default:
+                            //                Debug.WriteLine("Generate: State = {0}", toReAssign.State);
+                            //                break;
+                            //    }
+                            //}
                             continue;
                         }
                         #endregion
@@ -387,7 +440,7 @@ namespace NewTake.view.renderers
                             if (chunk != null && chunk.State == ChunkState.AwaitingLighting)
                             {
                                 QueueLighting(chunkIndex);
-                                chunk.State = ChunkState.AwaitingLighting;
+                                //chunk.State = ChunkState.AwaitingLighting;
                             }
                             continue;
                         }
@@ -399,10 +452,12 @@ namespace NewTake.view.renderers
                             if (rebuildChunk.State == ChunkState.AwaitingRelighting)
                             {
                                 QueueLighting(chunkIndex);
+                                //rebuildChunk.State = ChunkState.AwaitingRelighting;
                             }
                             if (rebuildChunk.State == ChunkState.AwaitingRebuild || rebuildChunk.State == ChunkState.AwaitingBuild)
                             {
                                 QueueBuild(chunkIndex);
+                                //rebuildChunk.State = ChunkState.AwaitingBuild;
                             }
                         }
                         #endregion
@@ -479,7 +534,7 @@ namespace NewTake.view.renderers
                     catch (NullReferenceException)
                     {
                         Debug.WriteLine("NullReferenceException DoLighting target = {0}", target);
-                        DoLighting(target);
+                        DoGenerate(target);
                     }
                     continue;
                 }
@@ -507,7 +562,7 @@ namespace NewTake.view.renderers
                     catch (NullReferenceException)
                     {
                         Debug.WriteLine("NullReferenceException DoBuild target = {0}", target);
-                        DoBuild(target);
+                        DoGenerate(target);
                     }
                     continue;
                 }
