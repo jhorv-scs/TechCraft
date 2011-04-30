@@ -119,6 +119,7 @@
     <Compile Include="model\persistence\ChunkPersistence.cs" />
     <Compile Include="model\persistence\FakeChunkPersistence.cs" />
     <Compile Include="model\persistence\IChunkPersistence.cs" />
+    <Compile Include="model\tools\BlockDebugger.cs" />
     <Compile Include="model\types\SignedVector3i.cs" />
     <Compile Include="model\types\Vector3b.cs" />
     <Compile Include="model\types\Dictionary2.cs" />
