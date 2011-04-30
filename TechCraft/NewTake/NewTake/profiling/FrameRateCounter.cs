@@ -72,7 +72,7 @@ namespace NewTake.profiling
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            spriteFont = content.Load<SpriteFont>("Fonts/console");
+            spriteFont = content.Load<SpriteFont>("Fonts/OSDDisplay");
         }
 
         #region Update

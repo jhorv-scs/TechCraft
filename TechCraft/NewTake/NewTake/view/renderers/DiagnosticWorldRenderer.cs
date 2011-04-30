@@ -107,7 +107,7 @@ namespace NewTake.view.renderers
         public void LoadContent(ContentManager content)
         {
             debugSpriteBatch = new SpriteBatch(_graphicsDevice);
-            debugFont = content.Load<SpriteFont>("Fonts\\debug");
+            debugFont = content.Load<SpriteFont>("Fonts\\OSDdisplay");
         }
 
         public void Update(GameTime gameTime)
