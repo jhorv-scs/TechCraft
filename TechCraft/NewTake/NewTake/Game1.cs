@@ -78,6 +78,8 @@ namespace NewTake
 
         private SkyDomeRenderer skyDomeRenderer;
 
+        public static bool throwExceptions = true;
+
         #endregion
 
         public Game1()
