@@ -397,12 +397,14 @@ namespace NewTake.view.renderers
                                             case ChunkState.Ready:
                                                 lock (this)
                                                 {
-                                                    //Chunk chunkGenerate = new Chunk(_world, chunkIndex);
-                                                    //chunkGenerate.State = ChunkState.AwaitingGenerate;
-                                                    //_world.Chunks[ix, iz] = chunkGenerate;
-                                                    QueueGenerate(chunkIndex);
-                                                    toReAssign.Assign(chunkIndex);
-                                                    toReAssign.State = ChunkState.AwaitingGenerate;
+                                                    Chunk chunkGenerate = new Chunk(_world, chunkIndex);
+                                                    chunkGenerate.State = ChunkState.AwaitingGenerate;
+                                                    _world.Chunks[ix, iz] = chunkGenerate;
+                                                    _world.Chunks.Remove(removeX, removeZ);                                                   
+                                                    //reassign is not ready, make the rest work first
+                                                    //toReAssign.Assign(chunkIndex);
+                                                    //toReAssign.State = ChunkState.AwaitingGenerate;
+                                                    
                                                     QueueGenerate(chunkIndex);
                                                 }
                                                 break;
