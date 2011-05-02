@@ -129,10 +129,10 @@ namespace NewTake
             renderer = new SimpleRenderer(GraphicsDevice, player1Renderer.camera, world);
             
             diagnosticWorldRenderer = new DiagnosticWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
-            //skyDomeRenderer = new SkyDomeRenderer(GraphicsDevice, player1Renderer.camera, world);
+            skyDomeRenderer = new SkyDomeRenderer(GraphicsDevice, player1Renderer.camera, world);
             renderer.Initialize();
             diagnosticWorldRenderer.Initialize();
-            //skyDomeRenderer.Initialize();
+            skyDomeRenderer.Initialize();
             #endregion
 
             //TODO refactor WorldRenderer needs player position + view frustum 
@@ -156,7 +156,7 @@ namespace NewTake
         {
             renderer.LoadContent(Content);
             diagnosticWorldRenderer.LoadContent(Content);
-            //skyDomeRenderer.LoadContent(Content);
+            skyDomeRenderer.LoadContent(Content);
             player1Renderer.LoadContent(Content);
             hud.LoadContent(Content);
         }
@@ -345,7 +345,7 @@ namespace NewTake
                     player1Renderer.Update(gameTime);
                 }
 
-                //skyDomeRenderer.Update(gameTime);
+                skyDomeRenderer.Update(gameTime);
                 renderer.Update(gameTime);
                 if (_diagnosticMode)
                 {
@@ -365,7 +365,7 @@ namespace NewTake
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            //skyDomeRenderer.Draw(gameTime);
+            skyDomeRenderer.Draw(gameTime);
             renderer.Draw(gameTime);
             if (_diagnosticMode)
             {

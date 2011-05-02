@@ -74,6 +74,21 @@ namespace NewTake.model
         public bool dayMode = false;
         public bool nightMode = false;
 
+        #region Atmospheric settings
+        public Vector4 NIGHTCOLOR = Color.Black.ToVector4();
+        public Vector4 SUNCOLOR = Color.White.ToVector4();
+        public Vector4 HORIZONCOLOR = Color.White.ToVector4();
+
+        public Vector4 EVENINGTINT = Color.Red.ToVector4();
+        public Vector4 MORNINGTINT = Color.Gold.ToVector4();
+
+        //private float _tod;
+        //public bool dayMode = false;
+        //public bool nightMode = false;
+        public int FOGNEAR = 14 * 16;//(BUILD_RANGE - 1) * 16;
+        public float FOGFAR = 16 * 16;//(BUILD_RANGE + 1) * 16;
+        #endregion
+
         #endregion
 
         #region choose terrain generation
