@@ -24,26 +24,12 @@ namespace NewTake.view.renderers
         private FirstPersonCamera _camera;
         private World _world;
 
-
         private const byte BUILD_RANGE = 15;
         private const byte LIGHT_RANGE = BUILD_RANGE + 1;
         private const byte GENERATE_RANGE_LOW = LIGHT_RANGE + 1;
         private const byte GENERATE_RANGE_HIGH = GENERATE_RANGE_LOW;
 
-        #region Atmospheric settings
-        protected Vector4 NIGHTCOLOR = Color.Black.ToVector4();
-        public Vector4 SUNCOLOR = Color.White.ToVector4();
-        protected Vector4 HORIZONCOLOR = Color.White.ToVector4();
-
-        protected Vector4 EVENINGTINT = Color.Red.ToVector4();
-        protected Vector4 MORNINGTINT = Color.Gold.ToVector4();
-
         private float _tod;
-        public bool dayMode = false;
-        public bool nightMode = false;
-        public const int FOGNEAR = 14 * 16;//(BUILD_RANGE - 1) * 16;
-        public const float FOGFAR = 16 * 16;//(BUILD_RANGE + 1) * 16;
-        #endregion
 
         public SimpleRenderer(GraphicsDevice graphicsDevice, FirstPersonCamera camera, World world)
         {
@@ -77,6 +63,34 @@ namespace NewTake.view.renderers
         public void Update(Microsoft.Xna.Framework.GameTime gameTime)
         {
 
+            uint cameraX = (uint)(_camera.Position.X / Chunk.SIZE.X);
+            uint cameraZ = (uint)(_camera.Position.Z / Chunk.SIZE.Z);
+
+            for (uint ix = cameraX - BUILD_RANGE; ix < cameraX + BUILD_RANGE; ix++)
+            {
+                for (uint iz = cameraZ - BUILD_RANGE; iz < cameraZ + BUILD_RANGE; iz++)
+                {
+                    Chunk rebuildChunk = _world.Chunks[ix, iz];
+
+                    if (rebuildChunk != null)
+                    {
+                        switch (rebuildChunk.State)
+                        {
+                            case ChunkState.AwaitingRelighting:
+                                DoLighting(rebuildChunk);
+                                rebuildChunk.State = ChunkState.AwaitingRebuild;
+                                break;
+                            case ChunkState.AwaitingRebuild:
+                                DoBuild(rebuildChunk);
+                                rebuildChunk.State = ChunkState.Ready;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                }
+            }
         }
 
         public void Draw(Microsoft.Xna.Framework.GameTime gameTime)
@@ -95,17 +109,17 @@ namespace NewTake.view.renderers
             _solidBlockEffect.Parameters["View"].SetValue(_camera.View);
             _solidBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
             _solidBlockEffect.Parameters["CameraPosition"].SetValue(_camera.Position);
-            _solidBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
-            _solidBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
+            _solidBlockEffect.Parameters["FogNear"].SetValue(_world.FOGNEAR);
+            _solidBlockEffect.Parameters["FogFar"].SetValue(_world.FOGFAR);
             _solidBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
 
-            _solidBlockEffect.Parameters["HorizonColor"].SetValue(HORIZONCOLOR);
-            _solidBlockEffect.Parameters["NightColor"].SetValue(NIGHTCOLOR);
+            _solidBlockEffect.Parameters["HorizonColor"].SetValue(_world.HORIZONCOLOR);
+            _solidBlockEffect.Parameters["NightColor"].SetValue(_world.NIGHTCOLOR);
 
-            _solidBlockEffect.Parameters["MorningTint"].SetValue(MORNINGTINT);
-            _solidBlockEffect.Parameters["EveningTint"].SetValue(EVENINGTINT);
+            _solidBlockEffect.Parameters["MorningTint"].SetValue(_world.MORNINGTINT);
+            _solidBlockEffect.Parameters["EveningTint"].SetValue(_world.EVENINGTINT);
 
-            _solidBlockEffect.Parameters["SunColor"].SetValue(SUNCOLOR);
+            _solidBlockEffect.Parameters["SunColor"].SetValue(_world.SUNCOLOR);
             _solidBlockEffect.Parameters["timeOfDay"].SetValue(_tod);
 
             BoundingFrustum viewFrustum = new BoundingFrustum(_camera.View * _camera.Projection);
@@ -147,16 +161,16 @@ namespace NewTake.view.renderers
             _waterBlockEffect.Parameters["View"].SetValue(_camera.View);
             _waterBlockEffect.Parameters["Projection"].SetValue(_camera.Projection);
             _waterBlockEffect.Parameters["CameraPosition"].SetValue(_camera.Position);
-            _waterBlockEffect.Parameters["FogNear"].SetValue(FOGNEAR);
-            _waterBlockEffect.Parameters["FogFar"].SetValue(FOGFAR);
+            _waterBlockEffect.Parameters["FogNear"].SetValue(_world.FOGNEAR);
+            _waterBlockEffect.Parameters["FogFar"].SetValue(_world.FOGFAR);
             _waterBlockEffect.Parameters["Texture1"].SetValue(_textureAtlas);
-            _waterBlockEffect.Parameters["SunColor"].SetValue(SUNCOLOR);
+            _waterBlockEffect.Parameters["SunColor"].SetValue(_world.SUNCOLOR);
 
-            _waterBlockEffect.Parameters["HorizonColor"].SetValue(HORIZONCOLOR);
-            _waterBlockEffect.Parameters["NightColor"].SetValue(NIGHTCOLOR);
+            _waterBlockEffect.Parameters["HorizonColor"].SetValue(_world.HORIZONCOLOR);
+            _waterBlockEffect.Parameters["NightColor"].SetValue(_world.NIGHTCOLOR);
 
-            _waterBlockEffect.Parameters["MorningTint"].SetValue(MORNINGTINT);
-            _waterBlockEffect.Parameters["EveningTint"].SetValue(EVENINGTINT);
+            _waterBlockEffect.Parameters["MorningTint"].SetValue(_world.MORNINGTINT);
+            _waterBlockEffect.Parameters["EveningTint"].SetValue(_world.EVENINGTINT);
 
             _waterBlockEffect.Parameters["timeOfDay"].SetValue(_tod);
             _waterBlockEffect.Parameters["RippleTime"].SetValue(rippleTime);
@@ -189,11 +203,8 @@ namespace NewTake.view.renderers
         }
         #endregion
 
-      
-
         public void Stop()
         {
-
         }
 
         private Chunk DoLighting(Vector3i chunkIndex)
