@@ -46,8 +46,6 @@ namespace NewTake.model
 
         #region Fields
 
-        //public Dictionary2<Chunk> viewableChunks;
-        //too experimental for now 
         public ChunkManager Chunks;
 
         //public const byte VIEW_CHUNKS_X = 8;
@@ -80,9 +78,9 @@ namespace NewTake.model
 
         #region choose terrain generation
         //public IChunkGenerator Generator = new SimpleTerrain();
-        public IChunkGenerator Generator = new FlatReferenceTerrain();
+        //public IChunkGenerator Generator = new FlatReferenceTerrain();
         //public IChunkGenerator Generator = new TerrainWithCaves();
-        //public IChunkGenerator Generator = new DualLayerTerrainWithMediumValleysForRivers();
+        public IChunkGenerator Generator = new DualLayerTerrainWithMediumValleysForRivers();
 
         // Biomes
         //public IChunkGenerator Generator = new Tundra_Alpine();
@@ -104,9 +102,10 @@ namespace NewTake.model
         #region visitChunks
         public void visitChunks(Func<Vector3i,Chunk> visitor,byte radius)
         {
-            for (uint x = origin - radius; x < origin + radius; x++)
+            //+1 is for having the player on a center chunk
+            for (uint x = origin - radius; x < origin + radius+1; x++)
             {
-                for (uint z = origin - radius; z < origin + radius; z++)
+                for (uint z = origin - radius; z < origin + radius+1; z++)
                 {
                     visitor(new Vector3i(x, 0, z));
                 }

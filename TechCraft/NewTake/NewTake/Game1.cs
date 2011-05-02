@@ -125,7 +125,9 @@ namespace NewTake
 
             #region choose renderer
 
-            renderer = new ThreadedWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            //renderer = new ThreadedWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
+            renderer = new SimpleRenderer(GraphicsDevice, player1Renderer.camera, world);
+            
             diagnosticWorldRenderer = new DiagnosticWorldRenderer(GraphicsDevice, player1Renderer.camera, world);
             //skyDomeRenderer = new SkyDomeRenderer(GraphicsDevice, player1Renderer.camera, world);
             renderer.Initialize();

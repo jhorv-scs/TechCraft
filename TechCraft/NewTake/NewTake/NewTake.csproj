@@ -170,6 +170,7 @@
     <Compile Include="view\processors\VertexBuildChunkProcessor.cs" />
     <Compile Include="view\renderers\DiagnosticWorldRenderer.cs" />
     <Compile Include="view\renderers\IRenderer.cs" />
+    <Compile Include="view\renderers\SimpleRenderer.cs" />
     <Compile Include="view\renderers\SkyDomeRenderer.cs" />
     <Compile Include="view\renderers\ThreadedWorldRenderer.cs" />
     <Compile Include="view\blocks\VertexPositionTextureShade.cs" />
