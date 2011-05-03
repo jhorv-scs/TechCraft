@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NewTake.model.types;
+using System.Diagnostics;
 
 namespace NewTake.model.tools
 {
@@ -39,17 +40,18 @@ namespace NewTake.model.tools
 
         public override void Use()
         {
-
+            Debug.WriteLine(player.currentSelection);
             if (player.currentSelection.HasValue)
             {
+                Debug.WriteLine(player.targetPoint);
                 PositionedBlock b = player.currentSelection.Value;
                 Vector3i pos = b.position;
                 Chunk c = this.player.world.ChunkAt(pos.asVector3());
                 debug(c, "current");
-                foreach (Cardinal card in Enum.GetValues(typeof(Cardinal)))
+                /*foreach (Cardinal card in Enum.GetValues(typeof(Cardinal)))
                 {
                     debug(c.GetNeighbour(card), card.ToString());
-                }
+                }*/
 
 
 
