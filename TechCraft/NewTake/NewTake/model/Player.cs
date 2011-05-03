@@ -57,6 +57,7 @@ namespace NewTake.model
         public Tool RightTool;
 
         public Tool AutoTool;
+        public Vector3 targetPoint;
 
 
         //keep it stupid simple for now, left hand/mousebutton & right hand/mousebutton

@@ -60,38 +60,29 @@ namespace NewTake.view.renderers
 
         }
 
-        public void Update(Microsoft.Xna.Framework.GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
 
-            uint cameraX = (uint)(_camera.Position.X / Chunk.SIZE.X);
-            uint cameraZ = (uint)(_camera.Position.Z / Chunk.SIZE.Z);
-
-            for (uint ix = cameraX - BUILD_RANGE; ix < cameraX + BUILD_RANGE; ix++)
-            {
-                for (uint iz = cameraZ - BUILD_RANGE; iz < cameraZ + BUILD_RANGE; iz++)
-                {
-                    Chunk rebuildChunk = _world.Chunks[ix, iz];
-
-                    if (rebuildChunk != null)
-                    {
-                        switch (rebuildChunk.State)
-                        {
-                            case ChunkState.AwaitingRelighting:
-                                DoLighting(rebuildChunk);
-                                rebuildChunk.State = ChunkState.AwaitingRebuild;
-                                break;
-                            case ChunkState.AwaitingRebuild:
-                                DoBuild(rebuildChunk);
-                                rebuildChunk.State = ChunkState.Ready;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-
-                }
-            }
         }
+
+        public void RebuildChunk(Chunk rebuildChunk)
+        {
+
+            switch (rebuildChunk.State)
+            {
+                case ChunkState.AwaitingRelighting:
+                    DoLighting(rebuildChunk);
+                    DoBuild(rebuildChunk);
+                    rebuildChunk.State = ChunkState.Ready;
+                    break;
+                case ChunkState.AwaitingRebuild:
+                    DoBuild(rebuildChunk);
+                    rebuildChunk.State = ChunkState.Ready;
+                    break;
+            }
+            
+        }
+        
 
         public void Draw(Microsoft.Xna.Framework.GameTime gameTime)
         {
@@ -134,6 +125,8 @@ namespace NewTake.view.renderers
                 foreach (Chunk chunk in _world.Chunks.Values)
                 {
                     if (chunk == null) continue;
+
+                    if (chunk.State != ChunkState.Ready) RebuildChunk(chunk);
 
                     if (chunk.BoundingBox.Intersects(viewFrustum) && chunk.IndexBuffer != null)
                     {
