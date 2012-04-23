@@ -104,13 +104,7 @@ namespace NewTake.view
         {
 
             GraphicsDevice.BlendState = BlendState.NonPremultiplied; // allows any transparent pixels in original PNG to draw transparent
-            /*
-            Vector3 intargetPoint = new Vector3(Math.Abs((uint)targetPoint.X),
-                                                Math.Abs((uint)targetPoint.Y),
-                                                Math.Abs((uint)targetPoint.Z)); // makes the targetpoint a non float
 
-            Vector3 position = intargetPoint + new Vector3(0.5f, 0.5f, 0.5f);
-            */
             if (!player.currentSelection.HasValue)
             {
                 return;
@@ -158,9 +152,6 @@ namespace NewTake.view
             }
         }
 
-
-        //sets player currentSelection (does nothing if no selection available, like looking ath the sky)
-        // returns x float where selection was found for further selection processing (eg finding adjacent block where to add a new block)
         private float setPlayerSelectedBlock(bool waterSelectable)
         {
             for (float x = 0.5f; x < 8f; x += 0.1f)
@@ -171,14 +162,13 @@ namespace NewTake.view
 
                 if (block.Type != BlockType.None && (waterSelectable || block.Type != BlockType.Water))
                 {
-                    //Debug.WriteLine(
-                    //    (Math.Abs((uint)targetPoint.X % Chunk.SIZE.X)) + "-" +
-                    //    (Math.Abs((uint)targetPoint.Y % Chunk.SIZE.Y)) + "-" +
-                    //    (Math.Abs((uint)targetPoint.Z % Chunk.SIZE.Z)) + "->" +
-                    //    blockType + ", x=" + x);
-
                     player.currentSelection = new PositionedBlock(new Vector3i(targetPoint), block);
                     return x;
+                }
+                else
+                {
+                    player.currentSelection = null;
+                    player.currentSelectedAdjacent = null;
                 }
             }
             return 0;
@@ -254,21 +244,19 @@ namespace NewTake.view
             player.RightTool.switchType(scrollWheelDelta);
             player.LeftTool.switchType(scrollWheelDelta);
 
-
-
-
             previousMouseState = Mouse.GetState();
         }
         #endregion
-
-        
 
         #region Draw
         public void Draw(GameTime gameTime)
         {
             //TODO draw the player / 3rd person /  tools
 
-            RenderSelectionBlock(gameTime);
+            if (player.currentSelection.HasValue)
+            {
+                RenderSelectionBlock(gameTime);
+            }
         }
         #endregion
 
